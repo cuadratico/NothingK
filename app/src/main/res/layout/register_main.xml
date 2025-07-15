@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegisterActivity"
+    android:background="@color/black"
+    >
+
+    <TextView
+        android:id="@+id/information_register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create your password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/opor"
+        android:layout_marginBottom="20dp"
+        android:textSize="20dp"
+        android:fontFamily="@font/matrix"
+        android:textAllCaps="false"
+        />
+
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Make sure no one is looking at the screen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/back_pass"
+        android:layout_marginBottom="20dp"
+        android:textSize="20dp"
+        android:fontFamily="@font/matrix"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        app:layout_constraintBaseline_toTopOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/opor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/matrix"
+        android:text="* * * * * * * * * *"
+        app:layout_constraintEnd_toEndOf="@id/back_pass"
+        app:layout_constraintStart_toStartOf="@id/back_pass"
+        app:layout_constraintBottom_toTopOf="@id/back_pass"
+        android:layout_marginBottom="10dp"
+        android:textSize="20dp"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/back_pass"
+        android:layout_width="320dp"
+        android:layout_height="100dp"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        >
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="7dp"
+            android:layout_marginStart="7dp"
+            />
+        <EditText
+            android:id="@+id/input_password"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:hint="Password here"
+            android:textColorHint="@color/n_grew"
+            android:textColor="@color/black"
+            android:fontFamily="monospace"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:maxWidth="200dp"
+            android:maxLines="2"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:inputType="textPassword"
+            />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progress_pass"
+            android:layout_width="100dp"
+            android:layout_height="5dp"
+            app:layout_constraintEnd_toEndOf="@id/input_password"
+            app:layout_constraintStart_toStartOf="@id/input_password"
+            app:layout_constraintTop_toBottomOf="@id/input_password"
+            app:trackColor="@color/n_white"
+            app:indicatorColor="@color/n_white"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/password_visibility"
+            android:layout_width="40dp"
+            android:layout_height="35dp"
+            android:background="@drawable/corner_25"
+            android:backgroundTint="@color/b_black"
+            app:layout_constraintEnd_toEndOf="@id/back_pass"
+            app:layout_constraintTop_toTopOf="@id/back_pass"
+            app:layout_constraintBottom_toBottomOf="@id/back_pass"
+            app:layout_constraintStart_toEndOf="@id/input_password"
+            >
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/visibility_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/close_eye"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/create_password"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/back_pass"
+        android:layout_marginTop="20dp"
+        >
+
+        <TextView
+            android:id="@+id/text_create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create"
+            android:textColor="@color/b_black"
+            android:fontFamily="monospace"
+            android:textSize="19dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="10dp"
+            />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_r"
+            app:layout_constraintTop_toTopOf="@id/text_create"
+            app:layout_constraintBottom_toBottomOf="@id/text_create"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/text_create"
+            android:layout_marginTop="3dp"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

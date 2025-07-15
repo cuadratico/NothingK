@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+
+    <color name="n_white">#e3e3e3</color>
+    <color name="n_grew">#1c1c1c</color>
+    <color name="n_red">#d71b1f</color>
+    <color name="b_black">#1b1b1d</color>
+
+    <color name="red">#aa4040</color>
+    <color name="orange">#c9a23e</color>
+    <color name="green">#40aa47</color>
+
+
+
+</resources>

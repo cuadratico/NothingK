@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+  <group android:scaleX="0.4"
+      android:scaleY="0.4"
+      android:translateX="60"
+      android:translateY="60">
+
+      <!-- Palo vertical de la K (140 unidades de altura) -->
+      <path
+          android:pathData="M80,30 L80,170"
+          android:strokeWidth="70"
+          android:strokeColor="#1B1D1F"
+          android:strokeLineCap="round"/>
+
+      <!-- Diagonal superior de la K (140 unidades de largo) -->
+      <path
+          android:pathData="M80,100 L150,33"
+          android:strokeWidth="70"
+          android:strokeColor="#D1D2D2"
+          android:strokeLineCap="round"/>
+
+      <!-- Diagonal inferior de la K (140 unidades de largo) -->
+      <path
+          android:pathData="M80,100 L150,170"
+          android:strokeWidth="70"
+          android:strokeColor="#D1D2D2"
+          android:strokeLineCap="round"/>
+
+      <!-- Bola roja en la base -->
+      <path
+          android:pathData="M80,195 A15,15 0 1 1 80.1,195"
+          android:fillColor="#D71921"
+          />
+  </group>
+</vector>
+

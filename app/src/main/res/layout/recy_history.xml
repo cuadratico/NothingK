@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <View
+        android:id="@+id/fondo"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/all"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_white"
+        app:layout_constraintTop_toTopOf="@id/fondo"
+        app:layout_constraintEnd_toEndOf="@id/fondo"
+        app:layout_constraintStart_toStartOf="@id/fondo"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        >
+
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:textSize="18dp"
+            android:fontFamily="monospace"
+            android:textColor="@color/b_black"
+            android:text="10/05/2025 - 10:24:24.4444"
+            android:maxWidth="300dp"
+            android:gravity="center"
+            android:maxLines="1"
+            />
+
+        <TextView
+            android:id="@+id/information_history"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/time"
+            android:layout_marginTop="20dp"
+            android:textSize="18dp"
+            android:fontFamily="monospace"
+            android:textColor="@color/b_black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="20dp"
+            android:text="Successful login"
+            android:gravity="center"
+            android:maxLines="1"
+            />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="7dp"
+            android:layout_marginStart="7dp"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/color_information"
+        android:layout_width="150dp"
+        android:layout_height="7dp"
+        app:layout_constraintTop_toBottomOf="@id/all"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@drawable/corner_25"
+        android:layout_marginTop="5dp"
+        />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_red"
+        app:layout_constraintTop_toBottomOf="@id/all"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textColor="@color/n_white"
+        android:fontFamily="monospace"
+        android:text="Delete"
+        android:textAllCaps="false"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
