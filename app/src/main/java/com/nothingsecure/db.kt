@@ -12,7 +12,6 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
 
         db?.execSQL("CREATE TABLE time_register (id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, information TEXT, color TEXT, iv TEXT)")
         db?.execSQL("CREATE TABLE pass (id INTEGER PRIMARY KEY AUTOINCREMENT, pass TEXT, information TEXT, iv TEXT)")
-        // modificar todo para que la db de registro sea autoincrement
     }
 
     override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {}
