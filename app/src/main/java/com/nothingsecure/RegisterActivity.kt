@@ -108,7 +108,6 @@ class RegisterActivity : AppCompatActivity() {
         if (pref.getBoolean("start", false)) {
             information.text = "Put your password"
             create.visibility = View.INVISIBLE
-            Log.e("recreate", pref.getInt("opor", 9).toString())
             opor.text = " *".repeat(pref.getInt("opor", 9))
         } else {
             opor.visibility = View.INVISIBLE
@@ -198,7 +197,6 @@ class RegisterActivity : AppCompatActivity() {
             if (input_pass.text.isNotEmpty()) {
                 val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
 
-                // user key
                 val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
