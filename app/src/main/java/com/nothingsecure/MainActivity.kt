@@ -6,9 +6,11 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.shapes.Shape
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.method.PasswordTransformationMethod
@@ -79,6 +81,7 @@ class MainActivity : AppCompatActivity() {
 
         alia = intent.getStringExtra("ali").orEmpty()
         val recy = findViewById<RecyclerView>(R.id.recy)
+        val info = findViewById<ShapeableImageView>(R.id.info)
         val history = findViewById<ConstraintLayout>(R.id.logs_history)
         val add = findViewById<ConstraintLayout>(R.id.add)
         val generator = findViewById<ConstraintLayout>(R.id.generator)
@@ -199,6 +202,17 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+        info.setOnClickListener {
+            val info_dialog = AlertDialog.Builder(this).apply {
+
+                setTitle("Do you want to give your opinion on Nothing K?")
+                setPositiveButton("Yes") {_, _ -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/EWnhgBtgu5jCB3Fa9")))}
+                setNegativeButton("No") {_, _ ->}
+            }
+
+            info_dialog.show()
+        }
 
         add.setOnClickListener {
             val add_dialog = Dialog(this)
