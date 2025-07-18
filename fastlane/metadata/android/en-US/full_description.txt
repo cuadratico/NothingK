@@ -1,0 +1,1 @@
+Nothing K is a digital vault for storing your passwords using symmetric cryptography, specifically the AES algorithm with a 256-bit key size and GCM operating mode. As extras, you can review the log history and generate passwords with a proprietary generator.
