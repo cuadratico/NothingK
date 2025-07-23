@@ -150,8 +150,7 @@ class RegisterActivity : AppCompatActivity() {
                                     val c = Cipher.getInstance("AES/GCM/NoPadding")
                                     c.init(Cipher.ENCRYPT_MODE, ks.getKey(pref.getString("key", ""), null))
 
-                                    db.add_register(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(LocalDateTime.now().toString().split("T").joinToString(" - ").toByteArray())), "Successful login", "#40aa47",
-                                        Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                                    add_register(applicationContext, "Successful login", "#40aa47")
 
                                     val intent = Intent(applicationContext, MainActivity::class.java)
                                         .putExtra("ali", input_pass.text.toString())
@@ -170,8 +169,7 @@ class RegisterActivity : AppCompatActivity() {
                         val c = Cipher.getInstance("AES/GCM/NoPadding")
                         c.init(Cipher.ENCRYPT_MODE, ks.getKey(pref.getString("key", ""), null))
 
-                        db.add_register(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(LocalDateTime.now().toString().split("T").joinToString(" - ").toByteArray())), "Login failed", "#aa4040",
-                            Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                        add_register(this, "Login failed", "#aa4040")
                         input_pass.setText("")
 
                         pref.edit().putInt("opor", pref.getInt("opor", 9) - 1).commit()

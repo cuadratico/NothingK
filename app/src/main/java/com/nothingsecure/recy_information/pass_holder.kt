@@ -2,6 +2,9 @@ package com.nothingsecure.recy_information
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -21,7 +24,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.nothingsecure.R
+import com.nothingsecure.add_register
 import com.nothingsecure.alia
+import com.nothingsecure.copy_intent
 import com.nothingsecure.db
 import com.nothingsecure.db.Companion.pass_list
 import com.nothingsecure.entropy
@@ -65,6 +70,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             edit_information.setText(passData.information)
             edit_pass.setText(passData.pass)
             bottom.text = "Edit"
+            edit_pass.isSelected = false
 
             entropy(edit_pass.text.toString(), edit_progress)
             edit_pass.addTextChangedListener {dato ->
@@ -101,6 +107,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
                     )
                     passData.information = edit_information.text.toString()
                     passData.pass = edit_pass.text.toString()
+                    add_register(context, "A password has been edited")
                     pass_update = true
                     edit_dialog.dismiss()
                 }else {
@@ -117,6 +124,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
         delete.setOnClickListener {
             db.delete_pass(passData.id)
             pass_list.remove(passData)
+            add_register(context, "A password has been deleted")
             pass_update = true
         }
 
@@ -126,6 +134,22 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             val dialog_view = LayoutInflater.from(context).inflate(R.layout.see_password, null)
 
             val see_password = dialog_view.findViewById<TextView>(R.id.pass_visible)
+            val copy = dialog_view.findViewById<AppCompatButton>(R.id.copy)
+
+            if (copy_intent >= 3) {
+                copy.visibility = View.INVISIBLE
+            }
+
+            copy.setOnClickListener {
+                val manage = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("pass", see_password.text.toString())
+                manage.setPrimaryClip(clip)
+                copy_intent ++
+                add_register(context, "A password has been copied")
+                if (copy_intent >= 3) {
+                    copy.visibility = View.INVISIBLE
+                }
+            }
 
             see_password.text = passData.pass
 

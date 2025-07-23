@@ -1,10 +1,19 @@
 package com.nothingsecure
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.toColorInt
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import java.security.KeyStore
 import java.time.InstantSource.system
+import java.time.LocalDateTime
+import java.util.Base64
+import javax.crypto.Cipher
 import kotlin.math.log2
 
 
@@ -89,5 +98,24 @@ fun pass_generator (ini_list: List<List<Char>>, size: Int): String {
 
         }
     }
+
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun add_register (context: Context, note: String, color: String = "#1b1b1d") {
+    val mk = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+    val pref = EncryptedSharedPreferences.create (context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+    val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+
+    val c = Cipher.getInstance("AES/GCM/NoPadding")
+    c.init(Cipher.ENCRYPT_MODE, ks.getKey(pref.getString("key", ""), null))
+
+    val db = db(context)
+
+    db.add_register(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(LocalDateTime.now().toString().split("T").joinToString(" - ").toByteArray())), note, color,
+        Base64.getEncoder().withoutPadding().encodeToString(c.iv))
 
 }

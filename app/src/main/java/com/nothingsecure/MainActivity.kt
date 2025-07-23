@@ -57,6 +57,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.security.KeyStore
+import java.time.LocalDateTime
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
@@ -64,6 +65,7 @@ import javax.crypto.spec.GCMParameterSpec
 var logs_update = false
 var pass_update = false
 lateinit var alia: String
+var copy_intent = 0
 class MainActivity : AppCompatActivity() {
     private lateinit var load_corou: Job
     private lateinit var logs_adapter: logs_adapter
@@ -247,7 +249,7 @@ class MainActivity : AppCompatActivity() {
             multi.setOnClickListener {
                 if (input_pass.text.isNotEmpty() && info_pass.text.isNotEmpty()) {
                     val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-                    val c = Cipher.getInstance("AES/GCM/NoPadding")
+                    var c = Cipher.getInstance("AES/GCM/NoPadding")
                     c.init(Cipher.ENCRYPT_MODE, ks.getKey(alia, null))
 
                     db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(input_pass.text.toString().toByteArray())), info_pass.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
@@ -255,6 +257,7 @@ class MainActivity : AppCompatActivity() {
 
                     init_acti()
                     pass_adapter.update(pass_list)
+                    add_register(this, "A password has been added")
                     add_dialog.dismiss()
                 }else {
                     Toast.makeText(this, "Missing information to be filled in", Toast.LENGTH_SHORT).show()
@@ -324,8 +327,7 @@ class MainActivity : AppCompatActivity() {
                         val (id, time, information, color, iv) = register_list[position]
                         val c = Cipher.getInstance("AES/GCM/NoPadding")
                         c.init(Cipher.DECRYPT_MODE, ks.getKey(pref.getString("key", ""), null), GCMParameterSpec(128, Base64.getDecoder().decode(iv)))
-                        register_list[position].time =
-                            String(c.doFinal(Base64.getDecoder().decode(time)))
+                        register_list[position].time = String(c.doFinal(Base64.getDecoder().decode(time)))
                     }
 
                     register_list.reverse()
