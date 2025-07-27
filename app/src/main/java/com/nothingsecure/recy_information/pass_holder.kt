@@ -42,7 +42,6 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
     val title = view.findViewById<TextView>(R.id.title)
     val password = view.findViewById<TextView>(R.id.password)
     val progress = view.findViewById<LinearProgressIndicator>(R.id.progress)
-
     val edit = view.findViewById<AppCompatButton>(R.id.edit)
     val delete = view.findViewById<AppCompatButton>(R.id.delete)
     @RequiresApi(Build.VERSION_CODES.O)
@@ -135,9 +134,12 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
 
             val see_password = dialog_view.findViewById<TextView>(R.id.pass_visible)
             val copy = dialog_view.findViewById<AppCompatButton>(R.id.copy)
+            val info_copy = dialog_view.findViewById<TextView>(R.id.info_copy)
 
+            info_copy.text = "You can copy ${3 - copy_intent} more passwords"
             if (copy_intent >= 3) {
                 copy.visibility = View.INVISIBLE
+                info_copy.text = "You cannot copy passwords"
             }
 
             copy.setOnClickListener {
@@ -146,8 +148,10 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
                 manage.setPrimaryClip(clip)
                 copy_intent ++
                 add_register(context, "A password has been copied")
+                info_copy.text = "You can copy ${3 - copy_intent} more passwords"
                 if (copy_intent >= 3) {
                     copy.visibility = View.INVISIBLE
+                    info_copy.text = "You cannot copy passwords"
                 }
             }
 
