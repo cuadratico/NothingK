@@ -15,6 +15,7 @@ Nothing K is not a collaboration with Nothing (company), meaning that no Nothing
 So far, NothingK is only available in this repo and Izzysoft. It's also being approved for F-Droid.
 Other platforms not mentioned that contain NothingK may not be secure.
 Be careful.
+
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
 # APK Security V0.0.5
