@@ -1,6 +1,7 @@
 
+[![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-![App Screenshot](https://github.com/cuadratico/NothingK/blob/master/fastlane/metadata/android/en-US/images/logo_Nothing%20K.webp)
+![App Screenshot](https://github.com/cuadratico/NothingK/blob/master/fastlane/metadata/android/en-US/images/icon.png)
 
 # Nothing K?
 
@@ -14,7 +15,8 @@ Nothing K is not a collaboration with Nothing (company), meaning that no Nothing
 https://www.virustotal.com/gui/file/9179f3e0839a921a108b954b979c23cc72d4219c76097f0a019ac7cf98e0dd4f?nocache=1
 
 # Where to download Nothing K
-So far, Nohting K is only on this profile. The other versions are not mine and may not be safe.
+So far, NothingK is only available in this repo and Izzysoft. It's also being approved for F-Droid.
+Other platforms not mentioned that contain NothingK may not be secure.
 Be careful.
 
 # Technologies used
