@@ -21,6 +21,12 @@ Be careful.
 # APK Security V0.0.5
 https://www.virustotal.com/gui/file/9179f3e0839a921a108b954b979c23cc72d4219c76097f0a019ac7cf98e0dd4f?nocache=1
 
+An analysis with MOBFS has also been performed.
+- security note (52/100)
+- Trackers Detection (0/432)
+https://mobsf.live/static_analyzer/5cf993a2393a7439fcd78ff39c17974a/#receivers
+
+
 # Technologies used
  - Languages: Kotlin and SQL
  - Tools: AES256/GCM, AndroidKeyStore and security and Biometric Library (Android)
