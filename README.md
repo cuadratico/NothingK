@@ -24,6 +24,7 @@ https://www.virustotal.com/gui/file/9179f3e0839a921a108b954b979c23cc72d4219c7609
 An analysis with MOBFS has also been performed.
 - security note (52/100)
 - Trackers Detection (0/432)
+
 https://mobsf.live/static_analyzer/5cf993a2393a7439fcd78ff39c17974a/#receivers
 
 
