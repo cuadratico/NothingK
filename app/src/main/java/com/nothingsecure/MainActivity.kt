@@ -33,7 +33,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SearchView
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
@@ -90,6 +93,7 @@ class MainActivity : AppCompatActivity() {
 
         val search_pass = findViewById<android.widget.SearchView>(R.id.search)
         val info_exist = findViewById<TextView>(R.id.info_exist)
+        val delete_all = findViewById<ShapeableImageView>(R.id.delete_all)
 
         info_exist.visibility = View.INVISIBLE
         search_pass.visibility = View.INVISIBLE
@@ -214,6 +218,56 @@ class MainActivity : AppCompatActivity() {
             }
 
             info_dialog.show()
+        }
+
+        delete_all.setOnClickListener {
+            val delete_dialog = AlertDialog.Builder(this)
+
+                .setTitle("You want to delete all information from NothingK?")
+                .setPositiveButton("Eliminate"){_, _ ->
+                    if (BiometricManager.from(this).canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS) {
+
+
+                        val promt = BiometricPrompt.PromptInfo.Builder()
+                            .setTitle("Authenticate yourself")
+                            .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                            .setConfirmationRequired(true)
+                            .build()
+
+                        BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+
+                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                super.onAuthenticationSucceeded(result)
+
+                                pref.edit().clear().commit()
+                                db.delete_all()
+                                pass_list.clear()
+                                cacheDir.deleteRecursively()
+                                externalCacheDir?.deleteRecursively()
+
+                                val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+                                ks.deleteEntry(alia)
+
+                                recy.visibility = View.INVISIBLE
+                                info_exist.visibility = View.VISIBLE
+                                info_exist.text = "Bye"
+                                Thread.sleep(400)
+
+                                finishAffinity()
+                            }
+
+                            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                super.onAuthenticationError(errorCode, errString)
+
+                                Toast.makeText(applicationContext, "Error", Toast.LENGTH_SHORT).show()
+                            }
+                        }).authenticate(promt)
+
+                    }
+                }
+                .setNegativeButton("No"){_, _ ->}
+
+            delete_dialog.show()
         }
 
         add.setOnClickListener {

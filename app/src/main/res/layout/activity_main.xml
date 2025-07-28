@@ -24,6 +24,17 @@
         android:layout_marginStart="10dp"
         />
 
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/delete_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/delete_all"
+        app:layout_constraintTop_toTopOf="@id/info"
+        app:layout_constraintBottom_toBottomOf="@id/info"
+        app:layout_constraintStart_toEndOf="@id/info"
+        android:layout_marginStart="25dp"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recy"
         android:layout_width="match_parent"
@@ -42,6 +53,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
+        android:maxWidth="250dp"
         />
 
     <TextView

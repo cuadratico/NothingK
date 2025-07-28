@@ -142,6 +142,7 @@ class RegisterActivity : AppCompatActivity() {
                             val promt = BiometricPrompt.PromptInfo.Builder()
                                 .setTitle("Who are you?")
                                 .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                                .setConfirmationRequired(true)
                                 .build()
 
                             BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
@@ -192,7 +193,7 @@ class RegisterActivity : AppCompatActivity() {
 
 
         create.setOnClickListener {
-            if (input_pass.text.isNotEmpty()) {
+            if (input_pass.text.isNotEmpty() && input_pass.text.length >= 8) {
                 val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
 
                 val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
@@ -240,7 +241,7 @@ class RegisterActivity : AppCompatActivity() {
 
                 create.startAnimation(animation)
             }else {
-                Toast.makeText(this, "You must specify a password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "8 or more characters, please", Toast.LENGTH_SHORT).show()
             }
         }
 

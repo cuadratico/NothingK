@@ -101,6 +101,15 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
         }
     }
 
+
+    fun delete_all () {
+        val db = this.writableDatabase
+
+        db.execSQL("DELETE FROM pass")
+        db.execSQL("DELETE FROM time_register")
+
+    }
+
     companion object {
         val register_list = mutableListOf<register>()
         val pass_list = mutableListOf<pass>()
