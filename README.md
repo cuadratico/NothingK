@@ -10,8 +10,8 @@ Nothing K also includes a password generator and encrypted logs.
 # Important notice!
 Nothing K is not a collaboration with Nothing (company), meaning that no Nothing (company) developers or any of its technology have been used in the development of Nothing K. Nothing K is my own project, developed with open-source technologies and under legal licenses.
 
-# APK Security V0.0.4
-https://www.virustotal.com/gui/file/bb35e45fca60414d4fa06bbf17d4cfad979034c412d01e743ba559e6d6f5299d?nocache=1
+# APK Security V0.0.5
+https://www.virustotal.com/gui/file/9179f3e0839a921a108b954b979c23cc72d4219c76097f0a019ac7cf98e0dd4f?nocache=1
 
 # Where to download Nothing K
 So far, Nohting K is only on this profile. The other versions are not mine and may not be safe.
