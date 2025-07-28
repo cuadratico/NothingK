@@ -1,5 +1,5 @@
 
-[![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
+
 
 ![App Screenshot](https://github.com/cuadratico/NothingK/blob/master/fastlane/metadata/android/en-US/images/icon.png)
 
@@ -11,13 +11,14 @@ Nothing K also includes a password generator and encrypted logs.
 # Important notice!
 Nothing K is not a collaboration with Nothing (company), meaning that no Nothing (company) developers or any of its technology have been used in the development of Nothing K. Nothing K is my own project, developed with open-source technologies and under legal licenses.
 
-# APK Security V0.0.5
-https://www.virustotal.com/gui/file/9179f3e0839a921a108b954b979c23cc72d4219c76097f0a019ac7cf98e0dd4f?nocache=1
-
 # Where to download Nothing K
 So far, NothingK is only available in this repo and Izzysoft. It's also being approved for F-Droid.
 Other platforms not mentioned that contain NothingK may not be secure.
 Be careful.
+[![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
+
+# APK Security V0.0.5
+https://www.virustotal.com/gui/file/9179f3e0839a921a108b954b979c23cc72d4219c76097f0a019ac7cf98e0dd4f?nocache=1
 
 # Technologies used
  - Languages: Kotlin and SQL
