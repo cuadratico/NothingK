@@ -18,9 +18,10 @@ Be careful.
 
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-# APK Security V0.0.5
-https://www.virustotal.com/gui/file/9179f3e0839a921a108b954b979c23cc72d4219c76097f0a019ac7cf98e0dd4f?nocache=1
+# APK Security V0.1.5
+https://www.virustotal.com/gui/file/458542f0d133f4ac7f1e510d6e6905a2dcfb1e15221e4c5f14196dc6462319af?nocache=1
 
+# APK Scan V0.0.5
 An analysis with MOBFS has also been performed.
 - security note (52/100)
 - Trackers Detection (0/432)
