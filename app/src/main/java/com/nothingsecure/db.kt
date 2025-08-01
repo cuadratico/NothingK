@@ -31,7 +31,6 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
         if (all) {
             db.execSQL("DELETE FROM time_register")
         }else {
-            register_list.removeIf {position -> position.time == time  }
             db.execSQL("DELETE FROM time_register WHERE time = ?", arrayOf(time))
         }
 

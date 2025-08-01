@@ -1,10 +1,13 @@
 package com.nothingsecure
 
 import android.animation.Animator
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.shapes.Shape
 import android.os.Build
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
@@ -16,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.Animation
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -51,6 +55,7 @@ import javax.crypto.KeyGenerator
 import kotlin.random.Random
 
 class RegisterActivity : AppCompatActivity() {
+    @SuppressLint("MissingInflatedId")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +69,10 @@ class RegisterActivity : AppCompatActivity() {
         val progress = findViewById<LinearProgressIndicator>(R.id.progress_pass)
         val create = findViewById<ConstraintLayout>(R.id.create_password)
         val opor = findViewById<TextView>(R.id.opor)
+        val derived_check = findViewById<CheckBox>(R.id.derived_check)
+        val info_derived = findViewById<ShapeableImageView>(R.id.info_derived)
+        derived_check.visibility = View.INVISIBLE
+        info_derived.visibility = View.INVISIBLE
         var pass_see = false
 
         val mk = MasterKey.Builder(this)
@@ -111,6 +120,8 @@ class RegisterActivity : AppCompatActivity() {
             opor.text = " *".repeat(pref.getInt("opor", 9))
         } else {
             opor.visibility = View.INVISIBLE
+            info_derived.visibility = View.VISIBLE
+            derived_check.visibility = View.VISIBLE
         }
 
 
@@ -133,10 +144,9 @@ class RegisterActivity : AppCompatActivity() {
 
             if (pref.getBoolean("start", false)) {
                 val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-                val db = db(this)
 
                 if (dato?.length == pref.getInt("size", 0)){
-                    if ( ks.getKey(dato.toString(), null) != null && Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray())) == pref.getString("hash", "")) {
+                    if (Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray())) == pref.getString("hash", "")) {
 
                         if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
                             val promt = BiometricPrompt.PromptInfo.Builder()
@@ -196,18 +206,25 @@ class RegisterActivity : AppCompatActivity() {
             if (input_pass.text.isNotEmpty() && input_pass.text.length >= 8) {
                 val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
 
-                val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .build()
-                val kg =
-                    KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-                kg.init(kgs)
-                kg.generateKey()
-
+                if (!derived_check.isChecked) {
+                    val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
+                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                        .build()
+                    val kg =
+                        KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+                    kg.init(kgs)
+                    kg.generateKey()
+                }else {
+                    pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
+                    pref.edit().putBoolean("deri", true).commit()
+                }
 
                 val ali = Random.nextBytes(10).toString()
-                val kgs_2 = KeyGenParameterSpec.Builder(ali, KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
+                val kgs_2 = KeyGenParameterSpec.Builder(
+                    ali,
+                    KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT
+                )
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                     .build()
@@ -243,6 +260,16 @@ class RegisterActivity : AppCompatActivity() {
             }else {
                 Toast.makeText(this, "8 or more characters, please", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        info_derived.setOnClickListener {
+
+            val info_dialog = AlertDialog.Builder(this)
+
+            info_dialog.setTitle("Cryptographic operation of Nothing k")
+            info_dialog.setMessage("In Nothing K your password is the alias of a symmetric key stored in AndroidKeyStore, with this option your password will be transformed into a derived key, which means that this key will only be generated if the password is correct.")
+            info_dialog.setPositiveButton("Ok"){_, _ ->}
+            info_dialog.show()
         }
 
 

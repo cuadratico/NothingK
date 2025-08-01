@@ -170,4 +170,27 @@
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/derived_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generate derived key"
+        android:fontFamily="monospace"
+        app:layout_constraintTop_toBottomOf="@id/create_password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="20dp"
+        />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/info_derived"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/info"
+        app:layout_constraintTop_toTopOf="@id/derived_check"
+        app:layout_constraintBottom_toBottomOf="@id/derived_check"
+        app:layout_constraintStart_toEndOf="@id/derived_check"
+        android:layout_marginStart="15dp"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -29,6 +29,7 @@ import com.nothingsecure.alia
 import com.nothingsecure.copy_intent
 import com.nothingsecure.db
 import com.nothingsecure.db.Companion.pass_list
+import com.nothingsecure.deri_expressed
 import com.nothingsecure.entropy
 import com.nothingsecure.pass
 import com.nothingsecure.pass_update
@@ -94,9 +95,8 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
 
             bottom.setOnClickListener {
                 if (edit_pass.text.isNotEmpty() && edit_information.text.isNotEmpty()) {
-                    val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
                     val c = Cipher.getInstance("AES/GCM/NoPadding")
-                    c.init(Cipher.ENCRYPT_MODE, ks.getKey(alia, null))
+                    c.init(Cipher.ENCRYPT_MODE, deri_expressed(context))
 
                     db.update_pass(passData.id,
                         Base64.getEncoder().withoutPadding()
@@ -122,7 +122,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
 
         delete.setOnClickListener {
             db.delete_pass(passData.id)
-            pass_list.remove(passData)
+            pass_list.removeIf { it.id == passData.id }
             add_register(context, "A password has been deleted")
             pass_update = true
         }

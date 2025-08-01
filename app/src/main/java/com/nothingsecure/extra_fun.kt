@@ -9,11 +9,17 @@ import androidx.core.graphics.toColorInt
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import java.security.Key
 import java.security.KeyStore
+import java.security.SecureRandom
 import java.time.InstantSource.system
 import java.time.LocalDateTime
 import java.util.Base64
 import javax.crypto.Cipher
+import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.SecretKeySpec
 import kotlin.math.log2
 
 
@@ -118,4 +124,38 @@ fun add_register (context: Context, note: String, color: String = "#1b1b1d") {
     db.add_register(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(LocalDateTime.now().toString().split("T").joinToString(" - ").toByteArray())), note, color,
         Base64.getEncoder().withoutPadding().encodeToString(c.iv))
 
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun derived_Key (context: Context): SecretKey {
+
+    val mk = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+    val pref = EncryptedSharedPreferences.create (context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+
+    val spec = PBEKeySpec(alia.toCharArray(), Base64.getDecoder().decode(pref.getString("salt", "")), 600_00, 256)
+    val gen = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).encoded
+
+    return SecretKeySpec(gen, "AES")
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun deri_expressed (context: Context): Key {
+    val mk = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+    val pref = EncryptedSharedPreferences.create (context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+
+
+    if (pref.getBoolean("deri", false)) {
+        return derived_Key(context)
+    }else {
+        val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        return ks.getKey(alia, null)
+    }
 }

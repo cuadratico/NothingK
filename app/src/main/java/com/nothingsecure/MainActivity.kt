@@ -166,18 +166,17 @@ class MainActivity : AppCompatActivity() {
             load("Loading passwords...")
 
             load_corou = lifecycleScope.launch (Dispatchers.IO){
-                val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-
+                val key = deri_expressed(applicationContext)
                 for (position in 0..pass_list.size - 1) {
                     val (id, pass, information, iv) = pass_list[position]
                     val c = Cipher.getInstance("AES/GCM/NoPadding")
-                    c.init(Cipher.DECRYPT_MODE, ks.getKey(alia, null), GCMParameterSpec(128, Base64.getDecoder().decode(iv)))
+                    c.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, Base64.getDecoder().decode(iv)))
 
                     pass_list[position].pass = String(c.doFinal(Base64.getDecoder().decode(pass)))
                 }
 
-                pass_adapter = pass_adapter(pass_list)
                 withContext(Dispatchers.Main) {
+                    pass_adapter.update(pass_list)
                     init_acti()
                     load_dialog.dismiss()
                 }
@@ -302,9 +301,8 @@ class MainActivity : AppCompatActivity() {
 
             multi.setOnClickListener {
                 if (input_pass.text.isNotEmpty() && info_pass.text.isNotEmpty()) {
-                    val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-                    var c = Cipher.getInstance("AES/GCM/NoPadding")
-                    c.init(Cipher.ENCRYPT_MODE, ks.getKey(alia, null))
+                    val c = Cipher.getInstance("AES/GCM/NoPadding")
+                    c.init(Cipher.ENCRYPT_MODE, deri_expressed(this))
 
                     db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(input_pass.text.toString().toByteArray())), info_pass.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
                     pass_list.add(pass(if (pass_list.size != 0) { pass_list[pass_list.size - 1].id + 1 } else { 0 }, input_pass.text.toString(), info_pass.text.toString(), ""))
@@ -344,9 +342,29 @@ class MainActivity : AppCompatActivity() {
                 val information_dialog = AlertDialog.Builder(this)
                     .setTitle("Do you want to delete all logs?")
                     .setPositiveButton("Yes") { _, _ ->
-                        db.delete_register(true)
-                        logs_adapter.update(register_list)
+
+                        val promt = BiometricPrompt.PromptInfo.Builder()
+                            .setTitle("You must authenticate to continue")
+                            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                            .build()
+
+                        BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+
+                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                super.onAuthenticationSucceeded(result)
+                                db.delete_register(true)
+                                register_list.clear()
+                                logs_adapter.update(register_list)
+                            }
+
+                            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                super.onAuthenticationError(errorCode, errString)
+                                Toast.makeText(applicationContext, "Error", Toast.LENGTH_SHORT).show()
+                            }
+                        }).authenticate(promt)
+
                         logs_dialog.dismiss()
+
                     }
                     .setNegativeButton("No"){_, _ ->}
                 information_dialog.show()
@@ -355,7 +373,9 @@ class MainActivity : AppCompatActivity() {
             logs_search.setOnQueryTextListener(object: android.widget.SearchView.OnQueryTextListener {
                 override fun onQueryTextChange(query: String): Boolean {
                     if (query.isNotEmpty()) {
-                        val new_list = register_list.filter { dato -> dato.time.contains(Regex(".*$query.*")) }
+                        val reference = if (query.matches(Regex(".*@info.*"))) { true } else { false }
+
+                        val new_list = register_list.filter { dato -> if (!reference) {dato.time.contains(Regex(".*$query.*"))} else {dato.information.contains(Regex(".*${query.split("@info")[1]}.*"))} }
                         logs_adapter.update(new_list)
                     }else {
                         logs_adapter.update(register_list)
@@ -527,6 +547,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        pass_list.clear()
         finishAffinity()
     }
 
