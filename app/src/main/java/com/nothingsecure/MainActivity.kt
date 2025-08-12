@@ -1,18 +1,23 @@
 package com.nothingsecure
 
 import android.annotation.SuppressLint
+import android.app.ComponentCaller
 import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.shapes.Shape
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,17 +26,24 @@ import android.view.View
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.appcompat.widget.AppCompatSpinner
 import androidx.appcompat.widget.SearchView
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -59,6 +71,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 import java.security.KeyStore
 import java.time.LocalDateTime
 import java.util.Base64
@@ -67,15 +81,35 @@ import javax.crypto.spec.GCMParameterSpec
 
 var logs_update = false
 var pass_update = false
-lateinit var alia: String
 var copy_intent = 0
+var db_sus = true
 class MainActivity : AppCompatActivity() {
     private lateinit var load_corou: Job
     private lateinit var logs_adapter: logs_adapter
     private lateinit var pass_adapter: pass_adapter
     private lateinit var load_dialog: Dialog
+    private lateinit var ex_im_coru: Job
     private var time = 0
+    private var back = false
 
+    private lateinit var mk: MasterKey
+    private lateinit var pref: SharedPreferences
+    private var pause = false
+
+    private fun load (info: String) {
+        load_dialog = Dialog(this)
+        val load_view = LayoutInflater.from(this).inflate(R.layout.load, null)
+
+        val progress = load_view.findViewById<ProgressBar>(R.id.progress)
+        val load_information = load_view.findViewById<TextView>(R.id.load_information)
+        load_information.text = info
+        progress.isActivated = true
+
+        load_dialog.setContentView(load_view)
+        load_dialog.setCancelable(false)
+        load_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        load_dialog.show()
+    }
 
     @SuppressLint("MissingInflatedId")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -84,7 +118,13 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        alia = intent.getStringExtra("ali").orEmpty()
+        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
+        mk = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        pref = EncryptedSharedPreferences.create(this, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+
         val recy = findViewById<RecyclerView>(R.id.recy)
         val info = findViewById<ShapeableImageView>(R.id.info)
         val history = findViewById<ConstraintLayout>(R.id.logs_history)
@@ -93,33 +133,19 @@ class MainActivity : AppCompatActivity() {
 
         val search_pass = findViewById<android.widget.SearchView>(R.id.search)
         val info_exist = findViewById<TextView>(R.id.info_exist)
+        val desencrypt_passwords = findViewById<AppCompatButton>(R.id.import_passwords)
         val delete_all = findViewById<ShapeableImageView>(R.id.delete_all)
+        val im_ex = findViewById<ShapeableImageView>(R.id.im_ex)
 
         info_exist.visibility = View.INVISIBLE
         search_pass.visibility = View.INVISIBLE
+        recy.visibility = View.INVISIBLE
+        add.visibility = View.INVISIBLE
 
         val db = db(this)
 
-        val mk = MasterKey.Builder(this)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-        val pref = EncryptedSharedPreferences.create(this, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
 
-        fun load (info: String) {
-            load_dialog = Dialog(this)
-            val load_view = LayoutInflater.from(this).inflate(R.layout.load, null)
-
-            val progress = load_view.findViewById<ProgressBar>(R.id.progress)
-            val load_information = load_view.findViewById<TextView>(R.id.load_information)
-            load_information.text = info
-            progress.isActivated = true
-
-            load_dialog.setContentView(load_view)
-            load_dialog.setCancelable(false)
-            load_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            load_dialog.show()
-        }
+        pref.edit().putBoolean("desen_pass", false).commit()
 
         fun init_acti() {
             history.isEnabled = true
@@ -153,20 +179,26 @@ class MainActivity : AppCompatActivity() {
                                 search_pass.visibility = View.INVISIBLE
                             }
                         }
-                        Log.e("lista", "actualizada")
                     }
                 }
                 time += 50
                 delay(50)
             }
         }
+        if (!db.select_pass()) {
+            search_pass.visibility = View.INVISIBLE
+            info_exist.visibility = View.VISIBLE
+            desencrypt_passwords.visibility = View.INVISIBLE
+            add.visibility = View.VISIBLE
+            recy.visibility = View.VISIBLE
+        }
 
-        if (db.select_pass()) {
+        desencrypt_passwords.setOnClickListener {
             history.isEnabled = true
             load("Loading passwords...")
 
             load_corou = lifecycleScope.launch (Dispatchers.IO){
-                val key = deri_expressed(applicationContext)
+                val key = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!)
                 for (position in 0..pass_list.size - 1) {
                     val (id, pass, information, iv) = pass_list[position]
                     val c = Cipher.getInstance("AES/GCM/NoPadding")
@@ -175,24 +207,21 @@ class MainActivity : AppCompatActivity() {
                     pass_list[position].pass = String(c.doFinal(Base64.getDecoder().decode(pass)))
                 }
 
+                pref.edit().putBoolean("desen_pass", true).commit()
                 withContext(Dispatchers.Main) {
+                    desencrypt_passwords.visibility = View.INVISIBLE
+                    recy.visibility = View.VISIBLE
+                    add.visibility = View.VISIBLE
                     pass_adapter.update(pass_list)
                     init_acti()
                     load_dialog.dismiss()
                 }
                 load_corou.cancel()
             }
-
-        }else {
-            search_pass.visibility = View.INVISIBLE
-            info_exist.visibility = View.VISIBLE
-
         }
-
 
         search_pass.setOnQueryTextListener(object: android.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextChange(query: String?): Boolean {
-
                 if (query!!.isNotEmpty()) {
                     val newList = pass_list.filter { dato -> dato.information.contains(Regex(".*$query.*")) }
                     pass_adapter.update(newList)
@@ -245,7 +274,7 @@ class MainActivity : AppCompatActivity() {
                                 externalCacheDir?.deleteRecursively()
 
                                 val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-                                ks.deleteEntry(alia)
+                                ks.deleteEntry(pref.getString("key_u", ""))
 
                                 recy.visibility = View.INVISIBLE
                                 info_exist.visibility = View.VISIBLE
@@ -269,6 +298,134 @@ class MainActivity : AppCompatActivity() {
             delete_dialog.show()
         }
 
+        im_ex.setOnClickListener {
+            val options_dialog = Dialog(this)
+            val options_view = LayoutInflater.from(this).inflate(R.layout.dialog_select_im_ex, null)
+
+            val import_button = options_view.findViewById<ConstraintLayout>(R.id.import_archive)
+            val export_button = options_view.findViewById<ConstraintLayout>(R.id.export_archive)
+
+            export_button.setOnClickListener {
+                options_dialog.dismiss()
+
+                val export_dialog = Dialog(this)
+                val export_view = LayoutInflater.from(this).inflate(R.layout.dialog_export, null)
+
+                val info_export = export_view.findViewById<ShapeableImageView>(R.id.info_export)
+
+                val input_pass_export = export_view.findViewById<EditText>(R.id.input_pass)
+                val progress_export = export_view.findViewById<LinearProgressIndicator>(R.id.progress)
+                val checkBox_export = export_view.findViewById<AppCompatCheckBox>(R.id.my_check)
+                val export_pass_visi = export_view.findViewById<ConstraintLayout>(R.id.password_visibility)
+                val export_icon_visi = export_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
+
+                val archive_name = export_view.findViewById<EditText>(R.id.input_name)
+
+                val select_directory = export_view.findViewById<AppCompatSpinner>(R.id.directory_spinner)
+
+                val export_button = export_view.findViewById<AppCompatButton>(R.id.export_buttom)
+
+                info_export.setOnClickListener {
+                    val dialog_info_export = AlertDialog.Builder(this).apply {
+                        setTitle("What am I exporting?")
+                        setMessage("You're exporting all your passwords. Basically, you're exporting your database to a file with a .nk (NothingK) extension. Once you've exported it, you can re-import it without any problems.")
+                        setPositiveButton("Ok") {_, _ ->}
+                    }
+                    dialog_info_export.show()
+                }
+
+                // specify password
+                var visibility_export_dialog = false
+                export_pass_visi.setOnClickListener {
+                    if (visibility_export_dialog) {
+                        visibility_export_dialog = false
+                    }else {
+                        visibility_export_dialog = true
+                    }
+                    visibility(visibility_export_dialog, export_icon_visi, input_pass_export)
+                }
+
+                input_pass_export.addTextChangedListener {dato ->
+                        entropy(dato.toString(), progress_export)
+                }
+
+                checkBox_export.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
+                    override fun onCheckedChanged(p0: CompoundButton, isCheck: Boolean) {
+                        if (isCheck) {
+                           input_pass_export.setText(pref.getString("key_u", ""))
+                        }else {
+                            input_pass_export.setText("")
+                        }
+                        input_pass_export.setSelection(input_pass_export.text.length)
+                    }
+
+                })
+
+                // specify the direction
+                val directions_list = arrayOf("Downloads", "Documents", "DCIM", "Pictures", "Movies", "Music", "Alarms")
+                val directions_real = mapOf("Downloads" to Environment.DIRECTORY_DOWNLOADS, "Documents" to Environment.DIRECTORY_DOCUMENTS, "DCIM" to Environment.DIRECTORY_DCIM, "Pictures" to Environment.DIRECTORY_PICTURES, "Movies" to Environment.DIRECTORY_MOVIES, "Music" to Environment.DIRECTORY_MUSIC, "Alarms" to Environment.DIRECTORY_ALARMS)
+
+                select_directory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, directions_list)
+
+                export_button.setOnClickListener {
+                    if (input_pass_export.text.isNotEmpty() && archive_name.text.isNotEmpty() && pass_list.isNotEmpty()) {
+                        val promt = BiometricPrompt.PromptInfo.Builder()
+                            .setTitle("Authentication is required")
+                            .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                            .build()
+
+                        BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+
+                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                super.onAuthenticationSucceeded(result)
+                                export_dialog.dismiss()
+                                load("Exporting your passwords...")
+
+                                ex_im_coru = lifecycleScope.launch (Dispatchers.IO){
+                                    export(applicationContext, input_pass_export.text.toString(), pref.getString("salt", "")!!, archive_name.text.toString(), directions_real[select_directory.selectedItem.toString()].toString())
+                                    withContext(Dispatchers.Main) {
+                                        load_dialog.dismiss()
+                                    }
+                                    ex_im_coru.cancel()
+                                }
+                            }
+
+                            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                super.onAuthenticationError(errorCode, errString)
+                                Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
+                            }
+                        }).authenticate(promt)
+                    }else {
+                        Toast.makeText(this, "Information missing or undecrypted passwords", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                export_dialog.setContentView(export_view)
+                export_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                export_dialog.show()
+            }
+
+            import_button.setOnClickListener {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                }
+                recy.visibility = View.VISIBLE
+                info_exist.visibility = View.INVISIBLE
+                options_dialog.dismiss()
+                pause = true
+                startActivityForResult(intent, 1001)
+            }
+
+            if (pref.getBoolean("desen_pass", false)) {
+                options_dialog.setContentView(options_view)
+                options_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                options_dialog.show()
+            }else {
+                Toast.makeText(this, "You need to decrypt your passwords", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         add.setOnClickListener {
             val add_dialog = Dialog(this)
             val add_view = LayoutInflater.from(this).inflate(R.layout.add_edit_dialog, null)
@@ -287,24 +444,18 @@ class MainActivity : AppCompatActivity() {
                     entropy(input_pass.text.toString(), progress)
             }
             pass_visibility.setOnClickListener {
-                if (visi) {
-                    visi = false
-                    visi_icon.setImageResource(R.drawable.close_eye)
-                    input_pass.transformationMethod = PasswordTransformationMethod.getInstance()
-                }else {
-                    visi = true
-                    visi_icon.setImageResource(R.drawable.open_eye)
-                    input_pass.transformationMethod = null
-                }
-                input_pass.setSelection(input_pass.text.length)
+                visibility(visi, visi_icon, input_pass)
+                visi = !visi
             }
 
             multi.setOnClickListener {
                 if (input_pass.text.isNotEmpty() && info_pass.text.isNotEmpty()) {
                     val c = Cipher.getInstance("AES/GCM/NoPadding")
-                    c.init(Cipher.ENCRYPT_MODE, deri_expressed(this))
+                    c.init(Cipher.ENCRYPT_MODE, deri_expressed(this, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
 
-                    db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(input_pass.text.toString().toByteArray())), info_pass.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                    if (db_sus) {
+                        db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(input_pass.text.toString().toByteArray())), info_pass.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                    }
                     pass_list.add(pass(if (pass_list.size != 0) { pass_list[pass_list.size - 1].id + 1 } else { 0 }, input_pass.text.toString(), info_pass.text.toString(), ""))
 
                     init_acti()
@@ -432,7 +583,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         generator.setOnClickListener {
-            val total = mutableListOf<List<Char>>(minusculas_l)
+            val total = mutableListOf(minusculas_l)
 
             val gene_dilaog = BottomSheetDialog(this)
             val gen_view = LayoutInflater.from(this).inflate(R.layout.generator_dialog, null)
@@ -533,6 +684,21 @@ class MainActivity : AppCompatActivity() {
             gene_dilaog.show()
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT) {
+                if (back) {
+                    pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
+                    pref.edit().putString("key_u_r", "").commit()
+                    pref.edit().putBoolean("deri", false).commit()
+                    db_sus = true
+                    pass_list.clear()
+                    recreate()
+                }else {
+                    finish()
+                }
+            }
+        }
+
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
@@ -545,16 +711,150 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        pass_list.clear()
-        finishAffinity()
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onDestroy() {
+        super.onDestroy()
+        add_register(this, "The app has been closed")
+        pref.edit().putBoolean("deri", false).commit()
+        pref.edit().putString("key_u", "").commit()
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (!pause) {
+            finishAffinity()
+        }
+    }
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         if (event?.action == MotionEvent.ACTION_DOWN) {
             time = 0
         }
         return super.dispatchTouchEvent(event)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, caller: ComponentCaller) {
+        super.onActivityResult(requestCode, resultCode, data, caller)
+        pause = false
+            val uri = data!!.data
+            val query = contentResolver.query(uri!!, null, null, null, null, null)
+
+            if (query!!.moveToFirst()) {
+                val position = query.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                val name = query.getString(position)
+
+                if (!name.matches(Regex(".*nk.*"))) {
+                    Toast.makeText(this, "The file is not correct", Toast.LENGTH_SHORT).show()
+                }else {
+
+                    val info_archive = this.contentResolver.openInputStream(uri)?.bufferedReader().use { it?.readText() }
+                    val json_f = JSONObject(info_archive)
+
+                    if (json_f.has("salt") && json_f.has("pass_list") && json_f.has("pro")) {
+
+                        val import_dialog = Dialog(this)
+                        val import_view = LayoutInflater.from(this).inflate(R.layout.dialog_import, null)
+
+                        val import_input_pass = import_view.findViewById<EditText>(R.id.input_pass)
+                        val import_visible_button = import_view.findViewById<ConstraintLayout>(R.id.password_visibility)
+                        val import_icon_visible = import_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
+                        val import_progress = import_view.findViewById<LinearProgressIndicator>(R.id.progress)
+
+                        val import_button = import_view.findViewById<AppCompatButton>(R.id.unlock_buttom)
+
+                        import_input_pass.addTextChangedListener{dato ->
+                            entropy(dato.toString(), import_progress)
+                        }
+
+                        var visible = false
+                        import_visible_button.setOnClickListener {
+                            if (visible) {
+                                visible = false
+                            }else {
+                                visible = true
+                            }
+                            visibility(visible, import_icon_visible, import_input_pass)
+                        }
+
+                        import_button.setOnClickListener {
+                            val array_pro = json_f.getJSONArray("pro").getJSONObject(0)
+
+                            val c = Cipher.getInstance("AES/GCM/NoPadding")
+                            c.init(Cipher.DECRYPT_MODE, derived_Key(import_input_pass.text.toString(), json_f.getString("salt")), GCMParameterSpec(128, Base64.getDecoder().decode(array_pro.getString("iv"))))
+
+                            try {
+                                c.doFinal(Base64.getDecoder().decode(array_pro.getString("value")))
+                                import_dialog.dismiss()
+
+                                val dialog_db_sus = android.app.AlertDialog.Builder(this)
+                                dialog_db_sus.setTitle("You want to replace your db or preview the file.")
+                                dialog_db_sus.setMessage("If you replace the DB, all information will be deleted, and if you replace the file, you will be able to modify it without any problems.")
+                                dialog_db_sus.setPositiveButton("Yes"){_, _ ->
+                                    val promt = BiometricPrompt.PromptInfo.Builder()
+                                        .setTitle("Authentication is required")
+                                        .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                                        .build()
+
+                                    BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+
+                                        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                            super.onAuthenticationSucceeded(result)
+                                            load("Decrypting the file")
+                                            ex_im_coru = lifecycleScope.launch (Dispatchers.IO){
+                                                import(applicationContext, json_f, import_input_pass.text.toString(), db_sus)
+                                                withContext(Dispatchers.Main) {
+                                                    load_dialog.dismiss()
+                                                    Log.e("pass", pref.getString("key_u", "").toString())
+                                                    Log.e("deri", pref.getBoolean("deri", false).toString())
+                                                    Toast.makeText(applicationContext, "Passwords loaded", Toast.LENGTH_LONG).show()
+                                                    finishAffinity()
+                                                }
+                                                ex_im_coru.cancel()
+                                            }
+                                        }
+
+                                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                            super.onAuthenticationError(errorCode, errString)
+                                            Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }).authenticate(promt)
+
+                                }
+                                dialog_db_sus.setNegativeButton("No"){_, _ ->
+                                    db_sus = false
+                                    load("Decrypting the file")
+                                    ex_im_coru = lifecycleScope.launch (Dispatchers.IO){
+                                        import(applicationContext, json_f, import_input_pass.text.toString(), db_sus)
+                                        withContext(Dispatchers.Main) {
+                                            load_dialog.dismiss()
+                                            pass_adapter.update(pass_list)
+                                        }
+                                        back = true
+                                        ex_im_coru.cancel()
+                                    }
+                                }
+                                dialog_db_sus.show()
+
+
+
+
+
+
+                            }catch (e: Exception) {
+                                Toast.makeText(this, "The password is not correct", Toast.LENGTH_SHORT).show()
+                                import_input_pass.setText("")
+                            }
+                        }
+
+                        import_dialog.setContentView(import_view)
+                        import_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        import_dialog.show()
+
+                    }else {
+                        Toast.makeText(this, "The file structure is not correct", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
     }
 }

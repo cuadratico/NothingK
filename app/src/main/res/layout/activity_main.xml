@@ -32,7 +32,18 @@
         app:layout_constraintTop_toTopOf="@id/info"
         app:layout_constraintBottom_toBottomOf="@id/info"
         app:layout_constraintStart_toEndOf="@id/info"
-        android:layout_marginStart="25dp"
+        android:layout_marginStart="20dp"
+        />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/im_ex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/bidirection_arrows"
+        app:layout_constraintTop_toTopOf="@id/delete_all"
+        app:layout_constraintBottom_toBottomOf="@id/delete_all"
+        app:layout_constraintStart_toEndOf="@id/delete_all"
+        android:layout_marginStart="20dp"
         />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -68,6 +79,24 @@
         android:textSize="30dp"
         android:text="You have not added any passwords yet."
         android:gravity="center"
+        />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/import_passwords"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_red"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textColor="@color/n_white"
+        android:fontFamily="monospace"
+        android:text="Decrypt"
+        android:textAllCaps="false"
         />
 
     <androidx.constraintlayout.widget.ConstraintLayout

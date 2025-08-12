@@ -3,11 +3,15 @@ package com.nothingsecure
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.toColorInt
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.security.Key
 import java.security.KeyStore
@@ -128,15 +132,8 @@ fun add_register (context: Context, note: String, color: String = "#1b1b1d") {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun derived_Key (context: Context): SecretKey {
-
-    val mk = MasterKey.Builder(context)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
-    val pref = EncryptedSharedPreferences.create (context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
-
-    val spec = PBEKeySpec(alia.toCharArray(), Base64.getDecoder().decode(pref.getString("salt", "")), 600_00, 256)
+fun derived_Key ( password: String, salt: String): SecretKey {
+    val spec = PBEKeySpec(password.toCharArray(), Base64.getDecoder().decode(salt), 600_00, 256)
     val gen = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).encoded
 
     return SecretKeySpec(gen, "AES")
@@ -144,7 +141,7 @@ fun derived_Key (context: Context): SecretKey {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun deri_expressed (context: Context): Key {
+fun deri_expressed (context: Context, password: String, salt: String): Key {
     val mk = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
@@ -153,9 +150,22 @@ fun deri_expressed (context: Context): Key {
 
 
     if (pref.getBoolean("deri", false)) {
-        return derived_Key(context)
+        return derived_Key(password, salt)
     }else {
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-        return ks.getKey(alia, null)
+        Log.e("clave", pref.getString("key_u", "").toString())
+        return ks.getKey(pref.getString("key_u", ""), null)
     }
+}
+
+
+fun visibility (visi: Boolean, icon: ShapeableImageView, input: EditText) {
+    if (visi) {
+        icon.setImageResource(R.drawable.close_eye)
+        input.transformationMethod = PasswordTransformationMethod.getInstance()
+    }else {
+        icon.setImageResource(R.drawable.open_eye)
+        input.transformationMethod = null
+    }
+    input.setSelection(input.text.length)
 }

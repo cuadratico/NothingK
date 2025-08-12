@@ -15,7 +15,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/all"
         android:layout_width="360dp"
-        android:layout_height="110dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/n_white"
         app:layout_constraintTop_toTopOf="@id/fondo"
@@ -61,7 +61,6 @@
             android:layout_marginBottom="20dp"
             android:text="A password has been deleted"
             android:gravity="center"
-            android:maxLines="1"
             />
 
         <com.google.android.material.imageview.ShapeableImageView

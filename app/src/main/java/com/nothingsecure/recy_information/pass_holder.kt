@@ -21,18 +21,21 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.LayoutInflaterCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.nothingsecure.R
 import com.nothingsecure.add_register
-import com.nothingsecure.alia
 import com.nothingsecure.copy_intent
 import com.nothingsecure.db
 import com.nothingsecure.db.Companion.pass_list
+import com.nothingsecure.db_sus
 import com.nothingsecure.deri_expressed
 import com.nothingsecure.entropy
 import com.nothingsecure.pass
 import com.nothingsecure.pass_update
+import com.nothingsecure.visibility
 import java.security.KeyStore
 import java.util.Base64
 import javax.crypto.Cipher
@@ -81,29 +84,31 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
 
             var visi = false
             pass_visibility.setOnClickListener {
-                if (visi) {
-                    visi = false
-                    icon_visi.setImageResource(R.drawable.close_eye)
-                    edit_pass.transformationMethod = PasswordTransformationMethod.getInstance()
-                }else {
-                    visi = true
-                    icon_visi.setImageResource(R.drawable.open_eye)
-                    edit_pass.transformationMethod = null
-                }
-                edit_pass.setSelection(edit_pass.text.length)
+                visibility(visi, icon_visi, edit_pass)
+                visi = !visi
             }
 
             bottom.setOnClickListener {
                 if (edit_pass.text.isNotEmpty() && edit_information.text.isNotEmpty()) {
-                    val c = Cipher.getInstance("AES/GCM/NoPadding")
-                    c.init(Cipher.ENCRYPT_MODE, deri_expressed(context))
+                    val mk = MasterKey.Builder(context)
+                        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                        .build()
+                    val pref = EncryptedSharedPreferences.create(context, "ap", mk,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
 
-                    db.update_pass(passData.id,
-                        Base64.getEncoder().withoutPadding()
-                            .encodeToString(c.doFinal(edit_pass.text.toString().toByteArray())),
-                        edit_information.text.toString(),
-                        Base64.getEncoder().withoutPadding().encodeToString(c.iv)
-                    )
+                    val c = Cipher.getInstance("AES/GCM/NoPadding")
+                    c.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
+
+                    if (db_sus) {
+                        db.update_pass(
+                            passData.id,
+                            Base64.getEncoder().withoutPadding()
+                                .encodeToString(c.doFinal(edit_pass.text.toString().toByteArray())),
+                            edit_information.text.toString(),
+                            Base64.getEncoder().withoutPadding().encodeToString(c.iv)
+                        )
+                    }
                     passData.information = edit_information.text.toString()
                     passData.pass = edit_pass.text.toString()
                     add_register(context, "A password has been edited")
@@ -121,7 +126,9 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
         }
 
         delete.setOnClickListener {
-            db.delete_pass(passData.id)
+            if (db_sus) {
+                db.delete_pass(passData.id)
+            }
             pass_list.removeIf { it.id == passData.id }
             add_register(context, "A password has been deleted")
             pass_update = true

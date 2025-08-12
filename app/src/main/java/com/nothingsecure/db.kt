@@ -100,6 +100,11 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
         }
     }
 
+    fun delete_prin() {
+        val db = this.writableDatabase
+
+        db.execSQL("DELETE FROM pass")
+    }
 
     fun delete_all () {
         val db = this.writableDatabase
