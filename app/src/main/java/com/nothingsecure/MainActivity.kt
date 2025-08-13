@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pass_adapter: pass_adapter
     private lateinit var load_dialog: Dialog
     private lateinit var ex_im_coru: Job
+    private lateinit var back_b: ConstraintLayout
     private var time = 0
     private var back = false
 
@@ -136,16 +137,23 @@ class MainActivity : AppCompatActivity() {
         val desencrypt_passwords = findViewById<AppCompatButton>(R.id.import_passwords)
         val delete_all = findViewById<ShapeableImageView>(R.id.delete_all)
         val im_ex = findViewById<ShapeableImageView>(R.id.im_ex)
+        back_b = findViewById<ConstraintLayout>(R.id.back_b)
 
         info_exist.visibility = View.INVISIBLE
         search_pass.visibility = View.INVISIBLE
         recy.visibility = View.INVISIBLE
         add.visibility = View.INVISIBLE
+        back_b.visibility = View.INVISIBLE
 
         val db = db(this)
 
 
         pref.edit().putBoolean("desen_pass", false).commit()
+
+        val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        if(ks.getKey(pref.getString("key_u", ""), null) == null) {
+            pref.edit().putBoolean("deri", true).commit()
+        }
 
         fun init_acti() {
             history.isEnabled = true
@@ -191,6 +199,16 @@ class MainActivity : AppCompatActivity() {
             desencrypt_passwords.visibility = View.INVISIBLE
             add.visibility = View.VISIBLE
             recy.visibility = View.VISIBLE
+            pref.edit().putBoolean("desen_pass", true).commit()
+        }
+
+        back_b.setOnClickListener {
+            pref.edit().putBoolean("deri", false).commit()
+            pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
+            pref.edit().putString("key_u_r", "").commit()
+            back = true
+            pause = true
+            recreate()
         }
 
         desencrypt_passwords.setOnClickListener {
@@ -412,8 +430,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 recy.visibility = View.VISIBLE
                 info_exist.visibility = View.INVISIBLE
-                options_dialog.dismiss()
                 pause = true
+                options_dialog.dismiss()
                 startActivityForResult(intent, 1001)
             }
 
@@ -684,21 +702,6 @@ class MainActivity : AppCompatActivity() {
             gene_dilaog.show()
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT) {
-                if (back) {
-                    pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
-                    pref.edit().putString("key_u_r", "").commit()
-                    pref.edit().putBoolean("deri", false).commit()
-                    db_sus = true
-                    pass_list.clear()
-                    recreate()
-                }else {
-                    finish()
-                }
-            }
-        }
-
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
@@ -716,7 +719,11 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         add_register(this, "The app has been closed")
         pref.edit().putBoolean("deri", false).commit()
-        pref.edit().putString("key_u", "").commit()
+        if (!back) {
+            pref.edit().putString("key_u", "").commit()
+        }
+        back = false
+        pass_list.clear()
     }
 
     override fun onPause() {
@@ -724,6 +731,7 @@ class MainActivity : AppCompatActivity() {
         if (!pause) {
             finishAffinity()
         }
+        pause = false
     }
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         if (event?.action == MotionEvent.ACTION_DOWN) {
@@ -804,10 +812,11 @@ class MainActivity : AppCompatActivity() {
                                                 import(applicationContext, json_f, import_input_pass.text.toString(), db_sus)
                                                 withContext(Dispatchers.Main) {
                                                     load_dialog.dismiss()
-                                                    Log.e("pass", pref.getString("key_u", "").toString())
-                                                    Log.e("deri", pref.getBoolean("deri", false).toString())
                                                     Toast.makeText(applicationContext, "Passwords loaded", Toast.LENGTH_LONG).show()
-                                                    finishAffinity()
+                                                    pause = true
+                                                    back = true
+                                                    db_sus = true
+                                                    recreate()
                                                 }
                                                 ex_im_coru.cancel()
                                             }
@@ -828,6 +837,7 @@ class MainActivity : AppCompatActivity() {
                                         withContext(Dispatchers.Main) {
                                             load_dialog.dismiss()
                                             pass_adapter.update(pass_list)
+                                            back_b.visibility = View.VISIBLE
                                         }
                                         back = true
                                         ex_im_coru.cancel()

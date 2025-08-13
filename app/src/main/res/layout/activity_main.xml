@@ -56,6 +56,29 @@
         android:layout_marginTop="10dp"
         />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/back_b"
+        android:layout_width="15dp"
+        android:layout_height="100dp"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="5dp"
+        >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_l"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <SearchView
         android:id="@+id/search"
         android:layout_width="wrap_content"

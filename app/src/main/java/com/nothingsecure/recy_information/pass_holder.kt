@@ -73,7 +73,10 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             edit_information.setText(passData.information)
             edit_pass.setText(passData.pass)
             bottom.text = "Edit"
+
             edit_pass.isSelected = false
+
+            edit_pass.isLongClickable = false
 
             entropy(edit_pass.text.toString(), edit_progress)
             edit_pass.addTextChangedListener {dato ->
@@ -152,6 +155,9 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             copy.setOnClickListener {
                 val manage = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clip = ClipData.newPlainText("pass", see_password.text.toString())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    manage.clearPrimaryClip()
+                }
                 manage.setPrimaryClip(clip)
                 copy_intent ++
                 add_register(context, "A password has been copied")
