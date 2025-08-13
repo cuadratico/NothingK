@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.2.5  | :white_check_mark: |
+|  0.2.6  | :white_check_mark: |
+|  0.2.5  | :x: |
 |  0.1.5  | :x: |
 |  0.0.5  | :x: |
 |  0.0.4  | :x: |
