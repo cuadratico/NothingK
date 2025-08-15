@@ -31,13 +31,11 @@ fun export (context: Context, password: String, salt: String, arch_name: String,
         val c = Cipher.getInstance("AES/GCM/NoPadding")
         c.init(Cipher.ENCRYPT_MODE, key)
 
-        pass_list[position].pass = Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(pass.toByteArray()))
-        pass_list[position].iv = Base64.getEncoder().withoutPadding().encodeToString(c.iv)
 
         val data = JSONObject().apply {
-            put("pass", pass_list[position].pass)
+            put("pass", Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(pass.toByteArray())))
             put("info", info)
-            put("iv", pass_list[position].iv)
+            put("iv", Base64.getEncoder().withoutPadding().encodeToString(c.iv))
         }
 
         json_array.put(data)

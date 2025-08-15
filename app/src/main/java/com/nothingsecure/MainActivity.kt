@@ -153,7 +153,11 @@ class MainActivity : AppCompatActivity() {
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         if(ks.getKey(pref.getString("key_u", ""), null) == null) {
             pref.edit().putBoolean("deri", true).commit()
+        }else {
+            pref.edit().putBoolean("deri", false).commit()
         }
+        Log.e("deri", pref.getBoolean("deri", false).toString())
+        Log.e("key", pref.getString("key_u", "").toString())
 
         fun init_acti() {
             history.isEnabled = true
@@ -182,7 +186,7 @@ class MainActivity : AppCompatActivity() {
                         pass_update = false
                         withContext(Dispatchers.Main) {
                             pass_adapter.update(pass_list)
-                            if (pass_list.size == 0) {
+                            if (pass_list.isEmpty()) {
                                 info_exist.visibility = View.VISIBLE
                                 search_pass.visibility = View.INVISIBLE
                             }
@@ -204,8 +208,11 @@ class MainActivity : AppCompatActivity() {
 
         back_b.setOnClickListener {
             pref.edit().putBoolean("deri", false).commit()
-            pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
-            pref.edit().putString("key_u_r", "").commit()
+            if (!db_sus) {
+                pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
+                pref.edit().putString("key_u_r", "").commit()
+            }
+            db_sus = true
             back = true
             pause = true
             recreate()
@@ -342,6 +349,16 @@ class MainActivity : AppCompatActivity() {
                 val select_directory = export_view.findViewById<AppCompatSpinner>(R.id.directory_spinner)
 
                 val export_button = export_view.findViewById<AppCompatButton>(R.id.export_buttom)
+                val create_new_a = export_view.findViewById<AppCompatButton>(R.id.create_new_a)
+
+                create_new_a.setOnClickListener {
+                    back_b.visibility = View.VISIBLE
+                    pass_list.clear()
+                    pass_adapter.update(pass_list)
+                    info_exist.visibility = View.VISIBLE
+                    search_pass.visibility = View.INVISIBLE
+                    export_dialog.dismiss()
+                }
 
                 info_export.setOnClickListener {
                     val dialog_info_export = AlertDialog.Builder(this).apply {
@@ -355,11 +372,7 @@ class MainActivity : AppCompatActivity() {
                 // specify password
                 var visibility_export_dialog = false
                 export_pass_visi.setOnClickListener {
-                    if (visibility_export_dialog) {
-                        visibility_export_dialog = false
-                    }else {
-                        visibility_export_dialog = true
-                    }
+                    visibility_export_dialog = !visibility_export_dialog
                     visibility(visibility_export_dialog, export_icon_visi, input_pass_export)
                 }
 
@@ -717,10 +730,10 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onDestroy() {
         super.onDestroy()
-        add_register(this, "The app has been closed")
         pref.edit().putBoolean("deri", false).commit()
         if (!back) {
             pref.edit().putString("key_u", "").commit()
+            add_register(this, "The app has been closed")
         }
         back = false
         pass_list.clear()
@@ -776,11 +789,7 @@ class MainActivity : AppCompatActivity() {
 
                         var visible = false
                         import_visible_button.setOnClickListener {
-                            if (visible) {
-                                visible = false
-                            }else {
-                                visible = true
-                            }
+                            visible = !visible
                             visibility(visible, import_icon_visible, import_input_pass)
                         }
 
@@ -807,6 +816,7 @@ class MainActivity : AppCompatActivity() {
 
                                         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                             super.onAuthenticationSucceeded(result)
+                                            db_sus = true
                                             load("Decrypting the file")
                                             ex_im_coru = lifecycleScope.launch (Dispatchers.IO){
                                                 import(applicationContext, json_f, import_input_pass.text.toString(), db_sus)
@@ -815,7 +825,6 @@ class MainActivity : AppCompatActivity() {
                                                     Toast.makeText(applicationContext, "Passwords loaded", Toast.LENGTH_LONG).show()
                                                     pause = true
                                                     back = true
-                                                    db_sus = true
                                                     recreate()
                                                 }
                                                 ex_im_coru.cancel()

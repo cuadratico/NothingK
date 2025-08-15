@@ -263,4 +263,21 @@
         android:text="Export"
         android:textAllCaps="false"
         />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/create_new_a"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_red"
+        app:layout_constraintTop_toBottomOf="@id/export_buttom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textColor="@color/n_white"
+        android:fontFamily="monospace"
+        android:text="Create a new file"
+        android:textAllCaps="false"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>
