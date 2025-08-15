@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var load_dialog: Dialog
     private lateinit var ex_im_coru: Job
     private lateinit var back_b: ConstraintLayout
+    private var a_new = true
     private var time = 0
     private var back = false
 
@@ -156,8 +157,6 @@ class MainActivity : AppCompatActivity() {
         }else {
             pref.edit().putBoolean("deri", false).commit()
         }
-        Log.e("deri", pref.getBoolean("deri", false).toString())
-        Log.e("key", pref.getString("key_u", "").toString())
 
         fun init_acti() {
             history.isEnabled = true
@@ -208,10 +207,11 @@ class MainActivity : AppCompatActivity() {
 
         back_b.setOnClickListener {
             pref.edit().putBoolean("deri", false).commit()
-            if (!db_sus) {
+            if (!a_new) {
                 pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
                 pref.edit().putString("key_u_r", "").commit()
             }
+            a_new = false
             db_sus = true
             back = true
             pause = true
@@ -357,6 +357,12 @@ class MainActivity : AppCompatActivity() {
                     pass_adapter.update(pass_list)
                     info_exist.visibility = View.VISIBLE
                     search_pass.visibility = View.INVISIBLE
+                    if (!a_new) {
+                        pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
+                        pref.edit().putString("key_u_r", "").commit()
+                    }
+                    db_sus = false
+                    a_new = true
                     export_dialog.dismiss()
                 }
 
@@ -377,7 +383,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 input_pass_export.addTextChangedListener {dato ->
-                        entropy(dato.toString(), progress_export)
+                    entropy(dato.toString(), progress_export)
                 }
 
                 checkBox_export.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
@@ -437,6 +443,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             import_button.setOnClickListener {
+                if (!a_new) {
+                    pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
+                    pref.edit().putString("key_u_r", "").commit()
+                }
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     type = "*/*"
@@ -756,7 +766,8 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, caller: ComponentCaller) {
         super.onActivityResult(requestCode, resultCode, data, caller)
-        pause = false
+        if (resultCode == -1) {
+            pause = false
             val uri = data!!.data
             val query = contentResolver.query(uri!!, null, null, null, null, null)
 
@@ -766,24 +777,30 @@ class MainActivity : AppCompatActivity() {
 
                 if (!name.matches(Regex(".*nk.*"))) {
                     Toast.makeText(this, "The file is not correct", Toast.LENGTH_SHORT).show()
-                }else {
+                } else {
 
-                    val info_archive = this.contentResolver.openInputStream(uri)?.bufferedReader().use { it?.readText() }
+                    val info_archive = this.contentResolver.openInputStream(uri)?.bufferedReader()
+                        .use { it?.readText() }
                     val json_f = JSONObject(info_archive)
 
                     if (json_f.has("salt") && json_f.has("pass_list") && json_f.has("pro")) {
 
                         val import_dialog = Dialog(this)
-                        val import_view = LayoutInflater.from(this).inflate(R.layout.dialog_import, null)
+                        val import_view =
+                            LayoutInflater.from(this).inflate(R.layout.dialog_import, null)
 
                         val import_input_pass = import_view.findViewById<EditText>(R.id.input_pass)
-                        val import_visible_button = import_view.findViewById<ConstraintLayout>(R.id.password_visibility)
-                        val import_icon_visible = import_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
-                        val import_progress = import_view.findViewById<LinearProgressIndicator>(R.id.progress)
+                        val import_visible_button =
+                            import_view.findViewById<ConstraintLayout>(R.id.password_visibility)
+                        val import_icon_visible =
+                            import_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
+                        val import_progress =
+                            import_view.findViewById<LinearProgressIndicator>(R.id.progress)
 
-                        val import_button = import_view.findViewById<AppCompatButton>(R.id.unlock_buttom)
+                        val import_button =
+                            import_view.findViewById<AppCompatButton>(R.id.unlock_buttom)
 
-                        import_input_pass.addTextChangedListener{dato ->
+                        import_input_pass.addTextChangedListener { dato ->
                             entropy(dato.toString(), import_progress)
                         }
 
@@ -797,7 +814,17 @@ class MainActivity : AppCompatActivity() {
                             val array_pro = json_f.getJSONArray("pro").getJSONObject(0)
 
                             val c = Cipher.getInstance("AES/GCM/NoPadding")
-                            c.init(Cipher.DECRYPT_MODE, derived_Key(import_input_pass.text.toString(), json_f.getString("salt")), GCMParameterSpec(128, Base64.getDecoder().decode(array_pro.getString("iv"))))
+                            c.init(
+                                Cipher.DECRYPT_MODE,
+                                derived_Key(
+                                    import_input_pass.text.toString(),
+                                    json_f.getString("salt")
+                                ),
+                                GCMParameterSpec(
+                                    128,
+                                    Base64.getDecoder().decode(array_pro.getString("iv"))
+                                )
+                            )
 
                             try {
                                 c.doFinal(Base64.getDecoder().decode(array_pro.getString("value")))
@@ -806,43 +833,68 @@ class MainActivity : AppCompatActivity() {
                                 val dialog_db_sus = android.app.AlertDialog.Builder(this)
                                 dialog_db_sus.setTitle("You want to replace your db or preview the file.")
                                 dialog_db_sus.setMessage("If you replace the DB, all information will be deleted, and if you replace the file, you will be able to modify it without any problems.")
-                                dialog_db_sus.setPositiveButton("Yes"){_, _ ->
+                                dialog_db_sus.setPositiveButton("Yes") { _, _ ->
                                     val promt = BiometricPrompt.PromptInfo.Builder()
                                         .setTitle("Authentication is required")
                                         .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG)
                                         .build()
 
-                                    BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+                                    BiometricPrompt(
+                                        this,
+                                        ContextCompat.getMainExecutor(this),
+                                        object : BiometricPrompt.AuthenticationCallback() {
 
-                                        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                                            super.onAuthenticationSucceeded(result)
-                                            db_sus = true
-                                            load("Decrypting the file")
-                                            ex_im_coru = lifecycleScope.launch (Dispatchers.IO){
-                                                import(applicationContext, json_f, import_input_pass.text.toString(), db_sus)
-                                                withContext(Dispatchers.Main) {
-                                                    load_dialog.dismiss()
-                                                    Toast.makeText(applicationContext, "Passwords loaded", Toast.LENGTH_LONG).show()
-                                                    pause = true
-                                                    back = true
-                                                    recreate()
+                                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                                super.onAuthenticationSucceeded(result)
+                                                db_sus = true
+                                                load("Decrypting the file")
+                                                ex_im_coru = lifecycleScope.launch(Dispatchers.IO) {
+                                                    import(
+                                                        applicationContext,
+                                                        json_f,
+                                                        import_input_pass.text.toString(),
+                                                        db_sus
+                                                    )
+                                                    withContext(Dispatchers.Main) {
+                                                        load_dialog.dismiss()
+                                                        Toast.makeText(
+                                                            applicationContext,
+                                                            "Passwords loaded",
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
+                                                        pause = true
+                                                        back = true
+                                                        recreate()
+                                                    }
+                                                    ex_im_coru.cancel()
                                                 }
-                                                ex_im_coru.cancel()
                                             }
-                                        }
 
-                                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                                            super.onAuthenticationError(errorCode, errString)
-                                            Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }).authenticate(promt)
+                                            override fun onAuthenticationError(
+                                                errorCode: Int,
+                                                errString: CharSequence
+                                            ) {
+                                                super.onAuthenticationError(errorCode, errString)
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    "Authentication error",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }).authenticate(promt)
 
                                 }
-                                dialog_db_sus.setNegativeButton("No"){_, _ ->
+                                dialog_db_sus.setNegativeButton("No") { _, _ ->
+                                    a_new = false
                                     db_sus = false
                                     load("Decrypting the file")
-                                    ex_im_coru = lifecycleScope.launch (Dispatchers.IO){
-                                        import(applicationContext, json_f, import_input_pass.text.toString(), db_sus)
+                                    ex_im_coru = lifecycleScope.launch(Dispatchers.IO) {
+                                        import(
+                                            applicationContext,
+                                            json_f,
+                                            import_input_pass.text.toString(),
+                                            db_sus
+                                        )
                                         withContext(Dispatchers.Main) {
                                             load_dialog.dismiss()
                                             pass_adapter.update(pass_list)
@@ -855,12 +907,12 @@ class MainActivity : AppCompatActivity() {
                                 dialog_db_sus.show()
 
 
-
-
-
-
-                            }catch (e: Exception) {
-                                Toast.makeText(this, "The password is not correct", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    this,
+                                    "The password is not correct",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 import_input_pass.setText("")
                             }
                         }
@@ -869,11 +921,17 @@ class MainActivity : AppCompatActivity() {
                         import_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         import_dialog.show()
 
-                    }else {
-                        Toast.makeText(this, "The file structure is not correct", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "The file structure is not correct",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
+        }
 
     }
+
 }
