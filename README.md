@@ -6,32 +6,30 @@
 # Nothing K?
 
 A digital vault for storing passwords with symmetric cryptography. Nothing K uses AES256/GCM.
-Nothing K also includes a password generator and encrypted logs.
+Nothing K also includes a password generator, encrypted logs and a file export and import system.
 
 # Important notice!
 Nothing K is not a collaboration with Nothing (company), meaning that no Nothing (company) developers or any of its technology have been used in the development of Nothing K. Nothing K is my own project, developed with open-source technologies and under legal licenses.
 
 # Where to download Nothing K
-So far, NothingK is only available in this repo and Izzysoft. It's also being approved for F-Droid.
+So far, NothingK is only available in this repo, Izzysoft and androidfreeware. It's also being approved for F-Droid.
 Other platforms not mentioned that contain NothingK may not be secure.
 Be careful.
 
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-# APK Security V0.2.6
-https://www.virustotal.com/gui/file/1059d272950f8d9a3cfc88ea3e76ca87867a04b45decbcc526ef718f59646e91?nocache=1
+# APK Security V0.2.7
+https://www.virustotal.com/gui/file/5914b0acc412f65af3c434974f74d3db9c5a14126a4050156d5741275835152a?nocache=1 
 
 # APK Scan V0.0.5
 An analysis with MOBFS has also been performed.
 - security note (52/100)
 - Trackers Detection (0/432)
 
-https://mobsf.live/static_analyzer/5cf993a2393a7439fcd78ff39c17974a/#receivers
-
 
 # Technologies used
  - Languages: Kotlin and SQL
- - Tools: AES256/GCM, AndroidKeyStore and security and Biometric Library (Android)
+ - Tools: AES256/GCM, AndroidKeyStore, security and Biometric Library (Android), PBKDF2 (Key derivation algorithm) and Json
 
  ## Screenshots
 
