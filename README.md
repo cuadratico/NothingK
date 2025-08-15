@@ -6,13 +6,13 @@
 # Nothing K?
 
 A digital vault for storing passwords with symmetric cryptography. Nothing K uses AES256/GCM.
-Nothing K also includes a password generator and encrypted logs.
+Nothing K also includes a password generator, encrypted logs and a file export and import system.
 
 # Important notice!
 Nothing K is not a collaboration with Nothing (company), meaning that no Nothing (company) developers or any of its technology have been used in the development of Nothing K. Nothing K is my own project, developed with open-source technologies and under legal licenses.
 
 # Where to download Nothing K
-So far, NothingK is only available in this repo and Izzysoft. It's also being approved for F-Droid.
+So far, NothingK is only available in this repo, Izzysoft and androidfreeware. It's also being approved for F-Droid.
 Other platforms not mentioned that contain NothingK may not be secure.
 Be careful.
 
@@ -29,7 +29,7 @@ An analysis with MOBFS has also been performed.
 
 # Technologies used
  - Languages: Kotlin and SQL
- - Tools: AES256/GCM, AndroidKeyStore and security and Biometric Library (Android)
+ - Tools: AES256/GCM, AndroidKeyStore, security and Biometric Library (Android), PBKDF2 (Key derivation algorithm) and Json
 
  ## Screenshots
 
