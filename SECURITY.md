@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.2.7  | :white_check_mark: |
+|  0.2.7.mini-fix  | :white_check_mark: |
+|  0.2.7  | :x: |
 |  0.2.6  | :x: |
 |  0.2.5  | :x: |
 |  0.1.5  | :x: |
