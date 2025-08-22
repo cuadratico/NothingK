@@ -12,6 +12,10 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.shapes.Shape
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -83,7 +87,7 @@ var logs_update = false
 var pass_update = false
 var copy_intent = 0
 var db_sus = true
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var load_corou: Job
     private lateinit var logs_adapter: logs_adapter
     private lateinit var pass_adapter: pass_adapter
@@ -93,7 +97,8 @@ class MainActivity : AppCompatActivity() {
     private var a_new = true
     private var time = 0
     private var back = false
-
+    private lateinit var sensor_manager: SensorManager
+    private var start = false
     private lateinit var mk: MasterKey
     private lateinit var pref: SharedPreferences
     private var pause = false
@@ -725,6 +730,9 @@ class MainActivity : AppCompatActivity() {
             gene_dilaog.show()
         }
 
+        sensor_manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensor_manager.registerListener(this, sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
+
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
@@ -740,10 +748,12 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onDestroy() {
         super.onDestroy()
+        copy_intent = 0
         pref.edit().putBoolean("deri", false).commit()
         if (!back) {
             pref.edit().putString("key_u", "").commit()
-            add_register(this, "The app has been closed")
+            sensor_manager.unregisterListener(this)
+            add_register(this, if (pref.getBoolean("close", false)) { "The app has been closed due to a sudden movement" } else { "The app has been closed" })
         }
         back = false
         pass_list.clear()
@@ -932,6 +942,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
+
+    override fun onSensorChanged(event: SensorEvent?) {
+
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+
+            if (start) {
+                force(this, event.values[0], event.values[1], event.values[2])
+            }
+            x_regi = event.values[0]
+            y_regi = event.values[1]
+            z_regi = event.values[2]
+
+            start = true
+        }
     }
 
 }

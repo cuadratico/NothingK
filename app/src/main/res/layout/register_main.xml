@@ -24,6 +24,7 @@
         />
 
     <TextView
+        android:id="@+id/info_close"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="Make sure no one is looking at the screen"

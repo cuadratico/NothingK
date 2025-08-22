@@ -4,10 +4,15 @@ import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.shapes.Shape
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
@@ -55,7 +60,9 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import kotlin.random.Random
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity(), SensorEventListener {
+    private var start = false
+    private lateinit var sensor_manager: SensorManager
     @SuppressLint("MissingInflatedId")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +72,7 @@ class RegisterActivity : AppCompatActivity() {
 
         delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
 
+        val info_close = findViewById<TextView>(R.id.info_close)
         val information = findViewById<TextView>(R.id.information_register)
         val input_pass = findViewById<EditText>(R.id.input_password)
         val pass_visi = findViewById<ConstraintLayout>(R.id.password_visibility)
@@ -130,6 +138,10 @@ class RegisterActivity : AppCompatActivity() {
         }
 
 
+        if (pref.getBoolean("close", false)) {
+            pref.edit().putBoolean("close", false).commit()
+            info_close.text = "The last time the app closed due to a sudden movement"
+        }
         pass_visi.setOnClickListener {
             visibility(pass_see, icon, input_pass)
             pass_see = !pass_see
@@ -264,6 +276,9 @@ class RegisterActivity : AppCompatActivity() {
         }
 
 
+        sensor_manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensor_manager.registerListener(this, sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
+
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
@@ -273,6 +288,25 @@ class RegisterActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sensor_manager.unregisterListener(this)
+    }
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+
+            if (start) {
+                force(this, event.values[0], event.values[1], event.values[2])
+            }
+            x_regi = event.values[0]
+            y_regi = event.values[1]
+            z_regi = event.values[2]
+            start = true
         }
     }
 }

@@ -1,12 +1,14 @@
 package com.nothingsecure
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.toColorInt
 import androidx.security.crypto.EncryptedSharedPreferences
@@ -24,6 +26,7 @@ import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
+import kotlin.math.abs
 import kotlin.math.log2
 
 
@@ -168,4 +171,23 @@ fun visibility (visi: Boolean, icon: ShapeableImageView, input: EditText) {
         input.transformationMethod = null
     }
     input.setSelection(input.text.length)
+}
+
+var x_regi = 0f
+var y_regi = 0f
+var z_regi = 0f
+
+fun force (context: Activity,  x: Float, y: Float, z: Float) {
+
+    if (abs(x_regi - x) > 12 || abs(y_regi - y) > 12 || abs(z_regi - z) > 12) {
+        val mk = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        val pref = EncryptedSharedPreferences.create(context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+
+        pref.edit().putBoolean("close", true).commit()
+        context.finishAffinity()
+    }
+
 }
