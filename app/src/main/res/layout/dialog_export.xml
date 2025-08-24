@@ -35,7 +35,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/all"
         android:layout_width="300dp"
-        android:layout_height="400dp"
+        android:layout_height="wrap_content"
         android:backgroundTint="@color/b_black"
         android:background="@drawable/corner_25"
         app:layout_constraintTop_toTopOf="parent"
@@ -52,7 +52,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             android:backgroundTint="@color/n_red"
             >
 
@@ -67,22 +67,35 @@
                 app:layout_constraintStart_toStartOf="parent"
                 />
 
-            <EditText
-                android:id="@+id/input_pass"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/pass_back"
                 android:layout_width="270dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/info_pass"
                 android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:hint="password"
-                android:inputType="textPassword"
-                android:textSize="19dp"
-                android:gravity="center"
-                android:textColor="@color/n_white"
-                android:fontFamily="monospace"
-                android:maxLines="1"
-                />
+                app:boxStrokeColor="@color/style_edit_text"
+                android:textColorHint="@color/design_default_color_surface"
+                app:hintTextColor="@color/n_white"
+                app:cursorColor="@color/n_white"
+                >
+
+                <EditText
+                    android:id="@+id/input_pass"
+                    android:layout_width="270dp"
+                    android:layout_height="wrap_content"
+                    android:hint="password"
+                    android:inputType="textPassword"
+                    android:textSize="19dp"
+                    android:gravity="center"
+                    android:textColor="@color/n_white"
+                    android:fontFamily="monospace"
+                    android:maxLines="1"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/progress"
@@ -90,10 +103,10 @@
                 android:layout_height="wrap_content"
                 app:indicatorColor="@color/b_black"
                 app:trackColor="@color/b_black"
-                app:layout_constraintEnd_toEndOf="@id/input_pass"
-                app:layout_constraintStart_toStartOf="@id/input_pass"
-                app:layout_constraintTop_toBottomOf="@id/input_pass"
-
+                app:layout_constraintEnd_toEndOf="@id/pass_back"
+                app:layout_constraintStart_toStartOf="@id/pass_back"
+                app:layout_constraintTop_toBottomOf="@id/pass_back"
+                android:layout_marginTop="5dp"
                 />
 
             <androidx.appcompat.widget.AppCompatCheckBox
@@ -142,29 +155,42 @@
                 app:layout_constraintStart_toStartOf="parent"
                 />
 
-            <EditText
-                android:id="@+id/input_name"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/name_back"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/info_name"
                 android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:hint="Name"
-                android:textSize="19dp"
-                android:gravity="center"
-                android:textColor="@color/n_white"
-                android:fontFamily="monospace"
-                android:maxLines="1"
-                />
+                app:boxStrokeColor="@color/style_edit_text"
+                android:textColorHint="@color/design_default_color_surface"
+                app:hintTextColor="@color/n_white"
+                app:cursorColor="@color/n_white"
+                >
+
+                <EditText
+                    android:id="@+id/input_name"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:hint="Name"
+                    android:textSize="19dp"
+                    android:gravity="center"
+                    android:textColor="@color/n_white"
+                    android:fontFamily="monospace"
+                    android:maxLines="1"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
 
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="19dp"
-                app:layout_constraintBottom_toBottomOf="@id/input_name"
-                app:layout_constraintStart_toEndOf="@id/input_name"
+                app:layout_constraintBottom_toBottomOf="@id/name_back"
+                app:layout_constraintStart_toEndOf="@id/name_back"
                 android:text=".nk"
                 android:fontFamily="monospace"
                 />
@@ -190,6 +216,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/archive_name"
+            app:layout_constraintBottom_toBottomOf="@id/all"
+            android:layout_marginBottom="20dp"
             android:layout_marginTop="30dp"
             android:backgroundTint="@color/n_red"
             >

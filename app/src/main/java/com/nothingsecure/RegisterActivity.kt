@@ -13,6 +13,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.inputmethodservice.ExtractEditText
 import android.os.Build
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
@@ -45,6 +46,8 @@ import androidx.security.crypto.MasterKey
 import com.google.android.material.animation.AnimationUtils
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -210,7 +213,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
 
         create.setOnClickListener {
-            if (input_pass.text.isNotEmpty() && input_pass.text.length >= 8) {
+            if (input_pass.text!!.isNotEmpty() && input_pass.text!!.length >= 8) {
                 val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
                 if (!derived_check.isChecked) {
                     val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)

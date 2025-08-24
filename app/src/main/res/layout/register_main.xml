@@ -75,34 +75,49 @@
             android:layout_marginBottom="7dp"
             android:layout_marginStart="7dp"
             />
-        <EditText
-            android:id="@+id/input_password"
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/input_password_background"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:hint="Password here"
-            android:textColorHint="@color/n_grew"
-            android:textColor="@color/black"
-            android:fontFamily="monospace"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:maxWidth="200dp"
-            android:maxLines="2"
-            android:layout_marginEnd="20dp"
-            android:gravity="center"
-            android:inputType="textPassword"
-            />
+            app:boxStrokeColor="@color/n_red"
+            android:textColorHint="@color/design_default_color_surface"
+            app:hintTextColor="@color/b_black"
+            >
+
+            <EditText
+                android:id="@+id/input_password"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:hint="Password here"
+                android:textColorHint="@color/n_grew"
+                android:textColor="@color/black"
+                android:fontFamily="monospace"
+                android:maxWidth="200dp"
+                android:maxLines="2"
+                android:layout_marginEnd="20dp"
+                android:gravity="center"
+                android:inputType="textPassword"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress_pass"
             android:layout_width="100dp"
             android:layout_height="5dp"
-            app:layout_constraintEnd_toEndOf="@id/input_password"
-            app:layout_constraintStart_toStartOf="@id/input_password"
-            app:layout_constraintTop_toBottomOf="@id/input_password"
+            app:layout_constraintEnd_toEndOf="@id/input_password_background"
+            app:layout_constraintStart_toStartOf="@id/input_password_background"
+            app:layout_constraintTop_toBottomOf="@id/input_password_background"
             app:trackColor="@color/n_white"
             app:indicatorColor="@color/n_white"
+            android:layout_marginTop="5dp"
             />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -114,7 +129,7 @@
             app:layout_constraintEnd_toEndOf="@id/back_pass"
             app:layout_constraintTop_toTopOf="@id/back_pass"
             app:layout_constraintBottom_toBottomOf="@id/back_pass"
-            app:layout_constraintStart_toEndOf="@id/input_password"
+            app:layout_constraintStart_toEndOf="@id/input_password_background"
             >
 
             <com.google.android.material.imageview.ShapeableImageView
