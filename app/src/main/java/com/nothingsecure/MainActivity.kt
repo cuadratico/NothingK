@@ -78,6 +78,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.security.KeyStore
+import java.security.SecureRandom
 import java.time.LocalDateTime
 import java.util.Base64
 import javax.crypto.Cipher
@@ -424,7 +425,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 load("Exporting your passwords...")
 
                                 ex_im_coru = lifecycleScope.launch (Dispatchers.IO){
-                                    export(applicationContext, input_pass_export.text.toString(), pref.getString("salt", "")!!, archive_name.text.toString(), directions_real[select_directory.selectedItem.toString()].toString())
+                                    export(applicationContext, input_pass_export.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)) , archive_name.text.toString(), directions_real[select_directory.selectedItem.toString()].toString())
                                     withContext(Dispatchers.Main) {
                                         load_dialog.dismiss()
                                     }
