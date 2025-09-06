@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/back_all"
+        android:layout_width="270dp"
+        android:layout_height="70dp"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/black"
+        app:layout_constraintStart_toStartOf="@id/back"
+        app:layout_constraintEnd_toEndOf="@id/back"
+        app:layout_constraintTop_toTopOf="@id/back"
+        app:layout_constraintBottom_toBottomOf="@id/back"
+        >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/thief_mode"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="30dp"
+            />
+
+        <TextView
+            android:id="@+id/text_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Security review"
+            android:textColor="@color/n_white"
+            android:fontFamily="monospace"
+            android:textSize="17dp"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="220dp"
+        android:layout_height="5dp"
+        app:layout_constraintEnd_toEndOf="@id/back_all"
+        app:layout_constraintStart_toStartOf="@id/back_all"
+        app:layout_constraintTop_toBottomOf="@id/back_all"
+        app:layout_constraintBottom_toBottomOf="@id/back"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_red"
+        />
+
+    <View
+        android:id="@+id/back"
+        android:layout_width="290dp"
+        android:layout_height="110dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

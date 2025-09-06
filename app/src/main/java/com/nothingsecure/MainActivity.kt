@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.shapes.Shape
@@ -24,6 +25,7 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -53,6 +55,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
@@ -67,11 +70,13 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.nothingsecure.db.Companion.pass_list
 import com.nothingsecure.db.Companion.register_list
+import com.nothingsecure.recy_information.conf_adapter.Companion.mods_all
 import com.nothingsecure.recy_information.logs_adapter
 import com.nothingsecure.recy_information.pass_adapter
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -83,11 +88,11 @@ import java.time.LocalDateTime
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
+import kotlin.system.exitProcess
 
 var logs_update = false
 var pass_update = false
 var copy_intent = 0
-var db_sus = true
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var load_corou: Job
     private lateinit var logs_adapter: logs_adapter
@@ -102,7 +107,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var start = false
     private lateinit var mk: MasterKey
     private lateinit var pref: SharedPreferences
+    private lateinit var color_part: View
+    private lateinit var multi_funtion: ShapeableImageView
     private var pause = false
+    private var key_count = 0
 
     private fun load (info: String) {
         load_dialog = Dialog(this)
@@ -133,8 +141,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         pref = EncryptedSharedPreferences.create(this, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
 
+        color_part = findViewById(R.id.color_modofy_part)
         val recy = findViewById<RecyclerView>(R.id.recy)
-        val info = findViewById<ShapeableImageView>(R.id.info)
+        val confi = findViewById<ShapeableImageView>(R.id.confi)
         val history = findViewById<ConstraintLayout>(R.id.logs_history)
         val add = findViewById<ConstraintLayout>(R.id.add)
         val generator = findViewById<ConstraintLayout>(R.id.generator)
@@ -142,9 +151,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val search_pass = findViewById<android.widget.SearchView>(R.id.search)
         val info_exist = findViewById<TextView>(R.id.info_exist)
         val desencrypt_passwords = findViewById<AppCompatButton>(R.id.import_passwords)
-        val delete_all = findViewById<ShapeableImageView>(R.id.delete_all)
+        multi_funtion = findViewById(R.id.multi_funtion_bot)
         val im_ex = findViewById<ShapeableImageView>(R.id.im_ex)
-        back_b = findViewById<ConstraintLayout>(R.id.back_b)
+        back_b = findViewById(R.id.back_b)
 
         info_exist.visibility = View.INVISIBLE
         search_pass.visibility = View.INVISIBLE
@@ -156,6 +165,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
 
         pref.edit().putBoolean("desen_pass", false).commit()
+        pref.edit().putBoolean("db_sus", pref.getBoolean("thief_mod", true)).commit()
 
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         if(ks.getKey(pref.getString("key_u", ""), null) == null) {
@@ -169,6 +179,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             search_pass.visibility = View.VISIBLE
             info_exist.visibility = View.INVISIBLE
         }
+
 
         pass_adapter = pass_adapter(pass_list)
         recy.adapter = pass_adapter
@@ -202,7 +213,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 delay(50)
             }
         }
-        if (!db.select_pass()) {
+        if (!pref.getBoolean("thief_mod", true) || !db.select_pass()) {
             search_pass.visibility = View.INVISIBLE
             info_exist.visibility = View.VISIBLE
             desencrypt_passwords.visibility = View.INVISIBLE
@@ -218,7 +229,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 pref.edit().putString("key_u_r", "").commit()
             }
             a_new = false
-            db_sus = true
+            pref.edit().putBoolean("db_sus", pref.getBoolean("thief_mode", true)).commit()
             back = true
             pause = true
             recreate()
@@ -268,66 +279,105 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         })
 
-        info.setOnClickListener {
-            val info_dialog = AlertDialog.Builder(this).apply {
-
-                setTitle("Do you want to give your opinion on Nothing K?")
-                setPositiveButton("Yes") {_, _ -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/EWnhgBtgu5jCB3Fa9")))}
-                setNegativeButton("No") {_, _ ->}
+        confi.setOnClickListener {
+            if (pref.getBoolean("thief_mod", true)) {
+                time = 60001
+                pause = true
+                startActivity(Intent(applicationContext, configurationActivity::class.java))
+            }else {
+                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
             }
-
-            info_dialog.show()
         }
 
-        delete_all.setOnClickListener {
-            val delete_dialog = AlertDialog.Builder(this)
+        multi_funtion.setOnClickListener {
+            if (pref.getBoolean("thief_mod", true)) {
+                val value = pref.getString("multi_but_text", "Delete all")
 
-                .setTitle("You want to delete all information from NothingK?")
-                .setPositiveButton("Eliminate"){_, _ ->
-                    if (BiometricManager.from(this).canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS) {
+                var load_message = "Deleting your information"
+                var title = "You want to delete all information from NothingK?"
+                var message = "This mode will erase all Nothing K data from this device without leaving any traces."
+                var posi_but = "Eliminate"
 
+                when (value) {
+                    "Backup mode" -> {
+                        title = "Do you want to backup your passwords?"
+                        message = "In this mode Nothing K will make a backup of your passwords naming the file bacjup_n.nk and using your default password to encrypt them."
+                        load_message = "Securing your passwords"
+                        posi_but = "Ensure"
+                    }
 
-                        val promt = BiometricPrompt.PromptInfo.Builder()
-                            .setTitle("Authenticate yourself")
-                            .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                            .setConfirmationRequired(true)
-                            .build()
-
-                        BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
-
-                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                                super.onAuthenticationSucceeded(result)
-
-                                pref.edit().clear().commit()
-                                db.delete_all()
-                                pass_list.clear()
-                                cacheDir.deleteRecursively()
-                                externalCacheDir?.deleteRecursively()
-
-                                val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-                                ks.deleteEntry(pref.getString("key_u", ""))
-
-                                recy.visibility = View.INVISIBLE
-                                info_exist.visibility = View.VISIBLE
-                                info_exist.text = "Bye"
-                                Thread.sleep(400)
-
-                                finishAffinity()
-                            }
-
-                            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                                super.onAuthenticationError(errorCode, errString)
-
-                                Toast.makeText(applicationContext, "Error", Toast.LENGTH_SHORT).show()
-                            }
-                        }).authenticate(promt)
-
+                    "Thief mode" -> {
+                        title = "Do you want to activate Nothing K's anti-theft mode?"
+                        message = "In this mode, Nothing K will use decoy passwords and a random password to export them (in case the thief does so). Some areas, such as the log view, will also be inaccessible. To deactivate it, you need to quickly press the volume up button twice."
+                        load_message = "Activating anti-theft mode"
+                        posi_but = "Activate it"
                     }
                 }
-                .setNegativeButton("No"){_, _ ->}
 
-            delete_dialog.show()
+                fun veri_mod() {
+
+                    load(load_message)
+
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        when (value) {
+                            "Thief mode" -> {
+                                pref.edit().putBoolean("thief_mod", false).commit()
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(applicationContext, "Anti-theft mode activated", Toast.LENGTH_SHORT).show()
+                                    finishAffinity()
+                                }
+                            }
+
+                            "Backup mode" -> {
+                                if (pref.getBoolean("desen_pass", false) && pass_list.isNotEmpty()) {
+                                    export(applicationContext, pref.getString("key_def", pref.getString("key_u", "")).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), "backup_n", Environment.DIRECTORY_DOWNLOADS)
+                                }else {
+                                    withContext(Dispatchers.Main) {
+                                        Toast.makeText(applicationContext, "Your passwords are not accessible", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+
+                            "Delete all" -> {
+                                delete_all_fun(applicationContext, pref)
+                            }
+                        }
+                        delay(500)
+                        withContext(Dispatchers.Main) {
+                            load_dialog.dismiss()
+                        }
+                    }
+                }
+
+
+                if (pref.getBoolean("mod_dialog", true)) {
+                    val dialog_mods = AlertDialog.Builder(this)
+                        .setTitle(title)
+                        .setMessage(message)
+                        .setPositiveButton(posi_but) { _, _ ->
+                            BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
+                                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                        super.onAuthenticationSucceeded(result)
+                                        veri_mod()
+                                    }
+                                }).authenticate(promt())
+                        }
+                        .setNegativeButton("At another time") { _, _ -> }
+                    dialog_mods.show()
+                } else {
+                    BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
+                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                super.onAuthenticationSucceeded(result)
+                                veri_mod()
+                            }
+                        }).authenticate(promt())
+                }
+            }else {
+                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
+            }
+
         }
+
 
         im_ex.setOnClickListener {
             val options_dialog = Dialog(this)
@@ -367,7 +417,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         pref.edit().putString("key_u", pref.getString("key_u_r", "")).commit()
                         pref.edit().putString("key_u_r", "").commit()
                     }
-                    db_sus = false
+                    pref.edit().putBoolean("db_sus", false).commit()
                     a_new = true
                     export_dialog.dismiss()
                 }
@@ -395,7 +445,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 checkBox_export.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
                     override fun onCheckedChanged(p0: CompoundButton, isCheck: Boolean) {
                         if (isCheck) {
-                           input_pass_export.setText(pref.getString("key_u", ""))
+                           input_pass_export.setText(pref.getString("key_def", pref.getString("key_u", "")))
                         }else {
                             input_pass_export.setText("")
                         }
@@ -411,11 +461,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 select_directory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, directions_list)
 
                 export_button.setOnClickListener {
-                    if (input_pass_export.text.isNotEmpty() && archive_name.text.isNotEmpty() && pass_list.isNotEmpty()) {
-                        val promt = BiometricPrompt.PromptInfo.Builder()
-                            .setTitle("Authentication is required")
-                            .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                            .build()
+                    if (input_pass_export.text.isNotEmpty() && archive_name.text.isNotEmpty()) {
 
                         BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
 
@@ -437,15 +483,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 super.onAuthenticationError(errorCode, errString)
                                 Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
                             }
-                        }).authenticate(promt)
+                        }).authenticate(promt("Authentication is required"))
                     }else {
-                        Toast.makeText(this, "Information missing or undecrypted passwords", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Information missing", Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                export_dialog.setContentView(export_view)
-                export_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                export_dialog.show()
+
+                if (pref.getBoolean("desen_pass", false) && pass_list.isNotEmpty()) {
+                    export_dialog.setContentView(export_view)
+                    export_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    export_dialog.show()
+                }else {
+                    Toast.makeText(this, "Your passwords are not accessible", Toast.LENGTH_SHORT).show()
+                }
             }
 
             import_button.setOnClickListener {
@@ -464,12 +515,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 startActivityForResult(intent, 1001)
             }
 
-            if (pref.getBoolean("desen_pass", false)) {
+            if (pref.getBoolean("thief_mod", true)) {
                 options_dialog.setContentView(options_view)
                 options_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 options_dialog.show()
             }else {
-                Toast.makeText(this, "You need to decrypt your passwords", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -500,14 +551,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     val c = Cipher.getInstance("AES/GCM/NoPadding")
                     c.init(Cipher.ENCRYPT_MODE, deri_expressed(this, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
 
-                    if (db_sus) {
+                    if (pref.getBoolean("db_sus", true)) {
                         db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(input_pass.text.toString().toByteArray())), info_pass.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                        add_register(this, "A password has been added")
                     }
                     pass_list.add(pass(if (pass_list.size != 0) { pass_list[pass_list.size - 1].id + 1 } else { 0 }, input_pass.text.toString(), info_pass.text.toString(), ""))
 
                     init_acti()
                     pass_adapter.update(pass_list)
-                    add_register(this, "A password has been added")
                     add_dialog.dismiss()
                 }else {
                     Toast.makeText(this, "Missing information to be filled in", Toast.LENGTH_SHORT).show()
@@ -541,11 +592,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     .setTitle("Do you want to delete all logs?")
                     .setPositiveButton("Yes") { _, _ ->
 
-                        val promt = BiometricPrompt.PromptInfo.Builder()
-                            .setTitle("You must authenticate to continue")
-                            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                            .build()
-
                         BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
 
                             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -559,7 +605,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 super.onAuthenticationError(errorCode, errString)
                                 Toast.makeText(applicationContext, "Error", Toast.LENGTH_SHORT).show()
                             }
-                        }).authenticate(promt)
+                        }).authenticate(promt("You must authenticate to continue"))
 
                         logs_dialog.dismiss()
 
@@ -587,7 +633,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             })
 
-            if (db.select_register()) {
+            if (db.select_register() && pref.getBoolean("thief_mod", true)) {
 
 
                 load("Loading logs...")
@@ -767,6 +813,38 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
         pause = false
     }
+
+    override fun onResume() {
+        super.onResume()
+        time = 0
+        color_part.backgroundTintList = ColorStateList.valueOf(pref.getString("color_back", "#FF000000")!!.toColorInt())
+        multi_funtion.setImageResource(mods_all.get(pref.getString("multi_but_icon", "Delete all"))!!)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (!pref.getBoolean("thief_mod", true)) {
+            key_count ++
+            if (key_count == 2) {
+                BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        pref.edit().putBoolean("thief_mod", true).commit()
+                        Toast.makeText(applicationContext, "Back to normal", Toast.LENGTH_SHORT).show()
+                        finishAffinity()
+                    }
+                }).authenticate(promt())
+            }
+
+            lifecycleScope.launch (Dispatchers.IO){
+                delay(500)
+                key_count = 0
+                cancel()
+            }
+
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         if (event?.action == MotionEvent.ACTION_DOWN) {
             time = 0
@@ -825,17 +903,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                             val array_pro = json_f.getJSONArray("pro").getJSONObject(0)
 
                             val c = Cipher.getInstance("AES/GCM/NoPadding")
-                            c.init(
-                                Cipher.DECRYPT_MODE,
-                                derived_Key(
-                                    import_input_pass.text.toString(),
-                                    json_f.getString("salt")
-                                ),
-                                GCMParameterSpec(
-                                    128,
-                                    Base64.getDecoder().decode(array_pro.getString("iv"))
-                                )
-                            )
+                            c.init(Cipher.DECRYPT_MODE, derived_Key(import_input_pass.text.toString(), json_f.getString("salt")), GCMParameterSpec(128, Base64.getDecoder().decode(array_pro.getString("iv"))))
 
                             try {
                                 c.doFinal(Base64.getDecoder().decode(array_pro.getString("value")))
@@ -845,34 +913,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 dialog_db_sus.setTitle("You want to replace your db or preview the file.")
                                 dialog_db_sus.setMessage("If you replace the DB, all information will be deleted, and if you replace the file, you will be able to modify it without any problems.")
                                 dialog_db_sus.setPositiveButton("Yes") { _, _ ->
-                                    val promt = BiometricPrompt.PromptInfo.Builder()
-                                        .setTitle("Authentication is required")
-                                        .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                                        .build()
 
-                                    BiometricPrompt(
-                                        this,
-                                        ContextCompat.getMainExecutor(this),
-                                        object : BiometricPrompt.AuthenticationCallback() {
+                                    BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
 
                                             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                                 super.onAuthenticationSucceeded(result)
-                                                db_sus = true
+                                                pref.edit().putBoolean("db_sus", true).commit()
                                                 load("Decrypting the file")
                                                 ex_im_coru = lifecycleScope.launch(Dispatchers.IO) {
-                                                    import(
-                                                        applicationContext,
-                                                        json_f,
-                                                        import_input_pass.text.toString(),
-                                                        db_sus
-                                                    )
+                                                    import(applicationContext, json_f, import_input_pass.text.toString())
                                                     withContext(Dispatchers.Main) {
                                                         load_dialog.dismiss()
-                                                        Toast.makeText(
-                                                            applicationContext,
-                                                            "Passwords loaded",
-                                                            Toast.LENGTH_LONG
-                                                        ).show()
+                                                        Toast.makeText(applicationContext, "Passwords loaded", Toast.LENGTH_LONG).show()
                                                         pause = true
                                                         back = true
                                                         recreate()
@@ -886,26 +938,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                                 errString: CharSequence
                                             ) {
                                                 super.onAuthenticationError(errorCode, errString)
-                                                Toast.makeText(
-                                                    applicationContext,
-                                                    "Authentication error",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
+                                                Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
                                             }
-                                        }).authenticate(promt)
+                                        }).authenticate(promt("Authentication is required"))
 
                                 }
                                 dialog_db_sus.setNegativeButton("No") { _, _ ->
                                     a_new = false
-                                    db_sus = false
+                                    pref.edit().putBoolean("db_sus", false).commit()
                                     load("Decrypting the file")
                                     ex_im_coru = lifecycleScope.launch(Dispatchers.IO) {
-                                        import(
-                                            applicationContext,
-                                            json_f,
-                                            import_input_pass.text.toString(),
-                                            db_sus
-                                        )
+                                        import(applicationContext, json_f, import_input_pass.text.toString())
                                         withContext(Dispatchers.Main) {
                                             load_dialog.dismiss()
                                             pass_adapter.update(pass_list)
@@ -919,11 +962,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
 
                             } catch (e: Exception) {
-                                Toast.makeText(
-                                    this,
-                                    "The password is not correct",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(this, "The password is not correct", Toast.LENGTH_SHORT).show()
                                 import_input_pass.setText("")
                             }
                         }
@@ -933,11 +972,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         import_dialog.show()
 
                     } else {
-                        Toast.makeText(
-                            this,
-                            "The file structure is not correct",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this, "The file structure is not correct", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -961,5 +996,4 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             start = true
         }
     }
-
 }

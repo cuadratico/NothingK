@@ -160,11 +160,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                 if (dato?.length == pref.getInt("size", 0)){
                     if (Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt", "")))) == pref.getString("hash", "")) {
                         if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
-                            val promt = BiometricPrompt.PromptInfo.Builder()
-                                .setTitle("Who are you?")
-                                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                                .setConfirmationRequired(true)
-                                .build()
 
                             BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
                                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -184,7 +179,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                                     input_pass.setText("")
                                     recreate()
                                 }
-                            }).authenticate(promt)
+                            }).authenticate(promt("Who are you?"))
                         }
                     }else {
                         val c = Cipher.getInstance("AES/GCM/NoPadding")

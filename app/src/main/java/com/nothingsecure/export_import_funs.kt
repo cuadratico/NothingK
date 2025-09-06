@@ -70,7 +70,7 @@ fun export (context: Context, password: String, salt: String, arch_name: String,
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun import (context: Context, json: JSONObject, pass: String, db_sus: Boolean) {
+fun import (context: Context, json: JSONObject, pass: String) {
 
     pass_list.clear()
     val mk = MasterKey.Builder(context)
@@ -86,7 +86,7 @@ fun import (context: Context, json: JSONObject, pass: String, db_sus: Boolean) {
     val key = derived_Key(pass, json.getString("salt"))
 
     val db = db(context)
-    if (db_sus) {
+    if (pref.getBoolean("db_sus", true)) {
         db.delete_prin()
     }else {
         pref.edit().putBoolean("deri", true).commit()
@@ -101,7 +101,7 @@ fun import (context: Context, json: JSONObject, pass: String, db_sus: Boolean) {
         c.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, Base64.getDecoder().decode(posi.getString("iv"))))
 
         val desen_pass = c.doFinal(Base64.getDecoder().decode(posi.getString("pass")))
-        if (db_sus) {
+        if (pref.getBoolean("db_sus", true)) {
             val c_db = Cipher.getInstance("AES/GCM/NoPadding")
             c_db.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
             db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c_db.doFinal(desen_pass)), posi.getString("info"), Base64.getEncoder().withoutPadding().encodeToString(c_db.iv))

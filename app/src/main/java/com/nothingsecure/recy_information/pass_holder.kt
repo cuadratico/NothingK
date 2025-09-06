@@ -30,7 +30,6 @@ import com.nothingsecure.add_register
 import com.nothingsecure.copy_intent
 import com.nothingsecure.db
 import com.nothingsecure.db.Companion.pass_list
-import com.nothingsecure.db_sus
 import com.nothingsecure.deri_expressed
 import com.nothingsecure.entropy
 import com.nothingsecure.pass
@@ -57,6 +56,13 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
 
         val context = title.context
         val db = db(context)
+
+        val mk = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        val pref = EncryptedSharedPreferences.create(context, "ap", mk,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
 
         edit.setOnClickListener {
             val edit_dialog = Dialog(context)
@@ -93,28 +99,15 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
 
             bottom.setOnClickListener {
                 if (edit_pass.text.isNotEmpty() && edit_information.text.isNotEmpty()) {
-                    val mk = MasterKey.Builder(context)
-                        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                        .build()
-                    val pref = EncryptedSharedPreferences.create(context, "ap", mk,
-                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
-
                     val c = Cipher.getInstance("AES/GCM/NoPadding")
                     c.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
 
-                    if (db_sus) {
-                        db.update_pass(
-                            passData.id,
-                            Base64.getEncoder().withoutPadding()
-                                .encodeToString(c.doFinal(edit_pass.text.toString().toByteArray())),
-                            edit_information.text.toString(),
-                            Base64.getEncoder().withoutPadding().encodeToString(c.iv)
-                        )
+                    if (pref.getBoolean("db_sus", true)) {
+                        db.update_pass(passData.id, Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(edit_pass.text.toString().toByteArray())), edit_information.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                        add_register(context, "A password has been edited")
                     }
                     passData.information = edit_information.text.toString()
                     passData.pass = edit_pass.text.toString()
-                    add_register(context, "A password has been edited")
                     pass_update = true
                     edit_dialog.dismiss()
                 }else {
@@ -129,11 +122,11 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
         }
 
         delete.setOnClickListener {
-            if (db_sus) {
+            if (pref.getBoolean("db_sus", true)) {
                 db.delete_pass(passData.id)
+                add_register(context, "A password has been deleted")
             }
             pass_list.removeIf { it.id == passData.id }
-            add_register(context, "A password has been deleted")
             pass_update = true
         }
 

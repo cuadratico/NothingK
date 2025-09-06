@@ -12,12 +12,23 @@
 
 
 
+    <View
+        android:id="@+id/color_modofy_part"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="#264653"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/recy"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        />
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/info"
+        android:id="@+id/confi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/info"
+        android:src="@drawable/setting"
         app:layout_constraintTop_toTopOf="@id/search"
         app:layout_constraintBottom_toBottomOf="@id/search"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,13 +36,13 @@
         />
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/delete_all"
+        android:id="@+id/multi_funtion_bot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/delete_all"
-        app:layout_constraintTop_toTopOf="@id/info"
-        app:layout_constraintBottom_toBottomOf="@id/info"
-        app:layout_constraintStart_toEndOf="@id/info"
+        app:layout_constraintTop_toTopOf="@id/confi"
+        app:layout_constraintBottom_toBottomOf="@id/confi"
+        app:layout_constraintStart_toEndOf="@id/confi"
         android:layout_marginStart="20dp"
         />
 
@@ -40,9 +51,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/bidirection_arrows"
-        app:layout_constraintTop_toTopOf="@id/delete_all"
-        app:layout_constraintBottom_toBottomOf="@id/delete_all"
-        app:layout_constraintStart_toEndOf="@id/delete_all"
+        app:layout_constraintTop_toTopOf="@id/multi_funtion_bot"
+        app:layout_constraintBottom_toBottomOf="@id/multi_funtion_bot"
+        app:layout_constraintStart_toEndOf="@id/multi_funtion_bot"
         android:layout_marginStart="20dp"
         />
 

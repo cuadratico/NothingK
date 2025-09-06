@@ -10,6 +10,8 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.core.graphics.toColorInt
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
@@ -86,10 +88,9 @@ fun pass_generator (ini_list: List<List<Char>>, size: Int): String {
         final_list += position.joinToString("")
     }
 
-    var pass = ""
 
     while (true) {
-        pass = ""
+        var pass = ""
         for (i in 0..size - 1) {
             pass += final_list.toList().shuffled()[0]
         }
@@ -189,5 +190,16 @@ fun force (context: Activity,  x: Float, y: Float, z: Float) {
         pref.edit().putBoolean("close", true).commit()
         context.finishAffinity()
     }
+
+}
+
+fun promt (title: String = "Authenticate yourself"): BiometricPrompt.PromptInfo {
+
+    return BiometricPrompt.PromptInfo.Builder().apply {
+        setTitle(title)
+        setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_STRONG)
+        setConfirmationRequired(true)
+    }
+        .build()
 
 }

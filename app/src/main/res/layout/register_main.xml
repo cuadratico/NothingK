@@ -86,7 +86,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:boxStrokeColor="@color/n_red"
-            android:textColorHint="@color/design_default_color_surface"
+            android:textColorHint="@color/b_black"
             app:hintTextColor="@color/b_black"
             >
 
@@ -95,7 +95,7 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:hint="Password here"
-                android:textColorHint="@color/n_grew"
+                android:textColorHint="@color/b_black"
                 android:textColor="@color/black"
                 android:fontFamily="monospace"
                 android:maxWidth="200dp"
