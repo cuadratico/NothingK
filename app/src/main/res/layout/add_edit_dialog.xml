@@ -18,6 +18,7 @@
         android:layout_marginBottom="20dp"
         android:maxWidth="300dp"
         android:text="Add your password"
+        android:textColor="@color/white"
         />
 
     <androidx.constraintlayout.widget.ConstraintLayout

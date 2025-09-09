@@ -2,7 +2,6 @@ package com.nothingsecure
 
 import android.animation.Animator
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -44,6 +43,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.android.material.animation.AnimationUtils
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
@@ -265,7 +265,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         info_derived.setOnClickListener {
 
-            val info_dialog = AlertDialog.Builder(this)
+            val info_dialog = MaterialAlertDialogBuilder(this)
 
             info_dialog.setTitle("Cryptographic operation of Nothing k")
             info_dialog.setMessage("In Nothing K your password is the alias of a symmetric key stored in AndroidKeyStore, with this option your password will be transformed into a derived key, which means that this key will only be generated if the password is correct.")

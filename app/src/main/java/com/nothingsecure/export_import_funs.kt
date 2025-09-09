@@ -1,6 +1,5 @@
 package com.nothingsecure
 
-import android.app.AlertDialog
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
@@ -70,7 +69,7 @@ fun export (context: Context, password: String, salt: String, arch_name: String,
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun import (context: Context, json: JSONObject, pass: String) {
+fun import (context: Context, json: JSONObject, pass: String, rep: Boolean = true) {
 
     pass_list.clear()
     val mk = MasterKey.Builder(context)
@@ -87,7 +86,9 @@ fun import (context: Context, json: JSONObject, pass: String) {
 
     val db = db(context)
     if (pref.getBoolean("db_sus", true)) {
-        db.delete_prin()
+        if (rep) {
+            db.delete_prin()
+        }
     }else {
         pref.edit().putBoolean("deri", true).commit()
         pref.edit().putString("key_u_r", pref.getString("key_u", "")).commit()

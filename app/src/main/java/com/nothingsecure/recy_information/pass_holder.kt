@@ -27,7 +27,6 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.nothingsecure.R
 import com.nothingsecure.add_register
-import com.nothingsecure.copy_intent
 import com.nothingsecure.db
 import com.nothingsecure.db.Companion.pass_list
 import com.nothingsecure.deri_expressed
@@ -139,11 +138,15 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             val copy = dialog_view.findViewById<AppCompatButton>(R.id.copy)
             val info_copy = dialog_view.findViewById<TextView>(R.id.info_copy)
 
-            info_copy.text = "You can copy ${3 - copy_intent} more passwords"
-            if (copy_intent >= 3) {
-                copy.visibility = View.INVISIBLE
-                info_copy.text = "You cannot copy passwords"
+            fun copy() {
+                if (pref.getInt("copy_in", 0) >= 3) {
+                    copy.visibility = View.INVISIBLE
+                    info_copy.text = "You cannot copy passwords"
+                }else {
+                    info_copy.text = "You can copy ${3 - pref.getInt("copy_in", 0)} more passwords"
+                }
             }
+            copy()
 
             copy.setOnClickListener {
                 val manage = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -152,13 +155,9 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
                     manage.clearPrimaryClip()
                 }
                 manage.setPrimaryClip(clip)
-                copy_intent ++
+                pref.edit().putInt("copy_in", pref.getInt("copy_in", 0) + 1).commit()
                 add_register(context, "A password has been copied")
-                info_copy.text = "You can copy ${3 - copy_intent} more passwords"
-                if (copy_intent >= 3) {
-                    copy.visibility = View.INVISIBLE
-                    info_copy.text = "You cannot copy passwords"
-                }
+                copy()
             }
 
             see_password.text = passData.pass

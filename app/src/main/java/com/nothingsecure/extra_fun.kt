@@ -2,11 +2,16 @@ package com.nothingsecure
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -74,7 +79,7 @@ fun entropy(pass: String, porgress: LinearProgressIndicator){
     }
 }
 
-fun pass_generator (ini_list: List<List<Char>>, size: Int): String {
+fun pass_generator (size: Int, ini_list: List<List<Char>> = listOf(mayusculas_l, minusculas_l, simbolos_l, numeros_l)): String {
 
     val bool_list = mutableListOf<Boolean>()
 
@@ -202,4 +207,21 @@ fun promt (title: String = "Authenticate yourself"): BiometricPrompt.PromptInfo 
     }
         .build()
 
+}
+
+fun load (info: String, context: Context): Dialog {
+    val load_dialog = Dialog(context)
+    val load_view = LayoutInflater.from(context).inflate(R.layout.load, null)
+
+    val progress = load_view.findViewById<ProgressBar>(R.id.progress)
+    val load_information = load_view.findViewById<TextView>(R.id.load_information)
+    load_information.text = info
+    progress.isActivated = true
+
+    load_dialog.setContentView(load_view)
+    load_dialog.setCancelable(false)
+    load_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    load_dialog.show()
+
+    return load_dialog
 }

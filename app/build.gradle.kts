@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "com.nothingsecure"
-        minSdk = 28
+        minSdk = 24
         targetSdk = 36
-        versionCode = 14
-        versionName = "0.3.10-MADiSON"
+        versionCode = 15
+        versionName = "0.3.11-Outlast"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
