@@ -7,6 +7,8 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.shapes.Shape
+import android.health.connect.datatypes.AppInfo
+import android.icu.util.VersionInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -58,8 +60,6 @@ import java.security.KeyStore
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 
 class configurationActivity : AppCompatActivity() {
     companion object {
@@ -108,6 +108,7 @@ class configurationActivity : AppCompatActivity() {
         val pass_type = findViewById<AppCompatButton>(R.id.pass_type_modify)
         val info_type = findViewById<ShapeableImageView>(R.id.info_key_type)
 
+        val version = findViewById<TextView>(R.id.version_info)
 
         fun spec_all () {
             val color = ColorStateList.valueOf(pref.getString("color_back", "#FF000000")!!.toColorInt())
@@ -241,18 +242,27 @@ class configurationActivity : AppCompatActivity() {
 
                             val db = db(applicationContext)
                             if (pass_list.isNotEmpty() || db.select_pass()) {
-                                db.delete_all()
-                                val key = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString())
-                                for (position in 0..pass_list.size - 1) {
-                                    val (id, pass, information, iv) = pass_list[position]
-                                    val c = Cipher.getInstance("AES/GCM/NoPadding")
-                                    c.init(Cipher.ENCRYPT_MODE, key)
-                                    db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(pass_list[position].pass.toByteArray())), information, Base64.getEncoder().withoutPadding().encodeToString(c.iv))
-                                }
-                                withContext(Dispatchers.Main) {
-                                    load_dialog.dismiss()
-                                    Toast.makeText(applicationContext, "The app needs to be restarted", Toast.LENGTH_SHORT).show()
-                                    finishAffinity()
+                                db.delete_prin()
+                                var key: Key? = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString())
+                                try {
+                                    for (position in 0..pass_list.size - 1) {
+                                        val (id, pass, information, iv) = pass_list[position]
+                                        val c = Cipher.getInstance("AES/GCM/NoPadding")
+                                        c.init(Cipher.ENCRYPT_MODE, key)
+                                        db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(pass_list[position].pass.toByteArray())), information, Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("Mode modification error", e.toString())
+                                    withContext(Dispatchers.Main) {
+                                        Toast.makeText(applicationContext, "Mode modification error", Toast.LENGTH_SHORT).show()
+                                    }
+                                } finally {
+                                    key = null
+                                    withContext(Dispatchers.Main) {
+                                        load_dialog.dismiss()
+                                        Toast.makeText(applicationContext, "The app needs to be restarted", Toast.LENGTH_SHORT).show()
+                                        finishAffinity()
+                                    }
                                 }
                             }else {
                                 withContext(Dispatchers.Main) {
@@ -286,6 +296,8 @@ class configurationActivity : AppCompatActivity() {
                 .setPositiveButton("Ok") {_, _ ->}
             dialog_info_type.show()
         }
+
+        version.text = this.packageManager.getPackageInfo(packageName, 0).packageName
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,

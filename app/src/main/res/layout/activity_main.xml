@@ -69,14 +69,14 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/back_b"
-        android:layout_width="15dp"
-        android:layout_height="100dp"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/n_white"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/add"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="10dp"
         >
 
         <com.google.android.material.imageview.ShapeableImageView

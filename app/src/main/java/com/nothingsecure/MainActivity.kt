@@ -51,6 +51,7 @@ import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.appcompat.widget.SearchView
 import androidx.biometric.BiometricManager
+import java.security.Key
 import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -89,6 +90,7 @@ import java.util.Base64
 import java.util.Random
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.system.exitProcess
 
 var logs_update = false
@@ -228,13 +230,22 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             lifecycleScope.launch (Dispatchers.IO){
                 if (pref.getBoolean("thief_mod", true)) {
-                    val key = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!)
-                    for (position in 0..pass_list.size - 1) {
-                        val (id, pass, information, iv) = pass_list[position]
-                        val c = Cipher.getInstance("AES/GCM/NoPadding")
-                        c.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, Base64.getDecoder().decode(iv)))
+                    var key: Key? = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!)
+                    try {
+                        for (position in 0..pass_list.size - 1) {
+                            val (id, pass, information, iv) = pass_list[position]
+                            val c = Cipher.getInstance("AES/GCM/NoPadding")
+                            c.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, Base64.getDecoder().decode(iv)))
 
-                        pass_list[position].pass = String(c.doFinal(Base64.getDecoder().decode(pass)))
+                            pass_list[position].pass = String(c.doFinal(Base64.getDecoder().decode(pass)))
+                        }
+                    }catch (e: Exception) {
+                        Log.e("error", e.toString())
+                        Toast.makeText(applicationContext, "The passwords could not be decrypted", Toast.LENGTH_SHORT).show()
+                        back = true
+                        recreate()
+                    } finally {
+                        key = null
                     }
                 }else {
                     val alias_false = mutableListOf("Microsoft", "Google", "My account", "Bank", "PayPal (the main account)", "Google (work)", "Bank - card account", "Amazon (family)",
@@ -553,20 +564,27 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             multi.setOnClickListener {
                 if (input_pass.text.isNotEmpty() && info_pass.text.isNotEmpty()) {
-                    val c = Cipher.getInstance("AES/GCM/NoPadding")
-                    c.init(Cipher.ENCRYPT_MODE, deri_expressed(this, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
 
-                    var iv = ""
-                    if (pref.getBoolean("db_sus", true)) {
-                        db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(input_pass.text.toString().toByteArray())), info_pass.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
-                        iv = Base64.getEncoder().withoutPadding().encodeToString(c.iv)
-                        add_register(this, "A password has been added")
+                    try {
+                        val c = Cipher.getInstance("AES/GCM/NoPadding")
+                        c.init(Cipher.ENCRYPT_MODE, deri_expressed(this, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
+
+                        var iv = ""
+                        if (pref.getBoolean("db_sus", true)) {
+                            db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(input_pass.text.toString().toByteArray())), info_pass.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                            iv = Base64.getEncoder().withoutPadding().encodeToString(c.iv)
+                            add_register(this, "A password has been added")
+                        }
+                        pass_list.add(pass(if (pass_list.size != 0) { pass_list[pass_list.size - 1].id + 1 } else { 0 }, input_pass.text.toString(), info_pass.text.toString(), iv))
+
+                        init_acti()
+                        pass_adapter.update(pass_list)
+                    } catch (e: Exception) {
+                        Log.e("Addition error", e.toString())
+                        Toast.makeText(this, "Error adding a password", Toast.LENGTH_SHORT).show()
+                    } finally {
+                        add_dialog.dismiss()
                     }
-                    pass_list.add(pass(if (pass_list.size != 0) { pass_list[pass_list.size - 1].id + 1 } else { 0 }, input_pass.text.toString(), info_pass.text.toString(), iv))
-
-                    init_acti()
-                    pass_adapter.update(pass_list)
-                    add_dialog.dismiss()
                 }else {
                     Toast.makeText(this, "Missing information to be filled in", Toast.LENGTH_SHORT).show()
                 }
@@ -891,9 +909,21 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         val import_progress =
                             import_view.findViewById<LinearProgressIndicator>(R.id.progress)
 
+                        val my_check = import_view.findViewById<AppCompatCheckBox>(R.id.my_check)
                         val import_button =
                             import_view.findViewById<AppCompatButton>(R.id.unlock_buttom)
 
+                        my_check.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
+                            override fun onCheckedChanged(p0: CompoundButton, check: Boolean) {
+                                if (check) {
+                                    import_input_pass.setText(pref.getString("key_def", pref.getString("key_u", "")))
+                                }else {
+                                    import_input_pass.setText("")
+                                }
+                                import_input_pass.setSelection(import_input_pass.text.length)
+                            }
+
+                        })
                         import_input_pass.addTextChangedListener { dato ->
                             entropy(dato.toString(), import_progress)
                         }

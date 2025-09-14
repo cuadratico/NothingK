@@ -23,6 +23,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.nothingsecure.R
@@ -98,17 +99,21 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
 
             bottom.setOnClickListener {
                 if (edit_pass.text.isNotEmpty() && edit_information.text.isNotEmpty()) {
-                    val c = Cipher.getInstance("AES/GCM/NoPadding")
-                    c.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
+                    try {
+                        val c = Cipher.getInstance("AES/GCM/NoPadding")
+                        c.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
 
-                    if (pref.getBoolean("db_sus", true)) {
-                        db.update_pass(passData.id, Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(edit_pass.text.toString().toByteArray())), edit_information.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
-                        add_register(context, "A password has been edited")
+                        if (pref.getBoolean("db_sus", true)) {
+                            db.update_pass(passData.id, Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(edit_pass.text.toString().toByteArray())), edit_information.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                            add_register(context, "A password has been edited")
+                        }
+                        passData.information = edit_information.text.toString()
+                        passData.pass = edit_pass.text.toString()
+                        pass_update = true
+                        edit_dialog.dismiss()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Editing error", Toast.LENGTH_SHORT).show()
                     }
-                    passData.information = edit_information.text.toString()
-                    passData.pass = edit_pass.text.toString()
-                    pass_update = true
-                    edit_dialog.dismiss()
                 }else {
                     Toast.makeText(context, "Missing information to be filled in", Toast.LENGTH_SHORT).show()
                 }
@@ -120,13 +125,26 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             edit_dialog.show()
         }
 
-        delete.setOnClickListener {
-            if (pref.getBoolean("db_sus", true)) {
-                db.delete_pass(passData.id)
-                add_register(context, "A password has been deleted")
+        delete.setOnLongClickListener( object: View.OnLongClickListener {
+            override fun onLongClick(p0: View?): Boolean {
+                try {
+                    if (pref.getBoolean("db_sus", true)) {
+                        db.delete_pass(passData.id)
+                        add_register(context, "A password has been deleted")
+                    }
+                    pass_list.removeIf { it.id == passData.id }
+                    pass_update = true
+                } catch (e: Exception) {
+                    Log.e("Deletion error", e.toString())
+                    Toast.makeText(context, "Deletion error", Toast.LENGTH_SHORT).show()
+                }
+
+                return true
             }
-            pass_list.removeIf { it.id == passData.id }
-            pass_update = true
+        })
+
+        delete.setOnClickListener {
+            Toast.makeText(context, "You must maintain", Toast.LENGTH_SHORT).show()
         }
 
         all.setOnLongClickListener {

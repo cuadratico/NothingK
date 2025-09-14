@@ -13,9 +13,13 @@
 
     <ScrollView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/version_info"
+        app:layout_constraintTop_toBottomOf="@id/info"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
@@ -397,6 +401,19 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+    <TextView
+        android:id="@+id/version_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="monospace"
+        android:textSize="17dp"
+        android:textColor="@color/n_white"
+        />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/info"

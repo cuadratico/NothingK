@@ -76,6 +76,18 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/my_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/all"
+        android:text="Use my password"
+        android:fontFamily="monospace"
+        android:layout_marginTop="10dp"
+        />
+
 
 
     <androidx.appcompat.widget.AppCompatButton
@@ -84,10 +96,10 @@
         android:layout_height="wrap_content"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/n_red"
-        app:layout_constraintTop_toBottomOf="@id/all"
+        app:layout_constraintTop_toBottomOf="@id/my_check"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:textSize="18dp"
         android:textColor="@color/n_white"
         android:fontFamily="monospace"

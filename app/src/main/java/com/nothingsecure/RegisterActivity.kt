@@ -152,56 +152,51 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         }
 
         input_pass.addTextChangedListener {dato ->
-
-
             if (pref.getBoolean("start", false)) {
-                val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+                try {
+                    if (dato?.length == pref.getInt("size", 0)) {
+                        if (Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt", "")))) == pref.getString("hash", "")) {
+                            if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
 
-                if (dato?.length == pref.getInt("size", 0)){
-                    if (Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt", "")))) == pref.getString("hash", "")) {
-                        if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
+                                BiometricPrompt(this, ContextCompat.getMainExecutor(this),
+                                    object : BiometricPrompt.AuthenticationCallback() {
+                                        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                            super.onAuthenticationSucceeded(result)
+                                            add_register(applicationContext, "Successful login", "#40aa47")
 
-                            BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
-                                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                                    super.onAuthenticationSucceeded(result)
-                                    val c = Cipher.getInstance("AES/GCM/NoPadding")
-                                    c.init(Cipher.ENCRYPT_MODE, ks.getKey(pref.getString("key", ""), null))
+                                            pref.edit().putString("key_u", input_pass.text.toString()).commit()
+                                            startActivity(Intent(applicationContext, MainActivity::class.java))
+                                            finish()
+                                        }
 
-                                    add_register(applicationContext, "Successful login", "#40aa47")
+                                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                            super.onAuthenticationError(errorCode, errString)
+                                            input_pass.setText("")
+                                            recreate()
+                                        }
+                                    }).authenticate(promt("Who are you?"))
+                            }
+                        } else {
+                            add_register(this, "Login failed", "#aa4040")
+                            input_pass.setText("")
 
-                                    pref.edit().putString("key_u", input_pass.text.toString()).commit()
-                                    startActivity(Intent(applicationContext, MainActivity::class.java))
-                                    finish()
-                                }
+                            pref.edit().putInt("opor", pref.getInt("opor", 9) - 1).commit()
 
-                                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                                    super.onAuthenticationError(errorCode, errString)
-                                    input_pass.setText("")
-                                    recreate()
-                                }
-                            }).authenticate(promt("Who are you?"))
-                        }
-                    }else {
-                        val c = Cipher.getInstance("AES/GCM/NoPadding")
-                        c.init(Cipher.ENCRYPT_MODE, ks.getKey(pref.getString("key", ""), null))
-
-                        add_register(this, "Login failed", "#aa4040")
-                        input_pass.setText("")
-
-                        pref.edit().putInt("opor", pref.getInt("opor", 9) - 1).commit()
-
-                        if (pref.getInt("opor", 9) == 0) {
-                            pref.edit().putBoolean("block", true).commit()
-                            recreate()
-                        }else {
-                            opor.text = " *".repeat(pref.getInt("opor", 0))
+                            if (pref.getInt("opor", 9) == 0) {
+                                pref.edit().putBoolean("block", true).commit()
+                                recreate()
+                            } else {
+                                opor.text = " *".repeat(pref.getInt("opor", 0))
+                            }
                         }
                     }
+                } catch (e: Exception) {
+                    pref.edit().putString("key_u", "").commit()
+                    Toast.makeText(this, "An error arose", Toast.LENGTH_SHORT).show()
+                    input_pass.setText("")
+                    recreate()
                 }
-
-
             }
-
             entropy(dato.toString(), progress)
             System.gc()
         }
@@ -209,55 +204,67 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         create.setOnClickListener {
             if (input_pass.text!!.isNotEmpty() && input_pass.text!!.length >= 8) {
-                val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
-                if (!derived_check.isChecked) {
-                    val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
+                val ali = Random.nextBytes(10)
+                try {
+                    val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
+                    if (!derived_check.isChecked) {
+                        val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
+                            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                            .build()
+                        val kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+                        kg.init(kgs)
+                        kg.generateKey()
+                    }
+
+                    val kgs_2 = KeyGenParameterSpec.Builder(ali.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
                         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                         .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                         .build()
-                    val kg =
-                        KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-                    kg.init(kgs)
-                    kg.generateKey()
+                    val kg_2 = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+                    kg_2.init(kgs_2)
+                    kg_2.generateKey()
+
+                    pref.edit().putString("key_u", input_pass.text.toString()).commit()
+                    pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
+                    pref.edit().putString("key", ali.toString()).commit()
+                    pref.edit().putBoolean("start", true).commit()
+                    pref.edit().putInt("size", input_pass.text.toString().length).commit()
+                    pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(input_pass.text.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt", ""))))).commit()
+
+                    animation.setAnimationListener(object : Animation.AnimationListener {
+                        override fun onAnimationEnd(ani: Animation?) {
+                            create.visibility = View.INVISIBLE
+                            startActivity(Intent(applicationContext, MainActivity::class.java))
+                            finish()
+                        }
+
+                        override fun onAnimationRepeat(p0: Animation?) {}
+
+                        override fun onAnimationStart(p0: Animation?) {
+                            create.isEnabled = false
+                            input_pass.isEnabled = false
+                        }
+
+
+                    })
+
+                    create.startAnimation(animation)
+                }catch (e: Exception) {
+                    Log.e("Error in key generation", e.toString())
+                    pref.edit().putString("key_u", "").commit()
+                    pref.edit().putString("salt", "").commit()
+                    pref.edit().putString("key", "").commit()
+                    pref.edit().putBoolean("start", false).commit()
+                    pref.edit().putInt("size", 0).commit()
+                    pref.edit().putString("hash", "").commit()
+
+                    Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
+                    finishAffinity()
+                } finally {
+                    ali.fill(0)
                 }
 
-                val ali = Random.nextBytes(10).toString()
-                val kgs_2 = KeyGenParameterSpec.Builder(
-                    ali,
-                    KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT
-                )
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .build()
-                val kg_2 = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-                kg_2.init(kgs_2)
-                kg_2.generateKey()
-
-                pref.edit().putString("key_u", input_pass.text.toString()).commit()
-                pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
-                pref.edit().putString("key", ali).commit()
-                pref.edit().putBoolean("start", true).commit()
-                pref.edit().putInt("size", input_pass.text.toString().length).commit()
-                pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(input_pass.text.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt", ""))))).commit()
-
-                animation.setAnimationListener(object : Animation.AnimationListener {
-                    override fun onAnimationEnd(ani: Animation?) {
-                        create.visibility = View.INVISIBLE
-                        startActivity(Intent(applicationContext, MainActivity::class.java))
-                        finish()
-                    }
-
-                    override fun onAnimationRepeat(p0: Animation?) {}
-
-                    override fun onAnimationStart(p0: Animation?) {
-                        create.isEnabled = false
-                        input_pass.isEnabled = false
-                    }
-
-
-                })
-
-                create.startAnimation(animation)
             }else {
                 Toast.makeText(this, "8 or more characters, please", Toast.LENGTH_SHORT).show()
             }
@@ -274,7 +281,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         }
 
 
-        sensor_manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensor_manager = getSystemService(SENSOR_SERVICE) as SensorManager
         sensor_manager.registerListener(this, sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
 
         window.setFlags(
