@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.3.10-MADiSON | :white_check_mark: |
+|  0.3.11-Outlast | :white_check_mark: |
+|  0.3.10-MADiSON | :x: |
 |  0.2.10 | :x: |
 |  0.2.9  | :x: |
 |  0.2.8  | :x: |
