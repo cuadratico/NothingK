@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/generator"
+        android:layout_width="290dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/n_red"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="30dp"
+        android:textSize="18dp"
+        android:textColor="@color/n_white"
+        android:fontFamily="monospace"
+        android:text="Generates the combinations"
+        android:textAllCaps="false"
+        />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/info_domain"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/generator"
+        android:layout_marginBottom="30dp"
+        app:boxStrokeColor="@color/style_edit_text"
+        android:textColorHint="@color/design_default_color_surface"
+        app:hintTextColor="@color/n_white"
+        app:cursorColor="@color/n_white"
+        >
+
+        <EditText
+            android:id="@+id/input_domain"
+            android:layout_width="270dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textColorLink="@color/b_black"
+            android:hint=" @gmail.com"
+            android:gravity="center"
+            android:maxLines="3"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/info_input_date"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/info_domain"
+        android:layout_marginBottom="10dp"
+        app:boxStrokeColor="@color/style_edit_text"
+        android:textColorHint="@color/design_default_color_surface"
+        app:hintTextColor="@color/n_white"
+        app:cursorColor="@color/n_white"
+        >
+
+        <EditText
+            android:id="@+id/input_date"
+            android:layout_width="270dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textColorLink="@color/b_black"
+            android:hint="Date or a text"
+            android:gravity="center"
+            android:maxLines="3"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/info_input_name"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/info_input_date"
+        android:layout_marginBottom="10dp"
+        app:boxStrokeColor="@color/style_edit_text"
+        android:textColorHint="@color/design_default_color_surface"
+        app:hintTextColor="@color/n_white"
+        app:cursorColor="@color/n_white"
+        >
+
+        <EditText
+            android:id="@+id/input_name"
+            android:layout_width="270dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textColorLink="@color/b_black"
+            android:hint="Name or a text"
+            android:gravity="center"
+            android:maxLines="3"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/all_see_mails"
+            android:layout_width="wrap_content"
+            android:layout_height="180dp"
+            app:layout_constraintBottom_toTopOf="@id/info_input_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/corner_25"
+            android:backgroundTint="@color/n_white"
+            >
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recy_mails"
+                android:layout_width="300dp"
+                android:layout_height="150dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:src="@drawable/circle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="10dp"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/gen_pass_intent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="Generate emails"
+        android:textSize="20dp"
+        android:fontFamily="@font/matrix"
+        />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/gen_pass_intent"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:layout_constraintBottom_toTopOf="@id/all_see_mails"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/info"
+        android:backgroundTint="@color/b_black"
+        android:background="@drawable/corner_25"
+        android:layout_marginBottom="20dp"
+        >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/generator"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

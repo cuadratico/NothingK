@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <View
+        android:id="@+id/back"
+        android:layout_width="300dp"
+        android:layout_height="70dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="10dp"
+        />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/all"
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/b_black"
+        app:layout_constraintTop_toTopOf="@id/back"
+        app:layout_constraintEnd_toEndOf="@id/back"
+        app:layout_constraintStart_toStartOf="@id/back"
+        app:layout_constraintBottom_toBottomOf="@id/back"
+        >
+
+        <TextView
+            android:id="@+id/mail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textSize="17dp"
+            android:text="example@example.com"
+            app:layout_constraintTop_toTopOf="@id/all"
+            app:layout_constraintBottom_toBottomOf="@id/all"
+            app:layout_constraintEnd_toEndOf="@id/all"
+            app:layout_constraintStart_toStartOf="@id/all"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:textColor="@color/n_white"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

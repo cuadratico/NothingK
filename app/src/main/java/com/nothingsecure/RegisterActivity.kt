@@ -155,7 +155,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
             if (pref.getBoolean("start", false)) {
                 try {
                     if (dato?.length == pref.getInt("size", 0)) {
-                        if (Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt", "")))) == pref.getString("hash", "")) {
+                        if (Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", pref.getString("salt", ""))))) == pref.getString("hash", "")) {
                             if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
 
                                 BiometricPrompt(this, ContextCompat.getMainExecutor(this),
@@ -165,7 +165,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                                             add_register(applicationContext, "Successful login", "#40aa47")
 
                                             pref.edit().putString("key_u", input_pass.text.toString()).commit()
-                                            startActivity(Intent(applicationContext, MainActivity::class.java))
+                                           startActivity(Intent(applicationContext, MainActivity::class.java))
                                             finish()
                                         }
 
@@ -189,6 +189,10 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                                 opor.text = " *".repeat(pref.getInt("opor", 0))
                             }
                         }
+                        pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(
+                            SecureRandom().generateSeed(16))).commit()
+                        pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(
+                            MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
                     }
                 } catch (e: Exception) {
                     pref.edit().putString("key_u", "").commit()
@@ -215,6 +219,8 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                         val kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
                         kg.init(kgs)
                         kg.generateKey()
+                    }else {
+                        pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
                     }
 
                     val kgs_2 = KeyGenParameterSpec.Builder(ali.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
@@ -226,11 +232,11 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                     kg_2.generateKey()
 
                     pref.edit().putString("key_u", input_pass.text.toString()).commit()
-                    pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
                     pref.edit().putString("key", ali.toString()).commit()
                     pref.edit().putBoolean("start", true).commit()
                     pref.edit().putInt("size", input_pass.text.toString().length).commit()
-                    pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(input_pass.text.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt", ""))))).commit()
+                    pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)))
+                    pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(input_pass.text.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
 
                     animation.setAnimationListener(object : Animation.AnimationListener {
                         override fun onAnimationEnd(ani: Animation?) {

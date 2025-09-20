@@ -11,8 +11,8 @@ android {
         applicationId = "com.nothingsecure"
         minSdk = 24
         targetSdk = 36
-        versionCode = 16
-        versionName = "0.3.12-RE7"
+        versionCode = 17
+        versionName = "0.3.13-Dead Space"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

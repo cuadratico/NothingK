@@ -136,6 +136,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val history = findViewById<ConstraintLayout>(R.id.logs_history)
         val add = findViewById<ConstraintLayout>(R.id.add)
         val generator = findViewById<ConstraintLayout>(R.id.generator)
+        val view_generator = findViewById<ShapeableImageView>(R.id.view_generator)
 
         val search_pass = findViewById<android.widget.SearchView>(R.id.search)
         info_exist = findViewById<TextView>(R.id.info_exist)
@@ -209,6 +210,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             add.visibility = View.VISIBLE
             recy.visibility = View.VISIBLE
             pref.edit().putBoolean("desen_pass", true).commit()
+        }
+
+        if (!pref.getBoolean("gene", true)) {
+            view_generator.setImageResource(R.drawable.mail_generator)
         }
 
         back_b.setOnClickListener {
@@ -699,105 +704,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         generator.setOnClickListener {
-            val total = mutableListOf(minusculas_l)
-
-            val gene_dilaog = BottomSheetDialog(this)
-            val gen_view = LayoutInflater.from(this).inflate(R.layout.generator_dialog, null)
-
-
-            val refresh = gen_view.findViewById<ConstraintLayout>(R.id.refresh)
-            val icon_refresh = gen_view.findViewById<ShapeableImageView>(R.id.icon_refresh)
-            val result_pass = gen_view.findViewById<TextView>(R.id.result_pass)
-            val size = gen_view.findViewById<SeekBar>(R.id.size)
-            val information_size = gen_view.findViewById<TextView>(R.id.information_size)
-            val progress_calculator = gen_view.findViewById<LinearProgressIndicator>(R.id.progress)
-            val capital_l = gen_view.findViewById<MaterialSwitch>(R.id.capital_l)
-            val number = gen_view.findViewById<MaterialSwitch>(R.id.numbers)
-            val simbol = gen_view.findViewById<MaterialSwitch>(R.id.simbol)
-            val copy = gen_view.findViewById<AppCompatButton>(R.id.copy)
-
-            fun gen (bar: SeekBar) {
-                result_pass.text = pass_generator(bar.progress, total)
-                entropy(result_pass.text.toString(), progress_calculator)
+            if (pref.getBoolean("gene", true)) {
+                pass_generator_dialog(this, view_generator)
+            }else {
+                email_generator(this, view_generator)
             }
-
-            gen(size)
-
-            size.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
-                override fun onProgressChanged(p0: SeekBar?, size: Int, p2: Boolean) {
-                    information_size.text = size.toString()
-                }
-
-                override fun onStartTrackingTouch(bar: SeekBar?) {}
-
-                override fun onStopTrackingTouch(bar: SeekBar) {
-                    gen(bar)
-                }
-
-            })
-
-            capital_l.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
-                override fun onCheckedChanged(p0: CompoundButton, check: Boolean) {
-                    if (check) {
-                        total.add(mayusculas_l)
-                    }else {
-                        total.remove(mayusculas_l)
-                    }
-                    gen(size)
-                }
-
-            })
-            number.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
-                override fun onCheckedChanged(p0: CompoundButton, check: Boolean) {
-                    if (check) {
-                        total.add(numeros_l)
-                    }else {
-                        total.remove(numeros_l)
-                    }
-                    gen(size)
-                }
-            })
-            simbol.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
-                override fun onCheckedChanged(p0: CompoundButton, check: Boolean) {
-                    if (check) {
-                        total.add(simbolos_l)
-                    }else {
-                        total.remove(simbolos_l)
-                    }
-                    gen(size)
-                }
-            })
-
-            refresh.setOnClickListener {
-                val anim_rotate = AnimationUtils.loadAnimation(this, R.anim.rotate)
-
-                anim_rotate.setAnimationListener(object: Animation.AnimationListener {
-                    override fun onAnimationEnd(p0: Animation?) {
-                        refresh.isEnabled = true
-                    }
-
-                    override fun onAnimationRepeat(p0: Animation?) {}
-
-                    override fun onAnimationStart(p0: Animation?) {
-                        refresh.isEnabled = false
-                        gen(size)
-                    }
-
-                })
-
-                icon_refresh.startAnimation(anim_rotate)
-            }
-
-            copy.setOnClickListener {
-                val manage = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("pass", result_pass.text.toString())
-                manage.setPrimaryClip(clip)
-            }
-
-
-            gene_dilaog.setContentView(gen_view)
-            gene_dilaog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            gene_dilaog.show()
         }
 
         sensor_manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager

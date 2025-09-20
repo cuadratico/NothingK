@@ -57,6 +57,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.security.Key
 import java.security.KeyStore
+import java.security.SecureRandom
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -227,9 +228,12 @@ class configurationActivity : AppCompatActivity() {
 
                             pref.edit().putBoolean("deri", !pref.getBoolean("deri", false)).commit()
                             if (pref.getBoolean("deri", false)) {
+                                pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(
+                                    SecureRandom().generateSeed(16))).commit()
                                 val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
                                 ks.deleteEntry(pref.getString("key_u", pref.getString("key_u_r", "")))
                             } else {
+                                pref.edit().putString("salt", "").commit()
                                 val kgs = KeyGenParameterSpec.Builder(pref.getString("key_u", pref.getString("key_u_r", "")).toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT).apply {
                                     setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                                     setBlockModes(KeyProperties.BLOCK_MODE_GCM)
