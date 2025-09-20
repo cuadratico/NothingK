@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.3.12-RE7 | :white_check_mark: |
+|  0.3.13-Dead Space | :white_check_mark: |
+|  0.3.12-RE7 | :x: |
 |  0.3.11-Outlast | :x: |
 |  0.3.10-MADiSON | :x: |
 |  0.2.10 | :x: |
