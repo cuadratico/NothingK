@@ -20,7 +20,7 @@ import javax.crypto.spec.GCMParameterSpec
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun export (context: Context, password: String, salt: String, arch_name: String, rout: String) {
-    var key: Key? = derived_Key(password, salt)
+    val key = derived_Key(password, salt)
     try {
         val json_array = JSONArray()
         for (position in 0..pass_list.size - 1) {
@@ -79,14 +79,16 @@ fun export (context: Context, password: String, salt: String, arch_name: String,
     }catch (e: Exception) {
         Log.e("Export error", e.toString())
     } finally {
-        key = null
+        if (key.encoded != null) {
+            key.encoded.fill(0)
+        }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun import (context: Context, json: JSONObject, pass: String, rep: Boolean = true) {
 
-    var key: Key? = derived_Key(pass, json.getString("salt"))
+    val key= derived_Key(pass, json.getString("salt"))
 
     try {
         pass_list.clear()
@@ -130,6 +132,8 @@ fun import (context: Context, json: JSONObject, pass: String, rep: Boolean = tru
     } catch (e: Exception) {
         Log.e("Import error", e.toString())
     } finally {
-        key = null
+        if (key.encoded != null) {
+            key.encoded.fill(0)
+        }
     }
 }

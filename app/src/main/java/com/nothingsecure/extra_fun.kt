@@ -7,6 +7,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.os.Environment
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,6 +23,13 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.nothingsecure.configurationActivity.Companion.backup_list
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.security.Key
 import java.security.KeyStore
 import java.security.SecureRandom
@@ -224,4 +232,37 @@ fun load (info: String, context: Context): Dialog {
     load_dialog.show()
 
     return load_dialog
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun backup (context: Context, ins: Int, acti: Activity? = null) {
+    val mk = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+    val pref = EncryptedSharedPreferences.create(context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+
+    if (ins == pref.getInt("backup_ins", 0) && pref.getBoolean("desen_pass", false)) {
+        val load_dilaog = load("Making the backup", context)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                export(context, pref.getString("backup_pass", pref.getString("key_def", pref.getString("key_u", ""))).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), pref.getString("backup_file", "NothingK-backup").toString(), Environment.DIRECTORY_DOWNLOADS)
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "The backup could not be performed", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    load_dilaog.dismiss()
+                    if (acti != null) {
+                        acti.finishAffinity()
+                    }
+                }
+            }
+        }
+    }else {
+        if (acti != null) {
+            acti.finishAffinity()
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.nothingsecure
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
@@ -7,6 +8,8 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.shapes.Shape
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.health.connect.datatypes.AppInfo
 import android.icu.util.VersionInfo
 import android.net.Uri
@@ -20,6 +23,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.TextView
@@ -45,6 +49,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputLayout
 import com.nothingsecure.db.Companion.pass_list
@@ -65,9 +70,11 @@ import javax.crypto.KeyGenerator
 class configurationActivity : AppCompatActivity() {
     companion object {
         lateinit var dialog_conf: Dialog
+        val backup_list = listOf("Never", "When adding a password", "When editing a password", "When deleting a password", "When putting the app in the background", "When modifying the key handling", "When exporting", "When importing in any mode", "When importing in 'Add' mode", "When importing in 'Preview' mode", "When importing in 'Replace' mode")
     }
 
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -105,11 +112,20 @@ class configurationActivity : AppCompatActivity() {
         val back_color = findViewById<ConstraintLayout>(R.id.back_color)
         val color_code = findViewById<TextView>(R.id.color_code)
 
-        // edit pass type
+        // edit pass part
         val pass_type = findViewById<AppCompatButton>(R.id.pass_type_modify)
         val info_type = findViewById<ShapeableImageView>(R.id.info_key_type)
 
-        val version = findViewById<TextView>(R.id.version_info)
+
+        // Edit accelerometer detection
+        val info_acele = findViewById<ShapeableImageView>(R.id.info_acele_mode)
+        val acele_switch = findViewById<MaterialSwitch>(R.id.acele_switch)
+
+
+        // Edit the backup time
+        val info_backup_mode = findViewById<ShapeableImageView>(R.id.info_backup_modes)
+        val back_up_spinner = findViewById<AppCompatSpinner>(R.id.backup_spinner)
+        val back_up_settings = findViewById<AppCompatButton>(R.id.backup_settings)
 
         fun spec_all () {
             val color = ColorStateList.valueOf(pref.getString("color_back", "#FF000000")!!.toColorInt())
@@ -213,6 +229,15 @@ class configurationActivity : AppCompatActivity() {
         }
         modi_type_ui()
 
+        info_type.setOnClickListener {
+            val dialog_info_type = MaterialAlertDialogBuilder(this)
+                .setTitle("Where is my key stored?")
+                .setMessage("Currently, your key is an ${if (pref.getBoolean("deri", false)) { "Derived Key" } else { "Androi KeyStore" } }.\n" +
+                        "When I talk about Android KeyStore, I'm referring to Android's cryptographic key storage. Your cryptographic key is stored there and protected by your password. When I talk about derived keys, I'm referring to the use of the PBKDF2 algorithm. This algorithm derives the key from your password. Basically, the cryptographic key is created from your password, which means it's never stored.")
+                .setPositiveButton("Ok") {_, _ ->}
+            dialog_info_type.show()
+        }
+
         pass_type.setOnClickListener {
 
             if (pref.getBoolean("db_sus", true) && pref.getBoolean("desen_pass", false)) {
@@ -247,7 +272,7 @@ class configurationActivity : AppCompatActivity() {
                             val db = db(applicationContext)
                             if (pass_list.isNotEmpty() || db.select_pass()) {
                                 db.delete_prin()
-                                var key: Key? = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString())
+                                val key = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString())
                                 try {
                                     for (position in 0..pass_list.size - 1) {
                                         val (id, pass, information, iv) = pass_list[position]
@@ -261,11 +286,13 @@ class configurationActivity : AppCompatActivity() {
                                         Toast.makeText(applicationContext, "Mode modification error", Toast.LENGTH_SHORT).show()
                                     }
                                 } finally {
-                                    key = null
+                                    if (key.encoded != null) {
+                                        key.encoded.fill(0)
+                                    }
                                     withContext(Dispatchers.Main) {
                                         load_dialog.dismiss()
+                                        backup(this@configurationActivity, 5, this@configurationActivity)
                                         Toast.makeText(applicationContext, "The app needs to be restarted", Toast.LENGTH_SHORT).show()
-                                        finishAffinity()
                                     }
                                 }
                             }else {
@@ -292,16 +319,132 @@ class configurationActivity : AppCompatActivity() {
             }
         }
 
-        info_type.setOnClickListener {
-            val dialog_info_type = MaterialAlertDialogBuilder(this)
-                .setTitle("Where is my key stored?")
-                .setMessage("Currently, your key is an ${if (pref.getBoolean("deri", false)) { "Derived Key" } else { "Androi KeyStore" } }.\n" +
-                        "When I talk about Android KeyStore, I'm referring to Android's cryptographic key storage. Your cryptographic key is stored there and protected by your password. When I talk about derived keys, I'm referring to the use of the PBKDF2 algorithm. This algorithm derives the key from your password. Basically, the cryptographic key is created from your password, which means it's never stored.")
+        // Edit accelerometer detection part code
+
+        acele_switch.isChecked = pref.getBoolean("ace_force", true)
+
+        info_acele.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("What is the accelerometer used for in Nothing K?")
+                .setMessage("The accelerometer is used to detect forceful acts. Basically, when a sudden movement is detected, the app closes and the movement is recorded.\n" +
+                        "This way, thefts involving forceful acts can be prevented.")
                 .setPositiveButton("Ok") {_, _ ->}
-            dialog_info_type.show()
+                .show()
         }
 
-        version.text = this.packageManager.getPackageInfo(packageName, 0).packageName
+        acele_switch.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
+            override fun onCheckedChanged(p0: CompoundButton, check: Boolean) {
+
+                BiometricPrompt(this@configurationActivity, ContextCompat.getMainExecutor(applicationContext), object: BiometricPrompt.AuthenticationCallback() {
+                    @RequiresApi(Build.VERSION_CODES.O)
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        pref.edit().putBoolean("ace_force", check).commit()
+                        if(check) {
+                            add_register(applicationContext, "Accelerometer recording has been activated")
+                        }else {
+                            add_register(applicationContext, "Accelerometer recording has been disabled")
+                        }
+
+                        MaterialAlertDialogBuilder(this@configurationActivity)
+                            .setTitle("Nothing K needs to be restarted to apply changes")
+                            .setMessage("If you don't restart the app the changes will be applied the next time you log in.")
+                            .setPositiveButton("Reboot") {_, _ ->
+                                Toast.makeText(applicationContext, "Changes applied", Toast.LENGTH_SHORT).show()
+                                finishAffinity()
+                            }
+                            .setNegativeButton("Later") {_, _ -> }
+                            .show()
+                    }
+
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        super.onAuthenticationError(errorCode, errString)
+                        Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
+                        acele_switch.isChecked = !check
+                    }
+                }).authenticate(promt())
+            }
+
+        })
+
+        // Edit the backup time code part
+
+        info_backup_mode.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("What are backup moments?")
+                .setMessage("These are scheduled times when a backup of your entire database will be made. It will be encrypted with your default password and the file will be named NothingK-backup.nk (you can change all of this with the \"Settings\" button in the backup menu).")
+                .setPositiveButton("Ok"){_, _ ->}
+                .show()
+        }
+
+        back_up_spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, backup_list)
+        back_up_spinner.setSelection(pref.getInt("backup_ins", 0))
+        back_up_spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, item: Int, p3: Long) {
+                pref.edit().putInt("backup_ins", item).commit()
+                add_register(applicationContext, "Now a backup will be made ${backup_list[item]}")
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+
+        }
+
+        back_up_settings.setOnClickListener {
+            BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    val settings_dialog = Dialog(this@configurationActivity)
+                    val settings_view = LayoutInflater.from(this@configurationActivity).inflate(R.layout.backup_settings, null)
+
+                    val settings_input_pass = settings_view.findViewById<EditText>(R.id.input_pass)
+                    val settings_pass_progress = settings_view.findViewById<LinearProgressIndicator>(R.id.progress)
+                    val checBox_default = settings_view.findViewById<AppCompatCheckBox>(R.id.my_check)
+
+                    val file_name = settings_view.findViewById<EditText>(R.id.input_name_file)
+
+                    val apply_button = settings_view.findViewById<AppCompatButton>(R.id.settings_button)
+
+                    settings_input_pass.setText(pref.getString("backup_pass", pref.getString("key_def", pref.getString("key_u", ""))))
+                    settings_input_pass.addTextChangedListener {dato ->
+                        entropy(dato.toString(), settings_pass_progress)
+                    }
+
+                    checBox_default.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
+                        override fun onCheckedChanged(p0: CompoundButton, check: Boolean) {
+                            if (check) {
+                                settings_input_pass.setText(pref.getString("key_def", pref.getString("key_u", "")))
+                            }else {
+                                settings_input_pass.setText("")
+                            }
+                        }
+                    })
+
+                    file_name.setText(pref.getString("backup_file", "NothingK-backup"))
+
+                    apply_button.setOnClickListener {
+                        pref.edit().putString("backup_pass", settings_input_pass.text.toString()).commit()
+                        pref.edit().putString("backup_file", file_name.text.toString()).commit()
+                        settings_dialog.dismiss()
+                    }
+
+
+                    settings_dialog.setContentView(settings_view)
+                    settings_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    settings_dialog.show()
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    Toast.makeText(applicationContext, "You need to authenticate yourself", Toast.LENGTH_SHORT).show()
+                }
+            }).authenticate(promt())
+        }
+
+
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,

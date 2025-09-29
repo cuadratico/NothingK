@@ -155,7 +155,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
             if (pref.getBoolean("start", false)) {
                 try {
                     if (dato?.length == pref.getInt("size", 0)) {
-                        if (Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", pref.getString("salt", ""))))) == pref.getString("hash", "")) {
+                        if (MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))), Base64.getDecoder().decode(pref.getString("hash", ""))) ) {
                             if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
 
                                 BiometricPrompt(this, ContextCompat.getMainExecutor(this),

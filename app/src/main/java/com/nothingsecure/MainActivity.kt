@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var a_new = true
     private var time = 0
     private var back = false
-    private lateinit var sensor_manager: SensorManager
+    private var sensor_manager: SensorManager? = null
     private var start = false
     private lateinit var mk: MasterKey
     private lateinit var pref: SharedPreferences
@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
 
         pref.edit().putBoolean("desen_pass", false).commit()
-        pref.edit().putBoolean("db_sus", pref.getBoolean("thief_mod", true)).commit()
+        pref.edit().putBoolean("db_sus", pref.getBoolean("honeypot_mod", true)).commit()
 
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         if(ks.getKey(pref.getString("key_u", ""), null) == null) {
@@ -203,7 +203,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 delay(50)
             }
         }
-        if (pref.getBoolean("thief_mod", true) && !db.select_pass()) {
+        if (pref.getBoolean("honeypot_mod", true) && !db.select_pass()) {
             search_pass.visibility = View.INVISIBLE
             info_exist.visibility = View.VISIBLE
             desencrypt_passwords.visibility = View.INVISIBLE
@@ -223,7 +223,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 pref.edit().putString("key_u_r", "").commit()
             }
             a_new = false
-            pref.edit().putBoolean("db_sus", pref.getBoolean("thief_mode", true)).commit()
+            pref.edit().putBoolean("db_sus", pref.getBoolean("honeypot_mod", true)).commit()
             back = true
             pause = true
             recreate()
@@ -234,8 +234,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             load_dialog = load("Loading passwords...", this)
 
             lifecycleScope.launch (Dispatchers.IO){
-                if (pref.getBoolean("thief_mod", true)) {
-                    var key: Key? = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!)
+                if (pref.getBoolean("honeypot_mod", true)) {
+                    val key = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!)
                     try {
                         for (position in 0..pass_list.size - 1) {
                             val (id, pass, information, iv) = pass_list[position]
@@ -250,7 +250,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         back = true
                         recreate()
                     } finally {
-                        key = null
+                        if (key.encoded != null) {
+                            key.encoded.fill(0)
+                        }
                     }
                 }else {
                     val alias_false = mutableListOf("Microsoft", "Google", "My account", "Bank", "PayPal (the main account)", "Google (work)", "Bank - card account", "Amazon (family)",
@@ -300,7 +302,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         })
 
         confi.setOnClickListener {
-            if (pref.getBoolean("thief_mod", true)) {
+            if (pref.getBoolean("honeypot_mod", true)) {
                 time = 60001
                 pause = true
                 startActivity(Intent(applicationContext, configurationActivity::class.java))
@@ -310,7 +312,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         multi_funtion.setOnClickListener {
-            if (pref.getBoolean("thief_mod", true)) {
+            if (pref.getBoolean("honeypot_mod", true)) {
                 val value = pref.getString("multi_but_text", "Delete all")
 
                 var load_message = "Deleting your information"
@@ -326,10 +328,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         posi_but = "Ensure"
                     }
 
-                    "Thief mode" -> {
-                        title = "Do you want to activate Nothing K's anti-theft mode?"
+                    "Honeypot" -> {
+                        title = "Do you want to activate Nothing K's Honeypot mode?"
                         message = "In this mode, Nothing K will use decoy passwords and a random password to export them (in case the thief does so). Some areas, such as the log view, will also be inaccessible. To deactivate it, you need to quickly press the volume up button twice."
-                        load_message = "Activating anti-theft mode"
+                        load_message = "Activating Honeypot mode"
                         posi_but = "Activate it"
                     }
                 }
@@ -340,10 +342,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                     lifecycleScope.launch(Dispatchers.IO) {
                         when (value) {
-                            "Thief mode" -> {
-                                pref.edit().putBoolean("thief_mod", false).commit()
+                            "Honeypot" -> {
+                                pref.edit().putBoolean("honeypot_mod", false).commit()
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(applicationContext, "Anti-theft mode activated", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(applicationContext, "Honeypot mode activated", Toast.LENGTH_SHORT).show()
                                     finishAffinity()
                                 }
                             }
@@ -493,8 +495,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                 super.onAuthenticationSucceeded(result)
                                 export_dialog.dismiss()
+                                backup(this@MainActivity, 6)
                                 load_dialog = load("Exporting your passwords...", this@MainActivity)
-
                                 lifecycleScope.launch (Dispatchers.IO){
                                     export(applicationContext, input_pass_export.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)) , archive_name.text.toString(), directions_real[select_directory.selectedItem.toString()].toString())
                                     withContext(Dispatchers.Main) {
@@ -538,7 +540,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 startActivityForResult(intent, 1001)
             }
 
-            if (pref.getBoolean("thief_mod", true)) {
+            if (pref.getBoolean("honeypot_mod", true)) {
                 options_dialog.setContentView(options_view)
                 options_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 options_dialog.show()
@@ -576,6 +578,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                         var iv = ""
                         if (pref.getBoolean("db_sus", true)) {
+                            backup(this, 1)
                             db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(input_pass.text.toString().toByteArray())), info_pass.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
                             iv = Base64.getEncoder().withoutPadding().encodeToString(c.iv)
                             add_register(this, "A password has been added")
@@ -663,7 +666,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             })
 
-            if (db.select_register() && pref.getBoolean("thief_mod", true)) {
+            if (db.select_register() && pref.getBoolean("honeypot_mod", true)) {
 
 
                 load_dialog = load("Loading logs...", this)
@@ -711,8 +714,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
         }
 
-        sensor_manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        sensor_manager.registerListener(this, sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
+        if (pref.getBoolean("ace_force", true)) {
+            sensor_manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            sensor_manager?.registerListener(this, sensor_manager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
+        }
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
@@ -733,7 +738,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         pref.edit().putBoolean("deri", false).commit()
         if (!back) {
             pref.edit().putString("key_u", "").commit()
-            sensor_manager.unregisterListener(this)
+            if (sensor_manager != null) {
+                sensor_manager?.unregisterListener(this)
+            }
             add_register(this, if (pref.getBoolean("close", false)) { "The app has been closed due to a sudden movement" } else { "The app has been closed" })
         }
         back = false
@@ -748,21 +755,23 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         pause = false
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
         time = 0
         color_part.backgroundTintList = ColorStateList.valueOf(pref.getString("color_back", "#FF000000")!!.toColorInt())
         multi_funtion.setImageResource(mods_all.get(pref.getString("multi_but_icon", "Delete all"))!!)
+        backup(this, 4)
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        if (!pref.getBoolean("thief_mod", true)) {
+        if (!pref.getBoolean("honeypot_mod", true)) {
             key_count ++
             if (key_count == 2) {
                 BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
-                        pref.edit().putBoolean("thief_mod", true).commit()
+                        pref.edit().putBoolean("honeypot_mod", true).commit()
                         Toast.makeText(applicationContext, "Back to normal", Toast.LENGTH_SHORT).show()
                         finishAffinity()
                     }
@@ -847,11 +856,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                         import_button.setOnClickListener {
                             val array_pro = json_f.getJSONArray("pro").getJSONObject(0)
-
-                            val c = Cipher.getInstance("AES/GCM/NoPadding")
-                            c.init(Cipher.DECRYPT_MODE, derived_Key(import_input_pass.text.toString(), json_f.getString("salt")), GCMParameterSpec(128, Base64.getDecoder().decode(array_pro.getString("iv"))))
-
                             try {
+                                val c = Cipher.getInstance("AES/GCM/NoPadding")
+                                c.init(Cipher.DECRYPT_MODE, derived_Key(import_input_pass.text.toString(), json_f.getString("salt")), GCMParameterSpec(128, Base64.getDecoder().decode(array_pro.getString("iv"))))
+
                                 c.doFinal(Base64.getDecoder().decode(array_pro.getString("value")))
                                 import_dialog.dismiss()
 
@@ -865,6 +873,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                                 super.onAuthenticationSucceeded(result)
                                                 pref.edit().putBoolean("db_sus", true).commit()
+                                                backup(this@MainActivity, 10)
                                                 load("Decrypting the file", this@MainActivity)
                                                 lifecycleScope.launch(Dispatchers.IO) {
                                                     import(applicationContext, json_f, import_input_pass.text.toString())
@@ -890,6 +899,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 dialog_db_sus.setNeutralButton("Preview") { _, _ ->
                                     a_new = false
                                     pref.edit().putBoolean("db_sus", false).commit()
+                                    backup(this@MainActivity, 9)
                                     load_dialog = load("Decrypting the file", this)
                                     lifecycleScope.launch(Dispatchers.IO) {
                                         import(applicationContext, json_f, import_input_pass.text.toString())
@@ -912,6 +922,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                             super.onAuthenticationSucceeded(result)
                                             pref.edit().putBoolean("db_sus", true).commit()
+                                            backup(this@MainActivity, 8)
                                             load("Decrypting the file", this@MainActivity)
                                             lifecycleScope.launch(Dispatchers.IO) {
                                                 import(applicationContext, json_f, import_input_pass.text.toString(), false)
@@ -935,7 +946,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                                 }
                                 dialog_db_sus.show()
-
+                                backup(applicationContext, 7)
 
                             } catch (e: Exception) {
                                 Toast.makeText(this, "The password is not correct", Toast.LENGTH_SHORT).show()

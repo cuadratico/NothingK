@@ -28,6 +28,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.nothingsecure.R
 import com.nothingsecure.add_register
+import com.nothingsecure.backup
 import com.nothingsecure.db
 import com.nothingsecure.db.Companion.pass_list
 import com.nothingsecure.deri_expressed
@@ -104,6 +105,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
                         c.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
 
                         if (pref.getBoolean("db_sus", true)) {
+                            backup(context, 2)
                             db.update_pass(passData.id, Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(edit_pass.text.toString().toByteArray())), edit_information.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(c.iv))
                             add_register(context, "A password has been edited")
                         }
@@ -129,6 +131,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             override fun onLongClick(p0: View?): Boolean {
                 try {
                     if (pref.getBoolean("db_sus", true)) {
+                        backup(context, 3)
                         db.delete_pass(passData.id)
                         add_register(context, "A password has been deleted")
                     }

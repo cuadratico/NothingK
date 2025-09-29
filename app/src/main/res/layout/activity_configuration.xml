@@ -5,7 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".configurationActivity">
+    tools:context=".configurationActivity"
+    android:background="@color/black"
+    >
 
 
 
@@ -366,12 +368,12 @@
                 />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/key_back_all"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
                 app:layout_constraintTop_toBottomOf="@id/key_type"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginBottom="20dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/corner_25"
@@ -399,6 +401,135 @@
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/acele_mode"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/matrix"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/key_back_all"
+                android:layout_marginTop="30dp"
+                android:textSize="19dp"
+                android:gravity="center"
+                android:text="Turns struggle detection on or off"
+                />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/info_acele_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/acele_mode"
+                app:layout_constraintBottom_toBottomOf="@id/acele_mode"
+                app:layout_constraintStart_toEndOf="@id/acele_mode"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/info"
+                />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/acele_back_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/acele_mode"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/corner_25"
+                android:backgroundTint="@color/b_black"
+                >
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/acele_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Struggle"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:fontFamily="monospace"
+                    android:textSize="17dp"
+                    app:thumbTint="@color/n_red"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/backup_modes"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/matrix"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/acele_back_all"
+                android:layout_marginTop="30dp"
+                android:textSize="19dp"
+                android:gravity="center"
+                android:text="When you want to back up your passwords"
+                />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/info_backup_modes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/backup_modes"
+                app:layout_constraintBottom_toBottomOf="@id/backup_modes"
+                app:layout_constraintStart_toEndOf="@id/backup_modes"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/info"
+                />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/backup_modes"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/corner_25"
+                android:backgroundTint="@color/b_black"
+                >
+
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/backup_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginTop="20dp"
+                    />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/backup_settings"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/corner_25"
+                    android:backgroundTint="@color/n_red"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/backup_spinner"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:textSize="18dp"
+                    android:textColor="@color/n_white"
+                    android:fontFamily="monospace"
+                    android:text="Settings"
+                    android:textAllCaps="false"
+                    />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
@@ -413,6 +544,7 @@
         android:fontFamily="monospace"
         android:textSize="17dp"
         android:textColor="@color/n_white"
+        android:text="0.3.14-Silent Hill"
         />
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -423,7 +555,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="15dp"
         android:layout_marginStart="15dp"
-        android:src="@drawable/info"
+        android:src="@drawable/feed_back"
         />
 
 
