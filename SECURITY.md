@@ -4,7 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.3.15.Cronos | :white_check_mark: |
+|  0.3.15-Cronos | :white_check_mark: |
 |  0.3.14-Silent Hill | :x: |
 |  0.3.13-Dead Space | :x: |
 |  0.3.12-RE7 | :x: |
