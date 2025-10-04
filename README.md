@@ -18,8 +18,8 @@ Be careful.
 
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-# APK Security V0.3.14-Silent Hill
-https://www.virustotal.com/gui/file/f90c5efec4df220efdbb834e208bbe1b1f55dfac72ef118ec85aabfacb48fb27?nocache=1
+# APK Security V0.3.15-Cronos
+https://www.virustotal.com/gui/file/7d00905dab77bb622d1eb06269d91515c0ce941b892ef0f34929b0bb1b571c6a?nocache=1
 
 # APK Scan V0.0.5
 An analysis with MOBFS has also been performed.
