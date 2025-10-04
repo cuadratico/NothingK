@@ -246,9 +246,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         }
                     }catch (e: Exception) {
                         Log.e("error", e.toString())
-                        Toast.makeText(applicationContext, "The passwords could not be decrypted", Toast.LENGTH_SHORT).show()
-                        back = true
-                        recreate()
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(applicationContext, "The passwords could not be decrypted", Toast.LENGTH_SHORT).show()
+                            back = true
+                            recreate()
+                        }
                     } finally {
                         if (key.encoded != null) {
                             key.encoded.fill(0)
@@ -570,7 +572,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
 
             multi.setOnClickListener {
-                if (input_pass.text.isNotEmpty() && info_pass.text.isNotEmpty()) {
+                if (input_pass.text.trim().isNotEmpty() && info_pass.text.trim().isNotEmpty()) {
 
                     try {
                         val c = Cipher.getInstance("AES/GCM/NoPadding")
@@ -867,7 +869,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 dialog_db_sus.setTitle("What do you want to do with your file?")
                                 dialog_db_sus.setMessage("Well, preview it (which won't affect your DB), replace the DB (which will delete all the information from the DB and replace it with the information from the file), or add the information from the file to the DB (which won't delete anything from your DB).")
                                 dialog_db_sus.setPositiveButton("Replace") { _, _ ->
-
                                     BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
 
                                             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -894,7 +895,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                                 Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
                                             }
                                     }).authenticate(promt("Authentication is required"))
-
                                 }
                                 dialog_db_sus.setNeutralButton("Preview") { _, _ ->
                                     a_new = false

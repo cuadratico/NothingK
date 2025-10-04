@@ -11,8 +11,8 @@ android {
         applicationId = "com.nothingsecure"
         minSdk = 24
         targetSdk = 36
-        versionCode = 18
-        versionName = "0.3.14-Silent Hill"
+        versionCode = 19
+        versionName = "0.3.15-Cronos"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

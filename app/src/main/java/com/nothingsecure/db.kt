@@ -76,6 +76,10 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
 
     }
 
+    fun delete_speci (id_ini: Int, id_final: Int) {
+        db.execSQL("DELETE FROM pass WHERE id BETWEEN ? AND ?", arrayOf(id_ini, id_final))
+    }
+
     fun update_pass (id: Int, pass: String, information: String, iv: String){
 
         db.execSQL("UPDATE pass SET pass = ?, information = ?, iv = ? WHERE id = ?", arrayOf(pass, information, iv, id))

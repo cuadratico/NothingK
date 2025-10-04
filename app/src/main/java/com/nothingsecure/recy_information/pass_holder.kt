@@ -99,7 +99,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             }
 
             bottom.setOnClickListener {
-                if (edit_pass.text.isNotEmpty() && edit_information.text.isNotEmpty()) {
+                if (edit_pass.text.trim().isNotEmpty() && edit_information.text.trim().isNotEmpty()) {
                     try {
                         val c = Cipher.getInstance("AES/GCM/NoPadding")
                         c.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))

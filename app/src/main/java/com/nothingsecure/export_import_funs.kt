@@ -100,7 +100,6 @@ fun import (context: Context, json: JSONObject, pass: String, rep: Boolean = tru
 
         val array_pass = json.getJSONArray("pass_list")
 
-
         val db = db(context)
         if (pref.getBoolean("db_sus", true)) {
             if (rep) {

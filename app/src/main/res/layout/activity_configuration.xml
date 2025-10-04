@@ -353,7 +353,6 @@
                 android:layout_marginTop="30dp"
                 android:textSize="19dp"
                 android:gravity="center"
-                android:text="Modify the treatment of your encryption key"
                 />
 
             <com.google.android.material.imageview.ShapeableImageView
@@ -544,7 +543,7 @@
         android:fontFamily="monospace"
         android:textSize="17dp"
         android:textColor="@color/n_white"
-        android:text="0.3.14-Silent Hill"
+        android:text="0.3.15-Cronos"
         />
 
     <com.google.android.material.imageview.ShapeableImageView

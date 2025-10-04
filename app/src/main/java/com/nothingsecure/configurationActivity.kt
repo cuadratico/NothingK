@@ -106,6 +106,7 @@ class configurationActivity : AppCompatActivity() {
         // pass modify part
         val input_pass = findViewById<EditText>(R.id.input_pass)
         val progress_pass = findViewById<LinearProgressIndicator>(R.id.progress)
+        val pass_info = findViewById<TextView>(R.id.key_type)
 
         // edit color part
         val edit_color_button = findViewById<ShapeableImageView>(R.id.edit_color)
@@ -222,6 +223,7 @@ class configurationActivity : AppCompatActivity() {
 
         // pass type part code
 
+        pass_info.text = "Modify the treatment of your encryption key\n\n You are currently in \"${ if (pref.getBoolean("deri", false)) { "Derived Key" } else { "Android KeyStore" } }\" mode"
         fun modi_type_ui () {
             if (pref.getBoolean("deri", false)) {
                 pass_type.text = "Android KeyStore"
@@ -232,10 +234,29 @@ class configurationActivity : AppCompatActivity() {
         info_type.setOnClickListener {
             val dialog_info_type = MaterialAlertDialogBuilder(this)
                 .setTitle("Where is my key stored?")
-                .setMessage("Currently, your key is an ${if (pref.getBoolean("deri", false)) { "Derived Key" } else { "Androi KeyStore" } }.\n" +
+                .setMessage("Currently, your key is an ${if (pref.getBoolean("deri", false)) { "Derived Key" } else { "Android KeyStore" } }.\n" +
                         "When I talk about Android KeyStore, I'm referring to Android's cryptographic key storage. Your cryptographic key is stored there and protected by your password. When I talk about derived keys, I'm referring to the use of the PBKDF2 algorithm. This algorithm derives the key from your password. Basically, the cryptographic key is created from your password, which means it's never stored.")
                 .setPositiveButton("Ok") {_, _ ->}
             dialog_info_type.show()
+        }
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun pass_modi() {
+            pref.edit().putBoolean("deri", !pref.getBoolean("deri", false)).commit()
+            if (pref.getBoolean("deri", false)) {
+                pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
+                val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+                ks.deleteEntry(pref.getString("key_u", pref.getString("key_u_r", "")))
+            } else {
+                pref.edit().putString("salt", "").commit()
+                val kgs = KeyGenParameterSpec.Builder(pref.getString("key_u", pref.getString("key_u_r", "")).toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT).apply {
+                    setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                }
+                    .build()
+
+                val kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore").apply { init(kgs) }
+                kg.generateKey()
+            }
         }
 
         pass_type.setOnClickListener {
@@ -251,28 +272,11 @@ class configurationActivity : AppCompatActivity() {
 
                         lifecycleScope.launch(Dispatchers.IO) {
 
-                            pref.edit().putBoolean("deri", !pref.getBoolean("deri", false)).commit()
-                            if (pref.getBoolean("deri", false)) {
-                                pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(
-                                    SecureRandom().generateSeed(16))).commit()
-                                val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-                                ks.deleteEntry(pref.getString("key_u", pref.getString("key_u_r", "")))
-                            } else {
-                                pref.edit().putString("salt", "").commit()
-                                val kgs = KeyGenParameterSpec.Builder(pref.getString("key_u", pref.getString("key_u_r", "")).toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT).apply {
-                                    setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                                    setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                                }
-                                    .build()
-
-                                val kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore").apply { init(kgs) }
-                                kg.generateKey()
-                            }
-
                             val db = db(applicationContext)
-                            if (pass_list.isNotEmpty() || db.select_pass()) {
-                                db.delete_prin()
+                            pass_modi()
+                            if (pass_list.isNotEmpty()) {
                                 val key = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString())
+                                val id_final = pass_list[pass_list.size - 1].id
                                 try {
                                     for (position in 0..pass_list.size - 1) {
                                         val (id, pass, information, iv) = pass_list[position]
@@ -280,8 +284,11 @@ class configurationActivity : AppCompatActivity() {
                                         c.init(Cipher.ENCRYPT_MODE, key)
                                         db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(pass_list[position].pass.toByteArray())), information, Base64.getEncoder().withoutPadding().encodeToString(c.iv))
                                     }
+                                    db.delete_speci(pass_list[0].id, id_final)
                                 } catch (e: Exception) {
                                     Log.e("Mode modification error", e.toString())
+                                    pass_modi()
+                                    db.delete_speci(id_final + 1, pass_list[pass_list.size - 1].id)
                                     withContext(Dispatchers.Main) {
                                         Toast.makeText(applicationContext, "Mode modification error", Toast.LENGTH_SHORT).show()
                                     }
@@ -289,17 +296,12 @@ class configurationActivity : AppCompatActivity() {
                                     if (key.encoded != null) {
                                         key.encoded.fill(0)
                                     }
-                                    withContext(Dispatchers.Main) {
-                                        load_dialog.dismiss()
-                                        backup(this@configurationActivity, 5, this@configurationActivity)
-                                        Toast.makeText(applicationContext, "The app needs to be restarted", Toast.LENGTH_SHORT).show()
-                                    }
                                 }
-                            }else {
-                                withContext(Dispatchers.Main) {
-                                    load_dialog.dismiss()
-                                    Toast.makeText(applicationContext, "There are no passwords", Toast.LENGTH_SHORT).show()
-                                }
+                            }
+                            withContext(Dispatchers.Main) {
+                                load_dialog.dismiss()
+                                backup(this@configurationActivity, 5, this@configurationActivity)
+                                Toast.makeText(applicationContext, "The app needs to be restarted", Toast.LENGTH_SHORT).show()
                             }
                             add_register(applicationContext, "Your password's operating mode has been changed to: ${pass_type.text}")
                             withContext(Dispatchers.Main) {
