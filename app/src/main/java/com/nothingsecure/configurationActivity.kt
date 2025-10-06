@@ -277,18 +277,20 @@ class configurationActivity : AppCompatActivity() {
                             if (pass_list.isNotEmpty()) {
                                 val key = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString())
                                 val id_final = pass_list[pass_list.size - 1].id
+                                var id_plus = 0
                                 try {
                                     for (position in 0..pass_list.size - 1) {
                                         val (id, pass, information, iv) = pass_list[position]
                                         val c = Cipher.getInstance("AES/GCM/NoPadding")
                                         c.init(Cipher.ENCRYPT_MODE, key)
                                         db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(pass_list[position].pass.toByteArray())), information, Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                                        id_plus ++
                                     }
                                     db.delete_speci(pass_list[0].id, id_final)
                                 } catch (e: Exception) {
                                     Log.e("Mode modification error", e.toString())
                                     pass_modi()
-                                    db.delete_speci(id_final + 1, pass_list[pass_list.size - 1].id)
+                                    db.delete_speci(id_final + 1, pass_list[pass_list.size - 1].id + id_plus)
                                     withContext(Dispatchers.Main) {
                                         Toast.makeText(applicationContext, "Mode modification error", Toast.LENGTH_SHORT).show()
                                     }

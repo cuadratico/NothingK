@@ -287,12 +287,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         search_pass.setOnQueryTextListener(object: android.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(query: String?): Boolean {
-                if (query!!.isNotEmpty()) {
+            override fun onQueryTextChange(query: String): Boolean {
+                if (query.isNotEmpty()) {
                     val newList = pass_list.filter { dato -> dato.information.contains(Regex(".*$query.*")) }
-                    pass_adapter.update(newList)
-                }else {
-                    pass_adapter.update(pass_list)
+                    if (newList.isNotEmpty()) {
+                        recy.scrollToPosition(pass_list.indexOf(newList[0]))
+                    }
                 }
                 return true
             }
