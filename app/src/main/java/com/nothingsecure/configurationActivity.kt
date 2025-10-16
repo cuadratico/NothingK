@@ -246,6 +246,7 @@ class configurationActivity : AppCompatActivity() {
                 pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
                 val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
                 ks.deleteEntry(pref.getString("key_u", pref.getString("key_u_r", "")))
+                pref.edit().putInt("it_def", 600000).commit()
             } else {
                 pref.edit().putString("salt", "").commit()
                 val kgs = KeyGenParameterSpec.Builder(pref.getString("key_u", pref.getString("key_u_r", "")).toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT).apply {
@@ -275,7 +276,7 @@ class configurationActivity : AppCompatActivity() {
                             val db = db(applicationContext)
                             pass_modi()
                             if (pass_list.isNotEmpty()) {
-                                val key = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString())
+                                val key = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString(), pref.getInt("it_def", 60000))
                                 val id_final = pass_list[pass_list.size - 1].id
                                 var id_plus = 0
                                 try {
@@ -410,6 +411,9 @@ class configurationActivity : AppCompatActivity() {
 
                     val file_name = settings_view.findViewById<EditText>(R.id.input_name_file)
 
+                    val iter = settings_view.findViewById<EditText>(R.id.input_iter)
+                    iter.setText(pref.getInt("it_up", 600000).toString())
+
                     val apply_button = settings_view.findViewById<AppCompatButton>(R.id.settings_button)
 
                     settings_input_pass.setText(pref.getString("backup_pass", pref.getString("key_def", pref.getString("key_u", ""))))
@@ -432,6 +436,7 @@ class configurationActivity : AppCompatActivity() {
                     apply_button.setOnClickListener {
                         pref.edit().putString("backup_pass", settings_input_pass.text.toString()).commit()
                         pref.edit().putString("backup_file", file_name.text.toString()).commit()
+                        pref.edit().putInt("it_up", iter.text.toString().toInt()).commit()
                         settings_dialog.dismiss()
                     }
 

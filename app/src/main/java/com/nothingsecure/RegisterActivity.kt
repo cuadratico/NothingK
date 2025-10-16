@@ -221,6 +221,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                         kg.generateKey()
                     }else {
                         pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
+                        pref.edit().putInt("it_def", 600000).commit()
                     }
 
                     val kgs_2 = KeyGenParameterSpec.Builder(ali.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)

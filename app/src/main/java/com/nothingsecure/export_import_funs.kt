@@ -19,8 +19,8 @@ import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun export (context: Context, password: String, salt: String, arch_name: String, rout: String) {
-    val key = derived_Key(password, salt)
+fun export (context: Context, password: String, salt: String, arch_name: String, rout: String, iter: Int) {
+    val key = derived_Key(password, salt, iter)
     try {
         val json_array = JSONArray()
         for (position in 0..pass_list.size - 1) {
@@ -59,6 +59,7 @@ fun export (context: Context, password: String, salt: String, arch_name: String,
         val archive_json = JSONObject().apply {
             put("pro", array_pro)
             put("salt", salt)
+            put("iter", iter)
             put("pass_list", json_array)
         }
 
@@ -86,9 +87,9 @@ fun export (context: Context, password: String, salt: String, arch_name: String,
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun import (context: Context, json: JSONObject, pass: String, rep: Boolean = true) {
+fun import (context: Context, json: JSONObject, pass: String, iter: Int, rep: Boolean = true) {
 
-    val key= derived_Key(pass, json.getString("salt"))
+    val key= derived_Key(pass, json.getString("salt"), iter)
 
     try {
         pass_list.clear()
@@ -120,7 +121,7 @@ fun import (context: Context, json: JSONObject, pass: String, rep: Boolean = tru
             val desen_pass = c.doFinal(Base64.getDecoder().decode(posi.getString("pass")))
             if (pref.getBoolean("db_sus", true)) {
                 val c_db = Cipher.getInstance("AES/GCM/NoPadding")
-                c_db.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
+                c_db.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "").toString(), pref.getInt("key_def", 60000)))
                 db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c_db.doFinal(desen_pass)), posi.getString("info"), Base64.getEncoder().withoutPadding().encodeToString(c_db.iv))
             } else {
                 pass_list.add(pass(pass, String(desen_pass), posi.getString("info"), posi.getString("iv")))

@@ -149,8 +149,8 @@ fun add_register (context: Context, note: String, color: String = "#1b1b1d") {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun derived_Key ( password: String, salt: String): SecretKey {
-    val spec = PBEKeySpec(password.toCharArray(), Base64.getDecoder().decode(salt), 600_00, 256)
+fun derived_Key ( password: String, salt: String, iter: Int): SecretKey {
+    val spec = PBEKeySpec(password.toCharArray(), Base64.getDecoder().decode(salt), iter, 256)
     val gen = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).encoded
 
     return SecretKeySpec(gen, "AES")
@@ -158,7 +158,7 @@ fun derived_Key ( password: String, salt: String): SecretKey {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun deri_expressed (context: Context, password: String, salt: String): Key {
+fun deri_expressed (context: Context, password: String, salt: String, iter: Int): Key {
     val mk = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
@@ -167,7 +167,7 @@ fun deri_expressed (context: Context, password: String, salt: String): Key {
 
 
     if (pref.getBoolean("deri", false)) {
-        return derived_Key(password, salt)
+        return derived_Key(password, salt, iter)
     }else {
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         Log.e("clave", pref.getString("key_u", "").toString())
@@ -246,7 +246,7 @@ fun backup (context: Context, ins: Int, acti: Activity? = null) {
         val load_dilaog = load("Making the backup", context)
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                export(context, pref.getString("backup_pass", pref.getString("key_def", pref.getString("key_u", ""))).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), pref.getString("backup_file", "NothingK-backup").toString(), Environment.DIRECTORY_DOWNLOADS)
+                export(context, pref.getString("backup_pass", pref.getString("key_def", pref.getString("key_u", ""))).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), pref.getString("backup_file", "NothingK-backup").toString(), Environment.DIRECTORY_DOWNLOADS, pref.getInt("it_up", 600000))
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "The backup could not be performed", Toast.LENGTH_SHORT).show()

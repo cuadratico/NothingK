@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -21,7 +22,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/all"
         android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/b_black"
         app:layout_constraintTop_toTopOf="parent"
@@ -74,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:textSize="19dp"
+                android:textSize="17dp"
                 android:gravity="center"
                 android:textColor="@color/n_white"
                 android:fontFamily="monospace"
@@ -137,8 +138,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
-            android:text="Specify the password"
-            android:textSize="15dp"
+            android:text="Specify the name"
+            android:textSize="17dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:textColor="@color/n_white"
@@ -164,7 +165,7 @@
                 android:layout_width="270dp"
                 android:layout_height="wrap_content"
                 android:hint="Name"
-                android:textSize="19dp"
+                android:textSize="17dp"
                 android:gravity="center"
                 android:textColor="@color/n_white"
                 android:fontFamily="monospace"
@@ -173,6 +174,73 @@
 
          </com.google.android.material.textfield.TextInputLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/iter"
+            android:layout_width="280dp"
+            android:layout_height="100dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/back_all_name"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="20dp"
+            >
+
+
+
+            <TextView
+                android:id="@+id/info_iter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="Specify the iter"
+                android:textSize="17dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:textColor="@color/n_white"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iter_text"
+                android:layout_width="270dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/info_iter"
+                android:layout_marginTop="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:boxStrokeColor="@color/style_edit_text"
+                android:textColorHint="@color/design_default_color_surface"
+                app:hintTextColor="@color/n_white"
+                app:cursorColor="@color/n_white"
+                >
+
+                <EditText
+                    android:id="@+id/input_iter"
+                    android:layout_width="270dp"
+                    android:layout_height="wrap_content"
+                    android:hint="Iter"
+                    android:textSize="17dp"
+                    android:gravity="center"
+                    android:textColor="@color/n_white"
+                    android:fontFamily="monospace"
+                    android:maxLines="1"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:layout_width="230dp"
+            android:layout_height="2dp"
+            android:background="@drawable/corner_25"
+            android:backgroundTint="@color/n_red"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/back_all_name"
+            app:layout_constraintBottom_toTopOf="@id/iter"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

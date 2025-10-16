@@ -102,7 +102,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
                 if (edit_pass.text.trim().isNotEmpty() && edit_information.text.trim().isNotEmpty()) {
                     try {
                         val c = Cipher.getInstance("AES/GCM/NoPadding")
-                        c.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
+                        c.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "").toString(), pref.getInt("it_def", 60000)))
 
                         if (pref.getBoolean("db_sus", true)) {
                             backup(context, 2)

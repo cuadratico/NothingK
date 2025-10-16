@@ -74,6 +74,7 @@ import com.nothingsecure.db.Companion.register_list
 import com.nothingsecure.recy_information.conf_adapter.Companion.mods_all
 import com.nothingsecure.recy_information.logs_adapter
 import com.nothingsecure.recy_information.pass_adapter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -90,6 +91,7 @@ import java.util.Base64
 import java.util.Random
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
+import kotlin.concurrent.thread
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.system.exitProcess
 
@@ -235,7 +237,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             lifecycleScope.launch (Dispatchers.IO){
                 if (pref.getBoolean("honeypot_mod", true)) {
-                    val key = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!)
+                    val key = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!, pref.getInt("it_def", 60000))
                     try {
                         for (position in 0..pass_list.size - 1) {
                             val (id, pass, information, iv) = pass_list[position]
@@ -290,9 +292,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             override fun onQueryTextChange(query: String): Boolean {
                 if (query.isNotEmpty()) {
                     val newList = pass_list.filter { dato -> dato.information.contains(Regex(".*$query.*")) }
-                    if (newList.isNotEmpty()) {
-                        recy.scrollToPosition(pass_list.indexOf(newList[0]))
-                    }
+                    pass_adapter.update(newList)
+                }else {
+                    pass_adapter.update(pass_list)
                 }
                 return true
             }
@@ -354,7 +356,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                             "Backup mode" -> {
                                 if (pref.getBoolean("desen_pass", false) && pass_list.isNotEmpty()) {
-                                    export(applicationContext, pref.getString("key_def", pref.getString("key_u", "")).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), "backup_n", Environment.DIRECTORY_DOWNLOADS)
+                                    export(applicationContext, pref.getString("key_def", pref.getString("key_u", "")).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), "backup_n", Environment.DIRECTORY_DOWNLOADS, pref.getInt("it_up", 600000))
                                 }else {
                                     withContext(Dispatchers.Main) {
                                         Toast.makeText(applicationContext, "Your passwords are not accessible", Toast.LENGTH_SHORT).show()
@@ -433,6 +435,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                 val select_directory = export_view.findViewById<AppCompatSpinner>(R.id.directory_spinner)
 
+                val specify_iter = export_view.findViewById<EditText>(R.id.input_iter)
+                specify_iter.setText("600000")
+
                 val export_button = export_view.findViewById<AppCompatButton>(R.id.export_buttom)
                 val create_new_a = export_view.findViewById<AppCompatButton>(R.id.create_new_a)
 
@@ -489,6 +494,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                 select_directory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, directions_list)
 
+                // export
                 export_button.setOnClickListener {
                     if (input_pass_export.text.isNotEmpty() && archive_name.text.isNotEmpty()) {
 
@@ -500,7 +506,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 backup(this@MainActivity, 6)
                                 load_dialog = load("Exporting your passwords...", this@MainActivity)
                                 lifecycleScope.launch (Dispatchers.IO){
-                                    export(applicationContext, input_pass_export.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)) , archive_name.text.toString(), directions_real[select_directory.selectedItem.toString()].toString())
+                                    export(applicationContext, input_pass_export.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)) , archive_name.text.toString(), directions_real[select_directory.selectedItem.toString()].toString(), specify_iter.text.toString().toInt())
                                     withContext(Dispatchers.Main) {
                                         load_dialog.dismiss()
                                     }
@@ -576,7 +582,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                     try {
                         val c = Cipher.getInstance("AES/GCM/NoPadding")
-                        c.init(Cipher.ENCRYPT_MODE, deri_expressed(this, pref.getString("key_u", "")!!, pref.getString("salt", "")!!))
+                        c.init(Cipher.ENCRYPT_MODE, deri_expressed(this, pref.getString("key_u", "")!!, pref.getString("salt", "").toString(), pref.getInt("it_def", 60000)))
 
                         var iv = ""
                         if (pref.getBoolean("db_sus", true)) {
@@ -819,6 +825,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                     if (json_f.has("salt") && json_f.has("pass_list") && json_f.has("pro")) {
 
+                        var iter = 60000
+                        if (json_f.has("iter")) {
+                            iter = json_f.getInt("iter")
+                        }
+
                         val import_dialog = Dialog(this)
                         val import_view =
                             LayoutInflater.from(this).inflate(R.layout.dialog_import, null)
@@ -858,12 +869,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                         import_button.setOnClickListener {
                             val array_pro = json_f.getJSONArray("pro").getJSONObject(0)
+                            val dialog_test = load("Checking the legitimacy of the key", this@MainActivity)
                             try {
-                                val c = Cipher.getInstance("AES/GCM/NoPadding")
-                                c.init(Cipher.DECRYPT_MODE, derived_Key(import_input_pass.text.toString(), json_f.getString("salt")), GCMParameterSpec(128, Base64.getDecoder().decode(array_pro.getString("iv"))))
-
-                                c.doFinal(Base64.getDecoder().decode(array_pro.getString("value")))
-                                import_dialog.dismiss()
 
                                 val dialog_db_sus = MaterialAlertDialogBuilder(this)
                                 dialog_db_sus.setTitle("What do you want to do with your file?")
@@ -871,29 +878,29 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 dialog_db_sus.setPositiveButton("Replace") { _, _ ->
                                     BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
 
-                                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                                                super.onAuthenticationSucceeded(result)
-                                                pref.edit().putBoolean("db_sus", true).commit()
-                                                backup(this@MainActivity, 10)
-                                                load("Decrypting the file", this@MainActivity)
-                                                lifecycleScope.launch(Dispatchers.IO) {
-                                                    import(applicationContext, json_f, import_input_pass.text.toString())
-                                                    withContext(Dispatchers.Main) {
-                                                        Toast.makeText(applicationContext, "Passwords loaded", Toast.LENGTH_LONG).show()
-                                                        pause = true
-                                                        back = true
-                                                        recreate()
-                                                    }
+                                        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                            super.onAuthenticationSucceeded(result)
+                                            pref.edit().putBoolean("db_sus", true).commit()
+                                            backup(this@MainActivity, 10)
+                                            load("Decrypting the file", this@MainActivity)
+                                            lifecycleScope.launch(Dispatchers.IO) {
+                                                import(applicationContext, json_f, import_input_pass.text.toString(), iter)
+                                                withContext(Dispatchers.Main) {
+                                                    Toast.makeText(applicationContext, "Passwords loaded", Toast.LENGTH_LONG).show()
+                                                    pause = true
+                                                    back = true
+                                                    recreate()
                                                 }
                                             }
+                                        }
 
-                                            override fun onAuthenticationError(
-                                                errorCode: Int,
-                                                errString: CharSequence
-                                            ) {
-                                                super.onAuthenticationError(errorCode, errString)
-                                                Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
-                                            }
+                                        override fun onAuthenticationError(
+                                            errorCode: Int,
+                                            errString: CharSequence
+                                        ) {
+                                            super.onAuthenticationError(errorCode, errString)
+                                            Toast.makeText(applicationContext, "Authentication error", Toast.LENGTH_SHORT).show()
+                                        }
                                     }).authenticate(promt("Authentication is required"))
                                 }
                                 dialog_db_sus.setNeutralButton("Preview") { _, _ ->
@@ -902,7 +909,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                     backup(this@MainActivity, 9)
                                     load_dialog = load("Decrypting the file", this)
                                     lifecycleScope.launch(Dispatchers.IO) {
-                                        import(applicationContext, json_f, import_input_pass.text.toString())
+                                        import(applicationContext, json_f, import_input_pass.text.toString(), iter)
                                         withContext(Dispatchers.Main) {
                                             load_dialog.dismiss()
                                             pass_adapter.update(pass_list)
@@ -925,7 +932,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                             backup(this@MainActivity, 8)
                                             load("Decrypting the file", this@MainActivity)
                                             lifecycleScope.launch(Dispatchers.IO) {
-                                                import(applicationContext, json_f, import_input_pass.text.toString(), false)
+                                                import(applicationContext, json_f, import_input_pass.text.toString(), iter, false)
                                                 withContext(Dispatchers.Main) {
                                                     Toast.makeText(applicationContext, "Passwords added", Toast.LENGTH_LONG).show()
                                                     pause = true
@@ -945,12 +952,27 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                     }).authenticate(promt("Authentication is required"))
 
                                 }
-                                dialog_db_sus.show()
-                                backup(applicationContext, 7)
+
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val c = Cipher.getInstance("AES/GCM/NoPadding")
+                                    c.init(Cipher.DECRYPT_MODE, derived_Key(import_input_pass.text.toString(), json_f.getString("salt"), iter), GCMParameterSpec(128, Base64.getDecoder().decode(array_pro.getString("iv"))))
+
+                                    c.doFinal(Base64.getDecoder().decode(array_pro.getString("value")))
+
+                                    withContext(Dispatchers.Main) {
+                                        import_dialog.dismiss()
+                                        dialog_test.dismiss()
+                                        dialog_db_sus.show()
+                                        backup(applicationContext, 7)
+                                        cancel()
+                                    }
+                                }
 
                             } catch (e: Exception) {
+                                dialog_test.dismiss()
                                 Toast.makeText(this, "The password is not correct", Toast.LENGTH_SHORT).show()
                                 import_input_pass.setText("")
+                                my_check.isChecked = false
                             }
                         }
 
