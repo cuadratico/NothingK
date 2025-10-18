@@ -483,13 +483,12 @@
                 />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/backup_all"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/backup_modes"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="20dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/corner_25"
                 android:backgroundTint="@color/b_black"
@@ -529,6 +528,54 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <TextView
+                android:id="@+id/vibra"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/matrix"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/backup_all"
+                android:layout_marginTop="30dp"
+                android:textSize="19dp"
+                android:gravity="center"
+                android:text="Do you want to activate or deactivate the vibration?"
+                />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/vibra"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/corner_25"
+                android:backgroundTint="@color/b_black"
+                >
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/vibration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vibration"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:fontFamily="monospace"
+                    android:textSize="17dp"
+                    app:thumbTint="@color/n_red"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
@@ -543,7 +590,7 @@
         android:fontFamily="monospace"
         android:textSize="17dp"
         android:textColor="@color/n_white"
-        android:text="0.3.16-Phasmophobia"
+        android:text="0.3.16-Phasmophobia.2"
         />
 
     <com.google.android.material.imageview.ShapeableImageView

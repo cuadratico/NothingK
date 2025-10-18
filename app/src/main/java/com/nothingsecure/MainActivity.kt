@@ -21,6 +21,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.method.PasswordTransformationMethod
@@ -116,7 +118,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var recy: RecyclerView
     private lateinit var desencrypt_passwords: AppCompatButton
     private lateinit var info_exist: TextView
-
+    private lateinit var vibrator: Vibrator
+    private var can_vib = true
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun vibra_conf (list: LongArray) {
+        if (can_vib) {
+            vibrator.vibrate(VibrationEffect.createWaveform(list, -1))
+        }
+    }
 
     @SuppressLint("MissingInflatedId")
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -126,6 +135,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         setContentView(R.layout.activity_main)
 
         delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
+
+        vibrator = this.getSystemService(VIBRATOR_SERVICE) as Vibrator
+
         mk = MasterKey.Builder(this)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
@@ -153,8 +165,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         add.visibility = View.INVISIBLE
         back_b.visibility = View.INVISIBLE
 
-        val db = db(this)
 
+        val dialog_feed = MaterialAlertDialogBuilder(this)
+            .setTitle("Want to give feedback on Nothing K?")
+            .setMessage("In case you didn't know, in the settings menu at the top left, there's a button to give feedback to Nothing K (not for donating). If you log in, you can fill out a form with your new ideas, which I'll gladly read. Thanks for using Nothing K \uD83D\uDE42. \n (This message will not be displayed again.)")
+            .setPositiveButton("I'll give an idea") {_, _ ->
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/EWnhgBtgu5jCB3Fa9")))
+            }
+            .setNegativeButton("Maybe another time") {_, _ ->}
+        dialog_feed.setOnDismissListener(object: DialogInterface.OnDismissListener {
+            override fun onDismiss(dialog: DialogInterface?) {
+                pref.edit().putBoolean("feed", false).commit()
+            }
+
+        })
+
+        if (pref.getBoolean("feed", true)) {
+            dialog_feed.show()
+        }
+
+        val db = db(this)
 
         pref.edit().putBoolean("desen_pass", false).commit()
         pref.edit().putBoolean("db_sus", pref.getBoolean("honeypot_mod", true)).commit()
@@ -509,6 +539,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                     export(applicationContext, input_pass_export.text.toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)) , archive_name.text.toString(), directions_real[select_directory.selectedItem.toString()].toString(), specify_iter.text.toString().toInt())
                                     withContext(Dispatchers.Main) {
                                         load_dialog.dismiss()
+                                        vibra_conf(longArrayOf(0, 20, 10, 100))
                                     }
                                     cancel()
                                 }
@@ -769,6 +800,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         time = 0
         color_part.backgroundTintList = ColorStateList.valueOf(pref.getString("color_back", "#FF000000")!!.toColorInt())
         multi_funtion.setImageResource(mods_all.get(pref.getString("multi_but_icon", "Delete all"))!!)
+        can_vib = pref.getBoolean("vibra", true)
         backup(this, 4)
     }
 
@@ -889,6 +921,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                                     Toast.makeText(applicationContext, "Passwords loaded", Toast.LENGTH_LONG).show()
                                                     pause = true
                                                     back = true
+                                                    vibra_conf(longArrayOf(0, 100, 10, 20))
                                                     recreate()
                                                 }
                                             }
@@ -937,6 +970,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                                     Toast.makeText(applicationContext, "Passwords added", Toast.LENGTH_LONG).show()
                                                     pause = true
                                                     back = true
+                                                    vibra_conf(longArrayOf(0, 50, 10, 20))
                                                     recreate()
                                                 }
                                             }

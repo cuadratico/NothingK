@@ -128,6 +128,10 @@ class configurationActivity : AppCompatActivity() {
         val back_up_spinner = findViewById<AppCompatSpinner>(R.id.backup_spinner)
         val back_up_settings = findViewById<AppCompatButton>(R.id.backup_settings)
 
+        // Vibration
+        val vibra = findViewById<MaterialSwitch>(R.id.vibration)
+
+
         fun spec_all () {
             val color = ColorStateList.valueOf(pref.getString("color_back", "#FF000000")!!.toColorInt())
             icons_all.backgroundTintList = color
@@ -454,6 +458,14 @@ class configurationActivity : AppCompatActivity() {
         }
 
 
+        vibra.isChecked = pref.getBoolean("vibra", true)
+
+        vibra.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
+            override fun onCheckedChanged(buttonView: CompoundButton, check: Boolean) {
+                pref.edit().putBoolean("vibra", check).commit()
+            }
+
+        })
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
