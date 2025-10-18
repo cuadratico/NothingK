@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.3.16-Phasmophobia | :white_check_mark: |
+|  0.3.16-Phasmophobia.2 | :white_check_mark: |
+|  0.3.16-Phasmophobia | :x: |
 |  0.3.15-Cronos.2 | :x: |
 |  0.3.15-Cronos | :x: |
 |  0.3.14-Silent Hill | :x: |
