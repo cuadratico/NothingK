@@ -3,6 +3,10 @@
 
 ![App Screenshot](https://github.com/cuadratico/NothingK/blob/master/fastlane/metadata/android/en-US/images/icon.png)
 
+# A major oversight now resolved
+NothingK had a bug in version 0.3.17-Phasmophobia.3 that prevented you from editing passwords. This bug has been fixed in the latest version (0.3.17-Phasmophobia.4). From now on, NothingK will have a new code review system that will reduce the likelihood of this type of bug to 0%. We apologize for any inconvenience caused. 
+Cuadratico (NothingK developer)
+
 # Nothing K?
 
 A digital vault for storing passwords with symmetric cryptography. Nothing K uses AES256/GCM.
@@ -18,8 +22,8 @@ Be careful.
 
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-# APK Security V0.3.17-Phasmophobia.3
-https://www.virustotal.com/gui/file/675cdf1656e05ea8408510668e9183db3f983db24cf69375b7cfb889d0593e51?nocache=1
+# APK Security V0.3.17-Phasmophobia.4
+https://www.virustotal.com/gui/file/56b68bb138584c8b98fc40e8669937de39a8e4ca36377f2ab48fc3ad387f26b7?nocache=1
 
 # APK Scan V0.0.5
 An analysis with MOBFS has also been performed.
