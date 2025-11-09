@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -176,15 +177,15 @@ fun deri_expressed (context: Context, password: String, salt: String, iter: Int)
 }
 
 
-fun visibility (visi: Boolean, icon: ShapeableImageView, input: EditText) {
-    if (visi) {
-        icon.setImageResource(R.drawable.close_eye)
-        input.transformationMethod = PasswordTransformationMethod.getInstance()
+@SuppressLint("ResourceAsColor")
+fun visibility (pref: SharedPreferences, icon: ShapeableImageView, input: EditText) {
+    if (pref.getBoolean("prims", false)) {
+        icon.setImageResource(R.drawable.prism_rell)
+        input.setTextColor("#27272A".toColorInt())
     }else {
-        icon.setImageResource(R.drawable.open_eye)
-        input.transformationMethod = null
+        icon.setImageResource(R.drawable.prism_no_rell)
+        input.setTextColor("#e3e3e3".toColorInt())
     }
-    input.setSelection(input.text.length)
 }
 
 var x_regi = 0f

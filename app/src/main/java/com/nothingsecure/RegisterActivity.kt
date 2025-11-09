@@ -87,7 +87,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         val info_derived = findViewById<ShapeableImageView>(R.id.info_derived)
         derived_check.visibility = View.INVISIBLE
         info_derived.visibility = View.INVISIBLE
-        var pass_see = false
 
         val mk = MasterKey.Builder(this)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -144,11 +143,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         if (pref.getBoolean("close", false)) {
             pref.edit().putBoolean("close", false).commit()
             info_close.text = "The last time the app closed due to a sudden movement"
-        }
-        pass_visi.setOnClickListener {
-            visibility(pass_see, icon, input_pass)
-            pass_see = !pass_see
-
         }
 
         input_pass.addTextChangedListener {dato ->

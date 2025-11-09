@@ -496,10 +496,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 }
 
                 // specify password
-                var visibility_export_dialog = false
+                visibility(pref, export_icon_visi, input_pass_export)
                 export_pass_visi.setOnClickListener {
-                    visibility_export_dialog = !visibility_export_dialog
-                    visibility(visibility_export_dialog, export_icon_visi, input_pass_export)
+                    pref.edit().putBoolean("prims", !pref.getBoolean("prims", false)).commit()
+                    visibility(pref, export_icon_visi, input_pass_export)
                 }
 
                 input_pass_export.addTextChangedListener {dato ->
@@ -595,17 +595,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val info_pass = add_view.findViewById<EditText>(R.id.information_pass)
             val input_pass = add_view.findViewById<EditText>(R.id.input_password)
             val progress = add_view.findViewById<LinearProgressIndicator>(R.id.progress)
-            val pass_visibility = add_view.findViewById<ConstraintLayout>(R.id.password_visibility)
+            val pass_visibility = add_view.findViewById<ConstraintLayout>(R.id.secure_vsiibility)
             val visi_icon = add_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
             val multi = add_view.findViewById<AppCompatButton>(R.id.multi_bottom)
 
-            var visi = false
             input_pass.addTextChangedListener {dato ->
                     entropy(input_pass.text.toString(), progress)
             }
+
+            visibility(pref, visi_icon, input_pass)
             pass_visibility.setOnClickListener {
-                visibility(visi, visi_icon, input_pass)
-                visi = !visi
+                pref.edit().putBoolean("prims", !pref.getBoolean("prims", false)).commit()
+                visibility(pref, visi_icon, input_pass)
             }
 
             multi.setOnClickListener {
@@ -893,10 +894,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                             entropy(dato.toString(), import_progress)
                         }
 
-                        var visible = false
+                        visibility(pref, import_icon_visible, import_input_pass)
                         import_visible_button.setOnClickListener {
-                            visible = !visible
-                            visibility(visible, import_icon_visible, import_input_pass)
+                            pref.edit().putBoolean("prims", !pref.getBoolean("prims", false)).commit()
+                            visibility(pref, import_icon_visible, import_input_pass)
                         }
 
                         import_button.setOnClickListener {

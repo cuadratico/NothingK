@@ -92,10 +92,10 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
                 }
             }
 
-            var visi = false
+            visibility(pref, icon_visi, edit_pass)
             pass_visibility.setOnClickListener {
-                visibility(visi, icon_visi, edit_pass)
-                visi = !visi
+                pref.edit().putBoolean("prims", !pref.getBoolean("prims", false)).commit()
+                visibility(pref, icon_visi, edit_pass)
             }
 
             bottom.setOnClickListener {

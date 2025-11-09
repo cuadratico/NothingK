@@ -72,6 +72,7 @@
             android:textColorHint="@color/design_default_color_surface"
             app:hintTextColor="@color/n_white"
             app:cursorColor="@color/n_white"
+            app:passwordToggleEnabled="true"
             >
 
             <EditText
@@ -103,9 +104,9 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/password_visibility"
-        android:layout_width="40dp"
-        android:layout_height="35dp"
+        android:id="@+id/secure_vsiibility"
+        android:layout_width="45dp"
+        android:layout_height="40dp"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/b_black"
         app:layout_constraintBottom_toBottomOf="@id/all"
@@ -118,7 +119,7 @@
             android:id="@+id/visibility_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/close_eye"
+            android:src="@drawable/prism_no_rell"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

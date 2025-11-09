@@ -81,6 +81,7 @@
                 android:textColorHint="@color/design_default_color_surface"
                 app:hintTextColor="@color/n_white"
                 app:cursorColor="@color/n_white"
+                app:passwordToggleEnabled="true"
                 >
 
                 <EditText
@@ -333,7 +334,7 @@
             android:id="@+id/visibility_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/close_eye"
+            android:src="@drawable/prism_no_rell"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
