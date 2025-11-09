@@ -18,8 +18,8 @@ Be careful.
 
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-# APK Security V0.3.16-Phasmophobia.2
-https://www.virustotal.com/gui/file/afded7d3b55d45d0e291e58f250f649affd03911a7ee7ae5c3a0608dce186256?nocache=1
+# APK Security V0.3.17-Phasmophobia.3
+https://www.virustotal.com/gui/file/675cdf1656e05ea8408510668e9183db3f983db24cf69375b7cfb889d0593e51?nocache=1
 
 # APK Scan V0.0.5
 An analysis with MOBFS has also been performed.
