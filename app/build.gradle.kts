@@ -11,8 +11,8 @@ android {
         applicationId = "com.nothingsecure"
         minSdk = 24
         targetSdk = 36
-        versionCode = 23
-        versionName = "0.3.17-Phasmophobia.3"
+        versionCode = 24
+        versionName = "0.3.17-Phasmophobia.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

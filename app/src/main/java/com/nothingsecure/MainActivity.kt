@@ -595,7 +595,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val info_pass = add_view.findViewById<EditText>(R.id.information_pass)
             val input_pass = add_view.findViewById<EditText>(R.id.input_password)
             val progress = add_view.findViewById<LinearProgressIndicator>(R.id.progress)
-            val pass_visibility = add_view.findViewById<ConstraintLayout>(R.id.secure_vsiibility)
+            val pass_visibility = add_view.findViewById<ConstraintLayout>(R.id.secure_visibility)
             val visi_icon = add_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
             val multi = add_view.findViewById<AppCompatButton>(R.id.multi_bottom)
 

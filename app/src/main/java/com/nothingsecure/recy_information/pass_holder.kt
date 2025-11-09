@@ -73,7 +73,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
             val edit_information = edit_view.findViewById<EditText>(R.id.information_pass)
             val edit_pass = edit_view.findViewById<EditText>(R.id.input_password)
             val edit_progress = edit_view.findViewById<LinearProgressIndicator>(R.id.progress)
-            val pass_visibility = edit_view.findViewById<ConstraintLayout>(R.id.password_visibility)
+            val pass_visibility = edit_view.findViewById<ConstraintLayout>(R.id.secure_visibility)
             val icon_visi = edit_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
             val bottom = edit_view.findViewById<AppCompatButton>(R.id.multi_bottom)
             information_extra.text = "Edit your password"
