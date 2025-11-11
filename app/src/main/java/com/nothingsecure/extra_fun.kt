@@ -129,7 +129,6 @@ fun pass_generator (size: Int, ini_list: List<List<Char>> = listOf(mayusculas_l,
 
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun add_register (context: Context, note: String, color: String = "#1b1b1d") {
     val mk = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -149,7 +148,6 @@ fun add_register (context: Context, note: String, color: String = "#1b1b1d") {
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun derived_Key ( password: String, salt: String, iter: Int): SecretKey {
     val spec = PBEKeySpec(password.toCharArray(), Base64.getDecoder().decode(salt), iter, 256)
     val gen = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).encoded
@@ -158,7 +156,6 @@ fun derived_Key ( password: String, salt: String, iter: Int): SecretKey {
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun deri_expressed (context: Context, password: String, salt: String, iter: Int): Key {
     val mk = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -235,7 +232,6 @@ fun load (info: String, context: Context): Dialog {
     return load_dialog
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun backup (context: Context, ins: Int, acti: Activity? = null) {
     val mk = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)

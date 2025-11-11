@@ -90,6 +90,7 @@
             app:hintTextColor="@color/b_black"
             app:cursorColor="@color/b_black"
             app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/b_black"
             >
 
             <EditText

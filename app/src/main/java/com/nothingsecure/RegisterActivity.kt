@@ -67,7 +67,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
     private var start = false
     private lateinit var sensor_manager: SensorManager
     @SuppressLint("MissingInflatedId")
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -78,10 +77,9 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         val info_close = findViewById<TextView>(R.id.info_close)
         val information = findViewById<TextView>(R.id.information_register)
         val input_pass = findViewById<EditText>(R.id.input_password)
-        val pass_visi = findViewById<ConstraintLayout>(R.id.password_visibility)
-        val icon = findViewById<ShapeableImageView>(R.id.visibility_icon)
         val progress = findViewById<LinearProgressIndicator>(R.id.progress_pass)
         val create = findViewById<ConstraintLayout>(R.id.create_password)
+        val text_very = findViewById<TextView>(R.id.text_create)
         val opor = findViewById<TextView>(R.id.opor)
         val derived_check = findViewById<CheckBox>(R.id.derived_check)
         val info_derived = findViewById<ShapeableImageView>(R.id.info_derived)
@@ -131,7 +129,11 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         if (pref.getBoolean("start", false)) {
             information.text = "Put your password"
-            create.visibility = View.INVISIBLE
+            if (!pref.getBoolean("log_very", false)) {
+                create.visibility = View.INVISIBLE
+            } else {
+                text_very.text = "Check"
+            }
             opor.text = " *".repeat(pref.getInt("opor", 9))
         } else {
             opor.visibility = View.INVISIBLE
@@ -145,55 +147,57 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
             info_close.text = "The last time the app closed due to a sudden movement"
         }
 
-        input_pass.addTextChangedListener {dato ->
-            if (pref.getBoolean("start", false)) {
+        fun very_pass (pass: String) {
+
                 try {
-                    if (dato?.length == pref.getInt("size", 0)) {
-                        if (MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))), Base64.getDecoder().decode(pref.getString("hash", ""))) ) {
-                            if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
+                    if (MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(pass.toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))), Base64.getDecoder().decode(pref.getString("hash", ""))) ) {
+                        if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
 
-                                BiometricPrompt(this, ContextCompat.getMainExecutor(this),
-                                    object : BiometricPrompt.AuthenticationCallback() {
-                                        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                                            super.onAuthenticationSucceeded(result)
-                                            add_register(applicationContext, "Successful login", "#40aa47")
+                            BiometricPrompt(this, ContextCompat.getMainExecutor(this),
+                                object : BiometricPrompt.AuthenticationCallback() {
+                                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                        super.onAuthenticationSucceeded(result)
+                                        add_register(applicationContext, "Successful login", "#40aa47")
 
-                                            pref.edit().putString("key_u", input_pass.text.toString()).commit()
-                                           startActivity(Intent(applicationContext, MainActivity::class.java))
-                                            finish()
-                                        }
+                                        pref.edit().putString("key_u", input_pass.text.toString()).commit()
+                                        startActivity(Intent(applicationContext, MainActivity::class.java))
+                                        finish()
+                                    }
 
-                                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                                            super.onAuthenticationError(errorCode, errString)
-                                            input_pass.setText("")
-                                            recreate()
-                                        }
-                                    }).authenticate(promt("Who are you?"))
-                            }
-                        } else {
-                            add_register(this, "Login failed", "#aa4040")
-                            input_pass.setText("")
-
-                            pref.edit().putInt("opor", pref.getInt("opor", 9) - 1).commit()
-
-                            if (pref.getInt("opor", 9) == 0) {
-                                pref.edit().putBoolean("block", true).commit()
-                                recreate()
-                            } else {
-                                opor.text = " *".repeat(pref.getInt("opor", 0))
-                            }
+                                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                        super.onAuthenticationError(errorCode, errString)
+                                        input_pass.setText("")
+                                        recreate()
+                                    }
+                                }).authenticate(promt("Who are you?"))
                         }
-                        pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(
-                            SecureRandom().generateSeed(16))).commit()
-                        pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(
-                            MessageDigest.getInstance("SHA-256").digest(dato.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
+                    } else {
+                        add_register(this, "Login failed", "#aa4040")
+                        input_pass.setText("")
+
+                        pref.edit().putInt("opor", pref.getInt("opor", 9) - 1).commit()
+
+                        if (pref.getInt("opor", 9) == 0) {
+                            pref.edit().putBoolean("block", true).commit()
+                            recreate()
+                        } else {
+                            opor.text = " *".repeat(pref.getInt("opor", 0))
+                        }
                     }
+                    pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
+                    pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(pass.toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
                 } catch (e: Exception) {
+                    Log.e("Error", e.toString())
                     pref.edit().putString("key_u", "").commit()
                     Toast.makeText(this, "An error arose", Toast.LENGTH_SHORT).show()
                     input_pass.setText("")
                     recreate()
                 }
+        }
+
+        input_pass.addTextChangedListener {dato ->
+            if (pref.getBoolean("start", false) && !pref.getBoolean("log_very", false) && dato?.length == pref.getInt("size", 0)) {
+                very_pass(dato.toString())
             }
             entropy(dato.toString(), progress)
             System.gc()
@@ -201,73 +205,86 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
 
         create.setOnClickListener {
-            if (input_pass.text!!.isNotEmpty() && input_pass.text!!.length >= 8) {
-                val ali = Random.nextBytes(10)
-                try {
-                    val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
-                    if (!derived_check.isChecked) {
-                        val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
-                            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                            .build()
-                        val kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-                        kg.init(kgs)
-                        kg.generateKey()
-                    }else {
-                        pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
-                        pref.edit().putInt("it_def", 600000).commit()
+            if (input_pass.text!!.isNotEmpty()) {
+                val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
+                if (pref.getBoolean("log_very", false)) {
+                    very_pass(input_pass.text.toString())
+                } else {
+                    if (input_pass.text!!.length >= 8) {
+                        val ali = Random.nextBytes(10)
+                        try {
+                            if (!derived_check.isChecked) {
+                                val kgs = KeyGenParameterSpec.Builder(input_pass.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
+                                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                                    .build()
+                                val kg = KeyGenerator.getInstance(
+                                    KeyProperties.KEY_ALGORITHM_AES,
+                                    "AndroidKeyStore"
+                                )
+                                kg.init(kgs)
+                                kg.generateKey()
+                            } else {
+                                pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
+                                pref.edit().putInt("it_def", 600000).commit()
+                            }
+
+                            val kgs_2 = KeyGenParameterSpec.Builder(ali.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
+                                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                                .build()
+                            val kg_2 = KeyGenerator.getInstance(
+                                KeyProperties.KEY_ALGORITHM_AES,
+                                "AndroidKeyStore"
+                            )
+                            kg_2.init(kgs_2)
+                            kg_2.generateKey()
+
+                            pref.edit().putString("key_u", input_pass.text.toString()).commit()
+                            pref.edit().putString("key", ali.toString()).commit()
+                            pref.edit().putBoolean("start", true).commit()
+                            pref.edit().putInt("size", input_pass.text.toString().length).commit()
+                            pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)))
+                            pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(input_pass.text.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
+
+                            animation.setAnimationListener(object : Animation.AnimationListener {
+                                override fun onAnimationEnd(ani: Animation?) {
+                                    create.visibility = View.INVISIBLE
+                                    startActivity(Intent(applicationContext, MainActivity::class.java))
+                                    finish()
+                                }
+
+                                override fun onAnimationRepeat(p0: Animation?) {}
+
+                                override fun onAnimationStart(p0: Animation?) {
+                                    create.isEnabled = false
+                                    input_pass.isEnabled = false
+                                }
+
+
+                            })
+
+                        } catch (e: Exception) {
+                            Log.e("Error in key generation", e.toString())
+                            pref.edit().putString("key_u", "").commit()
+                            pref.edit().putString("salt", "").commit()
+                            pref.edit().putString("key", "").commit()
+                            pref.edit().putBoolean("start", false).commit()
+                            pref.edit().putInt("size", 0).commit()
+                            pref.edit().putString("hash", "").commit()
+
+                            Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
+                            finishAffinity()
+                        } finally {
+                            ali.fill(0)
+                        }
+                    } else {
+                        Toast.makeText(this, "8 or more characters, please", Toast.LENGTH_SHORT)
                     }
-
-                    val kgs_2 = KeyGenParameterSpec.Builder(ali.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT)
-                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                        .build()
-                    val kg_2 = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-                    kg_2.init(kgs_2)
-                    kg_2.generateKey()
-
-                    pref.edit().putString("key_u", input_pass.text.toString()).commit()
-                    pref.edit().putString("key", ali.toString()).commit()
-                    pref.edit().putBoolean("start", true).commit()
-                    pref.edit().putInt("size", input_pass.text.toString().length).commit()
-                    pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)))
-                    pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(input_pass.text.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
-
-                    animation.setAnimationListener(object : Animation.AnimationListener {
-                        override fun onAnimationEnd(ani: Animation?) {
-                            create.visibility = View.INVISIBLE
-                            startActivity(Intent(applicationContext, MainActivity::class.java))
-                            finish()
-                        }
-
-                        override fun onAnimationRepeat(p0: Animation?) {}
-
-                        override fun onAnimationStart(p0: Animation?) {
-                            create.isEnabled = false
-                            input_pass.isEnabled = false
-                        }
-
-
-                    })
-
-                    create.startAnimation(animation)
-                }catch (e: Exception) {
-                    Log.e("Error in key generation", e.toString())
-                    pref.edit().putString("key_u", "").commit()
-                    pref.edit().putString("salt", "").commit()
-                    pref.edit().putString("key", "").commit()
-                    pref.edit().putBoolean("start", false).commit()
-                    pref.edit().putInt("size", 0).commit()
-                    pref.edit().putString("hash", "").commit()
-
-                    Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
-                    finishAffinity()
-                } finally {
-                    ali.fill(0)
                 }
-
+                create.startAnimation(animation)
             }else {
-                Toast.makeText(this, "8 or more characters, please", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "There is no password to check", Toast.LENGTH_SHORT).show()
             }
         }
 

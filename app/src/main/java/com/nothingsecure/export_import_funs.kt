@@ -18,7 +18,6 @@ import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun export (context: Context, password: String, salt: String, arch_name: String, rout: String, iter: Int) {
     val key = derived_Key(password, salt, iter)
     try {
@@ -86,7 +85,6 @@ fun export (context: Context, password: String, salt: String, arch_name: String,
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun import (context: Context, json: JSONObject, pass: String, iter: Int, rep: Boolean = true) {
 
     val key= derived_Key(pass, json.getString("salt"), iter)

@@ -131,6 +131,9 @@ class configurationActivity : AppCompatActivity() {
         // Vibration
         val vibra = findViewById<MaterialSwitch>(R.id.vibration)
 
+        // Login button
+        val log_button = findViewById<MaterialSwitch>(R.id.veryfication)
+
 
         fun spec_all () {
             val color = ColorStateList.valueOf(pref.getString("color_back", "#FF000000")!!.toColorInt())
@@ -182,7 +185,6 @@ class configurationActivity : AppCompatActivity() {
 
 
         fun_spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            @RequiresApi(Build.VERSION_CODES.O)
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
                 pref.edit().putString("multi_but_text", mods_recy[position]).commit()
                 add_register(applicationContext, "The button mode has been changed to \"${pref.getString("multi_but_text", "Delete all")}\" ")
@@ -243,7 +245,6 @@ class configurationActivity : AppCompatActivity() {
                 .setPositiveButton("Ok") {_, _ ->}
             dialog_info_type.show()
         }
-        @RequiresApi(Build.VERSION_CODES.O)
         fun pass_modi() {
             pref.edit().putBoolean("deri", !pref.getBoolean("deri", false)).commit()
             if (pref.getBoolean("deri", false)) {
@@ -270,7 +271,6 @@ class configurationActivity : AppCompatActivity() {
 
 
                 BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
-                    @RequiresApi(Build.VERSION_CODES.O)
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
                         val load_dialog = load("Changing key type...", this@configurationActivity)
@@ -345,7 +345,6 @@ class configurationActivity : AppCompatActivity() {
             override fun onCheckedChanged(p0: CompoundButton, check: Boolean) {
 
                 BiometricPrompt(this@configurationActivity, ContextCompat.getMainExecutor(applicationContext), object: BiometricPrompt.AuthenticationCallback() {
-                    @RequiresApi(Build.VERSION_CODES.O)
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
                         pref.edit().putBoolean("ace_force", check).commit()
@@ -389,7 +388,6 @@ class configurationActivity : AppCompatActivity() {
         back_up_spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, backup_list)
         back_up_spinner.setSelection(pref.getInt("backup_ins", 0))
         back_up_spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            @RequiresApi(Build.VERSION_CODES.O)
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, item: Int, p3: Long) {
                 pref.edit().putInt("backup_ins", item).commit()
                 add_register(applicationContext, "Now a backup will be made ${backup_list[item]}")
@@ -458,11 +456,24 @@ class configurationActivity : AppCompatActivity() {
         }
 
 
+        // vibration part
         vibra.isChecked = pref.getBoolean("vibra", true)
 
         vibra.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
             override fun onCheckedChanged(buttonView: CompoundButton, check: Boolean) {
                 pref.edit().putBoolean("vibra", check).commit()
+            }
+
+        })
+
+
+        // login button part
+
+        log_button.isChecked = pref.getBoolean("log_very", false)
+
+        log_button.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
+            override fun onCheckedChanged(buttonView: CompoundButton, check: Boolean) {
+                pref.edit().putBoolean("log_very", check).commit()
             }
 
         })

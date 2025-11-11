@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "com.nothingsecure"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
-        versionCode = 24
-        versionName = "0.3.17-Phasmophobia.4"
+        versionCode = 25
+        versionName = "0.3.18-Animal_Crossing"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

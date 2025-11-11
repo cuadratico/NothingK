@@ -120,7 +120,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var info_exist: TextView
     private lateinit var vibrator: Vibrator
     private var can_vib = true
-    @RequiresApi(Build.VERSION_CODES.O)
     fun vibra_conf (list: LongArray) {
         if (can_vib) {
             vibrator.vibrate(VibrationEffect.createWaveform(list, -1))
@@ -128,7 +127,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     @SuppressLint("MissingInflatedId")
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -297,10 +295,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         "Crypto Wallet (BTC)",
                     )
 
-                    for (position in 0..SecureRandom().nextInt(2, (alias_false.size - 1))) {
-                        val alias = alias_false[SecureRandom().nextInt(0, (alias_false.size - 1))]
+                    val random = SecureRandom()
+                    for (position in 0..random.nextInt(alias_false.size - 3) + 2) {
+                        val alias = alias_false[random.nextInt(alias_false.size - 1)]
 
-                        pass_list.add(pass(position, pass_generator(SecureRandom().nextInt(6, 12)), alias, Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(12))))
+                        pass_list.add(pass(position, pass_generator(random.nextInt(6) + 6), alias, Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(12))))
                         alias_false.remove(alias)
                     }
                 }
@@ -771,7 +770,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onDestroy() {
         super.onDestroy()
         pref.edit().putInt("copy_in", 0).commit()
@@ -795,7 +793,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         pause = false
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
         time = 0
@@ -836,7 +833,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         return super.dispatchTouchEvent(event)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, caller: ComponentCaller) {
         super.onActivityResult(requestCode, resultCode, data, caller)
         if (resultCode == -1) {
