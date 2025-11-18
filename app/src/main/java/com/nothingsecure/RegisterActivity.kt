@@ -244,7 +244,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                             pref.edit().putString("key", ali.toString()).commit()
                             pref.edit().putBoolean("start", true).commit()
                             pref.edit().putInt("size", input_pass.text.toString().length).commit()
-                            pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)))
+                            pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
                             pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(input_pass.text.toString().toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
 
                             animation.setAnimationListener(object : Animation.AnimationListener {
@@ -279,7 +279,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                             ali.fill(0)
                         }
                     } else {
-                        Toast.makeText(this, "8 or more characters, please", Toast.LENGTH_SHORT)
+                        Toast.makeText(this, "8 or more characters, please", Toast.LENGTH_SHORT).show()
                     }
                 }
                 create.startAnimation(animation)

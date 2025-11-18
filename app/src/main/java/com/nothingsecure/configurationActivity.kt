@@ -89,6 +89,7 @@ class configurationActivity : AppCompatActivity() {
 
 
         val info = findViewById<ShapeableImageView>(R.id.info)
+        val donate = findViewById<ShapeableImageView>(R.id.dona)
 
         // edit icon part
         val see_pass = findViewById<AppCompatButton>(R.id.see_pass)
@@ -219,12 +220,19 @@ class configurationActivity : AppCompatActivity() {
             dialog(R.layout.dialog_config_color, 1)
         }
 
-        info.setOnClickListener {
+        fun info_buttons (text: String, url: String) {
             MaterialAlertDialogBuilder(this).apply {
-                setTitle("Do you want to give your opinion on Nothing K?")
-                setPositiveButton("Yes") { _, _ -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/EWnhgBtgu5jCB3Fa9"))) }
+                setTitle(text)
+                setPositiveButton("Yes") { _, _ -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
                 setNegativeButton("No") { _, _ -> }
             }.show()
+        }
+
+        info.setOnClickListener {
+            info_buttons("Do you want to give your opinion on Nothing K?", "https://forms.gle/EWnhgBtgu5jCB3Fa9")
+        }
+        donate.setOnClickListener {
+            info_buttons("Do you want to help animals through an animal shelter?", "https://darnaanimalrescue.org/es/")
         }
 
         // pass type part code
@@ -418,7 +426,6 @@ class configurationActivity : AppCompatActivity() {
 
                     val apply_button = settings_view.findViewById<AppCompatButton>(R.id.settings_button)
 
-                    settings_input_pass.setText(pref.getString("backup_pass", pref.getString("key_def", pref.getString("key_u", ""))))
                     settings_input_pass.addTextChangedListener {dato ->
                         entropy(dato.toString(), settings_pass_progress)
                     }

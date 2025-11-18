@@ -651,5 +651,16 @@
         android:src="@drawable/feed_back"
         />
 
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/dona"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:src="@drawable/cat"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

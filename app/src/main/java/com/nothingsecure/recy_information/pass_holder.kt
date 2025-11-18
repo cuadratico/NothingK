@@ -40,7 +40,7 @@ import java.security.KeyStore
 import java.util.Base64
 import javax.crypto.Cipher
 
-class pass_holder(view: View): RecyclerView.ViewHolder(view) {
+class pass_holder(view: View): RecyclerView.ViewHolder(view){
 
     val all = view.findViewById<View>(R.id.all_click)
     val title = view.findViewById<TextView>(R.id.title)
@@ -49,7 +49,7 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view) {
     val edit = view.findViewById<AppCompatButton>(R.id.edit)
     val delete = view.findViewById<AppCompatButton>(R.id.delete)
     @SuppressLint("MissingInflatedId")
-    fun element (passData: pass){
+    fun element (passData : pass){
         title.text = passData.information
         password.text = passData.pass
         entropy(password.text.toString(), progress)

@@ -10,10 +10,9 @@ import com.nothingsecure.pass
 
 class pass_adapter(var list: List<pass>): RecyclerView.Adapter<pass_holder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): pass_holder {
-        return pass_holder(LayoutInflater.from(parent.context).inflate(R.layout.recy_password, null))
+        return pass_holder(LayoutInflater.from(parent.context).inflate(R.layout.recy_password, parent, false))
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: pass_holder, position: Int) {
         return holder.element(list[position])
     }
