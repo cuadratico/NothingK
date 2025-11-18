@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.3.17-Phasmophobia.4 | :white_check_mark: |
+|  0.3.18-Animal_Crossing| :white_check_mark: |
+|  0.3.17-Phasmophobia.4 | :x: |
 |  0.3.17-Phasmophobia.3 | :x: |
 |  0.3.16-Phasmophobia.2 | :x: |
 |  0.3.16-Phasmophobia | :x: |
