@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.3.18-Animal_Crossing.1| :white_check_mark: |
+|  0.3.19-Stardew_Valley | :white_check_mark: |
+|  0.3.18-Animal_Crossing.1 | :x: |
 |  0.3.18-Animal_Crossing | :x: |
 |  0.3.17-Phasmophobia.4 | :x: |
 |  0.3.17-Phasmophobia.3 | :x: |
