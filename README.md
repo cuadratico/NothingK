@@ -18,8 +18,8 @@ Be careful.
 
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-# APK Security V0.3.19-Stardew_Valley
-https://www.virustotal.com/gui/file/73547e3f51562002c6c902e6d561c223da3aa8c9901ccbfbc676b7140c373301?nocache=1
+# APK Security V0.3.19-Stardew_Valley.1
+https://www.virustotal.com/gui/file/6da8f6d35391a3f3a9368fc26e9f5877b798dd0f5a2d24e9ef97865a5935e84a?nocache=1
 
 # APK Scan V0.0.5
 An analysis with MOBFS has also been performed.
