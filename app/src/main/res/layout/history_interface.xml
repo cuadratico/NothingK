@@ -20,34 +20,21 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recy"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="350dp"
          app:layout_constraintBottom_toTopOf="@id/delete_all"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/delete_all"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background="@drawable/corner_25"
-        android:backgroundTint="@color/n_red"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/delete_pass"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="20dp"
-        >
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/delete"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_marginBottom="10dp"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

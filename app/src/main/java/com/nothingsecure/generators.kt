@@ -48,7 +48,7 @@ fun pass_generator_dialog (context: Context, info_image: ShapeableImageView) {
     val capital_l = gen_view.findViewById<MaterialSwitch>(R.id.capital_l)
     val number = gen_view.findViewById<MaterialSwitch>(R.id.numbers)
     val simbol = gen_view.findViewById<MaterialSwitch>(R.id.simbol)
-    val copy = gen_view.findViewById<AppCompatButton>(R.id.copy)
+    val copy = gen_view.findViewById<ShapeableImageView>(R.id.copy)
     val mail_gen = gen_view.findViewById<ConstraintLayout>(R.id.gen_emails_intent)
 
     mail_gen.setOnClickListener {

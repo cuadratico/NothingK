@@ -46,8 +46,8 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view){
     val title = view.findViewById<TextView>(R.id.title)
     val password = view.findViewById<TextView>(R.id.password)
     val progress = view.findViewById<LinearProgressIndicator>(R.id.progress)
-    val edit = view.findViewById<AppCompatButton>(R.id.edit)
-    val delete = view.findViewById<AppCompatButton>(R.id.delete)
+    val edit = view.findViewById<ShapeableImageView>(R.id.edit)
+    val delete = view.findViewById<ShapeableImageView>(R.id.delete)
     @SuppressLint("MissingInflatedId")
     fun element (passData : pass){
         title.text = passData.information

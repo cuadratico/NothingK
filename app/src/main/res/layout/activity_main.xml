@@ -69,8 +69,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/back_b"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/n_white"
         app:layout_constraintBottom_toTopOf="@id/add"
@@ -111,32 +111,27 @@
         app:layout_constraintStart_toStartOf="parent"
         android:fontFamily="@font/matrix"
         android:textSize="30dp"
-        android:text="You have not added any passwords yet."
+        android:text="You have not added any passwords yet"
         android:gravity="center"
         />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/import_passwords"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/corner_25"
-        android:backgroundTint="@color/n_red"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="20dp"
-        android:textSize="18dp"
-        android:textColor="@color/n_white"
-        android:fontFamily="monospace"
-        android:text="Decrypt"
-        android:textAllCaps="false"
+        android:src="@drawable/padlock_lock"
         />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/add"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/n_red"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -159,8 +154,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/logs_history"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/b_black"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -183,8 +178,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/generator"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/b_black"
         app:layout_constraintBottom_toBottomOf="parent"

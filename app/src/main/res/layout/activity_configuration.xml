@@ -637,7 +637,6 @@
         android:fontFamily="monospace"
         android:textSize="17dp"
         android:textColor="@color/n_white"
-        android:text="0.3.18-Animal_Crossing"
         />
 
     <com.google.android.material.imageview.ShapeableImageView

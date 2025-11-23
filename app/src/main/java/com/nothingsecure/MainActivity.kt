@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -58,6 +59,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
+import androidx.core.os.BuildCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
@@ -99,6 +101,8 @@ import kotlin.system.exitProcess
 
 var logs_update = false
 var pass_update = false
+const val version_name = "0.3.19-Stardew_Valley"
+
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var logs_adapter: logs_adapter
     private lateinit var pass_adapter: pass_adapter
@@ -116,7 +120,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var pause = false
     private var key_count = 0
     private lateinit var recy: RecyclerView
-    private lateinit var desencrypt_passwords: AppCompatButton
+    private lateinit var desencrypt_passwords: ShapeableImageView
     private lateinit var info_exist: TextView
     private lateinit var vibrator: Vibrator
     private var can_vib = true
@@ -152,7 +156,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         val search_pass = findViewById<android.widget.SearchView>(R.id.search)
         info_exist = findViewById<TextView>(R.id.info_exist)
-        desencrypt_passwords = findViewById<AppCompatButton>(R.id.import_passwords)
+        desencrypt_passwords = findViewById<ShapeableImageView>(R.id.import_passwords)
         multi_funtion = findViewById(R.id.multi_funtion_bot)
         val im_ex = findViewById<ShapeableImageView>(R.id.im_ex)
         back_b = findViewById(R.id.back_b)
@@ -163,24 +167,25 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         add.visibility = View.INVISIBLE
         back_b.visibility = View.INVISIBLE
 
-
-        val dialog_feed = MaterialAlertDialogBuilder(this)
-            .setTitle("Want to give feedback on Nothing K?")
-            .setMessage("In case you didn't know, in the settings menu at the top left, there's a button to give feedback to Nothing K (not for donating). If you log in, you can fill out a form with your new ideas, which I'll gladly read. Thanks for using Nothing K \uD83D\uDE42. \n (This message will not be displayed again.)")
-            .setPositiveButton("I'll give an idea") {_, _ ->
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/EWnhgBtgu5jCB3Fa9")))
-            }
-            .setNegativeButton("Maybe another time") {_, _ ->}
-        dialog_feed.setOnDismissListener(object: DialogInterface.OnDismissListener {
-            override fun onDismiss(dialog: DialogInterface?) {
-                pref.edit().putBoolean("feed", false).commit()
-            }
-
-        })
-
-        if (pref.getBoolean("feed", true)) {
-            dialog_feed.show()
+        if (pref.getString("init_info", "0.3.18-Animal_Crossing.1") != version_name) {
+            pref.edit().putString("init_info", version_name).commit()
+            MaterialAlertDialogBuilder(this).apply {
+                setTitle("The new features of version $version_name")
+                setMessage(
+                    "- An AlertDialog has been added that will show the new features in each version.\n" +
+                            "\n" +
+                            "- The interface has been significantly improved, making the app more attractive.\n" +
+                            "\n" +
+                            "- A problem that prevented the accelerometer from being blocked in RegisterActivity has been fixed.\n" +
+                            "\n" +
+                            "- A function has been added that allows you to copy the color code by holding your finger on it in the top view color change menu.\n" +
+                            "\n" +
+                            "Enjoy \uD83D\uDE42"
+                )
+                setPositiveButton("Thank you") {_, _ ->}
+            }.show()
         }
+
 
         val db = db(this)
 
@@ -200,7 +205,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             info_exist.visibility = View.INVISIBLE
         }
 
-
+        pass_list.clear()
         pass_adapter = pass_adapter(pass_list)
         recy.adapter = pass_adapter
         recy.layoutManager = LinearLayoutManager(applicationContext)
@@ -260,7 +265,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         desencrypt_passwords.setOnClickListener {
+            desencrypt_passwords.setImageResource(R.drawable.padlock_unlock)
             history.isEnabled = true
+
+            desencrypt_passwords.visibility = View.INVISIBLE
             load_dialog = load("Loading passwords...", this)
 
             lifecycleScope.launch (Dispatchers.IO){
@@ -306,7 +314,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                 pref.edit().putBoolean("desen_pass", true).commit()
                 withContext(Dispatchers.Main) {
-                    desencrypt_passwords.visibility = View.INVISIBLE
+                    desencrypt_passwords.setImageResource(R.drawable.padlock_lock)
                     recy.visibility = View.VISIBLE
                     add.visibility = View.VISIBLE
                     pass_adapter.update(pass_list)
@@ -371,66 +379,69 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                 fun veri_mod() {
 
-                    load_dialog = load(load_message, this)
-
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        when (value) {
+                    when (value) {
                             "Honeypot" -> {
-                                pref.edit().putBoolean("honeypot_mod", false).commit()
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(applicationContext, "Honeypot mode activated", Toast.LENGTH_SHORT).show()
-                                    finishAffinity()
+                                load_dialog = load(load_message, this)
+                                lifecycleScope.launch (Dispatchers.IO){
+                                    pref.edit().putBoolean("honeypot_mod", false).commit()
+                                    withContext(Dispatchers.Main) {
+                                        load_dialog.dismiss()
+                                        Toast.makeText(applicationContext, "Honeypot mode activated", Toast.LENGTH_SHORT).show()
+                                        finishAffinity()
+                                    }
+                                    cancel()
                                 }
                             }
 
                             "Backup mode" -> {
-                                if (pref.getBoolean("desen_pass", false) && pass_list.isNotEmpty()) {
-                                    export(applicationContext, pref.getString("key_def", pref.getString("key_u", "")).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), "backup_n", Environment.DIRECTORY_DOWNLOADS, pref.getInt("it_up", 600000))
-                                }else {
-                                    withContext(Dispatchers.Main) {
-                                        Toast.makeText(applicationContext, "Your passwords are not accessible", Toast.LENGTH_SHORT).show()
+                                load_dialog = load(load_message, this)
+                                lifecycleScope.launch (Dispatchers.IO) {
+                                    if (pref.getBoolean("desen_pass", false) && pass_list.isNotEmpty()) {
+                                        export(applicationContext, pref.getString("key_def", pref.getString("key_u", "")).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), "backup_n", Environment.DIRECTORY_DOWNLOADS, pref.getInt("it_up", 600000))
+                                    } else {
+                                        withContext(Dispatchers.Main) {
+                                            load_dialog.dismiss()
+                                            Toast.makeText(applicationContext, "Your passwords are not accessible", Toast.LENGTH_SHORT).show()
+                                            load_dialog.dismiss()
+                                        }
                                     }
+                                    cancel()
                                 }
                             }
 
                             "Delete all" -> {
                                 delete_all_fun(applicationContext, pref)
+                                Toast.makeText(this, "All information about nothingK has been deleted", Toast.LENGTH_SHORT).show()
+                                finishAffinity()
                             }
 
                             "App lock" -> {
                                 finishAffinity()
                             }
-                        }
-                        delay(500)
-                        withContext(Dispatchers.Main) {
-                            load_dialog.dismiss()
-                        }
-                        cancel()
                     }
                 }
 
 
-                if (pref.getBoolean("mod_dialog", true)) {
-                    val dialog_mods = MaterialAlertDialogBuilder(this)
-                        .setTitle(title)
-                        .setMessage(message)
-                        .setPositiveButton(posi_but) { _, _ ->
-                            BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
-                                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                                        super.onAuthenticationSucceeded(result)
-                                        veri_mod()
-                                    }
-                                }).authenticate(promt())
-                        }
-                        .setNegativeButton("At another time") { _, _ -> }
-                    dialog_mods.show()
-                } else {
+                fun aute() {
                     BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
                             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                 super.onAuthenticationSucceeded(result)
                                 veri_mod()
                             }
-                        }).authenticate(promt())
+                    }).authenticate(promt())
+                }
+
+                if (pref.getBoolean("mod_dialog", true)) {
+                    MaterialAlertDialogBuilder(this).apply {
+                        setTitle(title)
+                        setMessage(message)
+                        setPositiveButton(posi_but) { _, _ ->
+                           aute()
+                        }
+                        setNegativeButton("At another time") { _, _ -> }
+                    }.show()
+                } else {
+                    aute()
                 }
             }else {
                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
@@ -655,7 +666,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             val logs_search = logs_view.findViewById<android.widget.SearchView>(R.id.search)
             val logs_recy = logs_view.findViewById<RecyclerView>(R.id.recy)
-            val delete_all = logs_view.findViewById<ConstraintLayout>(R.id.delete_all)
+            val delete_all = logs_view.findViewById<ShapeableImageView>(R.id.delete_all)
             logs_search.isEnabled = false
             delete_all.isEnabled = false
 

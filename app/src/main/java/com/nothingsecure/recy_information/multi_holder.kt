@@ -1,9 +1,13 @@
 package com.nothingsecure.recy_information
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.res.ColorStateList
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.RecyclerView
 import androidx.security.crypto.EncryptedSharedPreferences
@@ -50,6 +54,18 @@ class multi_holder(val view: View, val type: Int): RecyclerView.ViewHolder(view)
             }
             dialog_conf.dismiss()
         }
+
+        back.setOnLongClickListener(object: View.OnLongClickListener {
+            override fun onLongClick(v: View?): Boolean {
+                if (type != 0) {
+                    val manager = multi_text.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    manager.setPrimaryClip(ClipData.newPlainText("color", multi_text.text.toString()))
+                }
+
+                return true
+            }
+
+        })
 
     }
 }

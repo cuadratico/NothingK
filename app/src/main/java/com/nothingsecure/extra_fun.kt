@@ -168,7 +168,6 @@ fun deri_expressed (context: Context, password: String, salt: String, iter: Int)
         return derived_Key(password, salt, iter)
     }else {
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-        Log.e("clave", pref.getString("key_u", "").toString())
         return ks.getKey(pref.getString("key_u", ""), null)
     }
 }

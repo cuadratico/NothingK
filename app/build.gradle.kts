@@ -11,8 +11,8 @@ android {
         applicationId = "com.nothingsecure"
         minSdk = 26
         targetSdk = 36
-        versionCode = 26
-        versionName = "0.3.18-Animal_Crossing.1"
+        versionCode = 27
+        versionName = "0.3.19-Stardew_Valley"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

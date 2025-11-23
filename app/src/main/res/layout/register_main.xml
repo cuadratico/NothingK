@@ -58,7 +58,7 @@
         android:layout_width="280dp"
         android:layout_height="100dp"
         android:background="@drawable/corner_25"
-        android:backgroundTint="@color/n_white"
+        android:backgroundTint="@color/b_black"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -78,28 +78,27 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_password_background"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:boxStrokeColor="@color/n_red"
-            android:textColorHint="@color/b_black"
-            app:hintTextColor="@color/b_black"
-            app:cursorColor="@color/b_black"
+            app:boxStrokeColor="@color/style_edit_text"
+            android:textColorHint="@color/n_white"
+            app:hintTextColor="@color/n_white"
+            app:cursorColor="@color/n_white"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/b_black"
+            app:passwordToggleTint="@color/n_white"
             >
 
             <EditText
                 android:id="@+id/input_password"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:hint="Password here"
-                android:textColorHint="@color/b_black"
-                android:textColor="@color/black"
+                android:hint="Password"
+                android:textColorHint="@color/n_white"
+                android:textColor="@color/n_white"
                 android:fontFamily="monospace"
                 android:maxWidth="200dp"
                 android:maxLines="2"
@@ -118,51 +117,24 @@
             app:layout_constraintEnd_toEndOf="@id/input_password_background"
             app:layout_constraintStart_toStartOf="@id/input_password_background"
             app:layout_constraintTop_toBottomOf="@id/input_password_background"
-            app:trackColor="@color/n_white"
-            app:indicatorColor="@color/n_white"
+            app:trackColor="@color/b_black"
+            app:indicatorColor="@color/b_black"
             android:layout_marginTop="5dp"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/create_password"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:background="@drawable/corner_25"
-        android:backgroundTint="@color/n_white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/arrow_r"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/back_pass"
         android:layout_marginTop="20dp"
-        >
-
-        <TextView
-            android:id="@+id/text_create"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Create"
-            android:textColor="@color/b_black"
-            android:fontFamily="monospace"
-            android:textSize="19dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="10dp"
-            />
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/arrow_r"
-            app:layout_constraintTop_toTopOf="@id/text_create"
-            app:layout_constraintBottom_toBottomOf="@id/text_create"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/text_create"
-            android:layout_marginTop="3dp"
-            />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        />
 
     <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/derived_check"

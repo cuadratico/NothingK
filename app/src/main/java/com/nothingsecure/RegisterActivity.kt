@@ -78,8 +78,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         val information = findViewById<TextView>(R.id.information_register)
         val input_pass = findViewById<EditText>(R.id.input_password)
         val progress = findViewById<LinearProgressIndicator>(R.id.progress_pass)
-        val create = findViewById<ConstraintLayout>(R.id.create_password)
-        val text_very = findViewById<TextView>(R.id.text_create)
+        val create = findViewById<ShapeableImageView>(R.id.create_password)
         val opor = findViewById<TextView>(R.id.opor)
         val derived_check = findViewById<CheckBox>(R.id.derived_check)
         val info_derived = findViewById<ShapeableImageView>(R.id.info_derived)
@@ -131,8 +130,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
             information.text = "Put your password"
             if (!pref.getBoolean("log_very", false)) {
                 create.visibility = View.INVISIBLE
-            } else {
-                text_very.text = "Check"
             }
             opor.text = " *".repeat(pref.getInt("opor", 9))
         } else {
@@ -299,9 +296,10 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         }
 
 
-        sensor_manager = getSystemService(SENSOR_SERVICE) as SensorManager
-        sensor_manager.registerListener(this, sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
-
+        if (pref.getBoolean("ace_force", true)) {
+            sensor_manager = getSystemService(SENSOR_SERVICE) as SensorManager
+            sensor_manager.registerListener(this, sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
+        }
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE

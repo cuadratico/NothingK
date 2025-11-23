@@ -90,6 +90,7 @@ class configurationActivity : AppCompatActivity() {
 
         val info = findViewById<ShapeableImageView>(R.id.info)
         val donate = findViewById<ShapeableImageView>(R.id.dona)
+        val version_info = findViewById<TextView>(R.id.version_info)
 
         // edit icon part
         val see_pass = findViewById<AppCompatButton>(R.id.see_pass)
@@ -136,6 +137,7 @@ class configurationActivity : AppCompatActivity() {
         val log_button = findViewById<MaterialSwitch>(R.id.veryfication)
 
 
+        version_info.text = version_name
         fun spec_all () {
             val color = ColorStateList.valueOf(pref.getString("color_back", "#FF000000")!!.toColorInt())
             icons_all.backgroundTintList = color
@@ -484,7 +486,6 @@ class configurationActivity : AppCompatActivity() {
             }
 
         })
-
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE

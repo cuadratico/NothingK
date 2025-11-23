@@ -6,21 +6,15 @@
 
 
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/copy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/corner_25"
-        android:backgroundTint="@color/n_red"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginBottom="20dp"
-        android:textSize="18dp"
-        android:textColor="@color/n_white"
-        android:fontFamily="monospace"
-        android:text="Copy"
-        android:textAllCaps="false"
+        android:src="@drawable/copy"
         />
 
     <com.google.android.material.materialswitch.MaterialSwitch
