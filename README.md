@@ -18,8 +18,8 @@ Be careful.
 
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-# APK Security V0.3.18-Animal_Crossing
-https://www.virustotal.com/gui/file/381ec9d14727f8c5aadc8d7f485dde10a9c7525715178cc61a72f535e96c3ceb?nocache=1
+# APK Security V0.3.18-Animal_Crossing.1
+https://www.virustotal.com/gui/file/90dc1baf4ff75c2f6787f6cc28b0820cf5f53399f5f762d8dc84ddc304470c09?nocache=1
 
 # APK Scan V0.0.5
 An analysis with MOBFS has also been performed.
