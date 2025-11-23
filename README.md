@@ -18,8 +18,8 @@ Be careful.
 
 [![IzzyOnDroid](https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png)](https://apt.izzysoft.de/packages/com.nothingsecure)
 
-# APK Security V0.3.18-Animal_Crossing.1
-https://www.virustotal.com/gui/file/90dc1baf4ff75c2f6787f6cc28b0820cf5f53399f5f762d8dc84ddc304470c09?nocache=1
+# APK Security V0.3.19-Stardew_Valley
+https://www.virustotal.com/gui/file/73547e3f51562002c6c902e6d561c223da3aa8c9901ccbfbc676b7140c373301?nocache=1
 
 # APK Scan V0.0.5
 An analysis with MOBFS has also been performed.
