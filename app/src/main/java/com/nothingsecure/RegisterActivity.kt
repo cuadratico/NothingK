@@ -65,7 +65,7 @@ import kotlin.random.Random
 
 class RegisterActivity : AppCompatActivity(), SensorEventListener {
     private var start = false
-    private lateinit var sensor_manager: SensorManager
+    private var sensor_manager: SensorManager? = null
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -298,7 +298,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         if (pref.getBoolean("ace_force", true)) {
             sensor_manager = getSystemService(SENSOR_SERVICE) as SensorManager
-            sensor_manager.registerListener(this, sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
+            sensor_manager?.registerListener(this, sensor_manager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
         }
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
@@ -314,7 +314,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        sensor_manager.unregisterListener(this)
+        sensor_manager?.unregisterListener(this)
     }
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
 

@@ -101,7 +101,7 @@ import kotlin.system.exitProcess
 
 var logs_update = false
 var pass_update = false
-const val version_name = "0.3.19-Stardew_Valley"
+const val version_name = "0.3.19-Stardew_Valley.1"
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var logs_adapter: logs_adapter
