@@ -101,7 +101,7 @@ import kotlin.system.exitProcess
 
 var logs_update = false
 var pass_update = false
-const val version_name = "0.3.19-Stardew_Valley.1"
+const val version_name = "0.3.19-Stardew_Valley.2"
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var logs_adapter: logs_adapter
@@ -153,6 +153,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val add = findViewById<ConstraintLayout>(R.id.add)
         val generator = findViewById<ConstraintLayout>(R.id.generator)
         val view_generator = findViewById<ShapeableImageView>(R.id.view_generator)
+        val time_out = findViewById<TextView>(R.id.time_out)
 
         val search_pass = findViewById<android.widget.SearchView>(R.id.search)
         info_exist = findViewById<TextView>(R.id.info_exist)
@@ -172,14 +173,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             MaterialAlertDialogBuilder(this).apply {
                 setTitle("The new features of version $version_name")
                 setMessage(
-                    "- An AlertDialog has been added that will show the new features in each version.\n" +
-                            "\n" +
-                            "- The interface has been significantly improved, making the app more attractive.\n" +
-                            "\n" +
-                            "- A problem that prevented the accelerometer from being blocked in RegisterActivity has been fixed.\n" +
-                            "\n" +
-                            "- A function has been added that allows you to copy the color code by holding your finger on it in the top view color change menu.\n" +
-                            "\n" +
+                    "- The interface has been adapted to the EditText fields. \n" +
+                    "- A security issue has been fixed regarding password verification on the registration and login screen. \n" +
+                    "- A setting has been added to modify your time out and an indicator to show how much time you have left.\n" +
                             "Enjoy \uD83D\uDE42"
                 )
                 setPositiveButton("Thank you") {_, _ ->}
@@ -210,10 +206,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         recy.adapter = pass_adapter
         recy.layoutManager = LinearLayoutManager(applicationContext)
 
-        lifecycleScope.launch (Dispatchers.IO){
-
+        val global_scope = lifecycleScope.launch (Dispatchers.IO, start = CoroutineStart.LAZY){
+            withContext(Dispatchers.Main) {
+                time_out.text = pref.getInt("time_out", 30).toString()
+            }
             while (true) {
-                if (time == 60000) {
+                if (time == (pref.getInt("time_out", 30) * 1000)) {
                     withContext(Dispatchers.Main) { Toast.makeText(applicationContext, "Too much downtime", Toast.LENGTH_SHORT).show() }
                     finishAffinity()
                 }else {
@@ -235,9 +233,21 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     }
                 }
                 time += 50
+                if ((time % 1000) == 0) {
+                    withContext(Dispatchers.Main) {
+                        time_out.text = (pref.getInt("time_out", 30) - (time / 1000)).toString()
+                    }
+                }
                 delay(50)
             }
         }
+
+        fun start_global () {
+            if (!global_scope.isActive) {
+                global_scope.start()
+            }
+        }
+
         if (pref.getBoolean("honeypot_mod", true) && !db.select_pass()) {
             search_pass.visibility = View.INVISIBLE
             info_exist.visibility = View.VISIBLE
@@ -282,6 +292,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                             pass_list[position].pass = String(c.doFinal(Base64.getDecoder().decode(pass)))
                         }
+                        start_global()
                     }catch (e: Exception) {
                         Log.e("error", e.toString())
                         withContext(Dispatchers.Main) {
@@ -635,6 +646,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         }
                         pass_list.add(pass(if (pass_list.size != 0) { pass_list[pass_list.size - 1].id + 1 } else { 0 }, input_pass.text.toString(), info_pass.text.toString(), iv))
 
+                        start_global()
                         init_acti()
                         pass_adapter.update(pass_list)
                     } catch (e: Exception) {

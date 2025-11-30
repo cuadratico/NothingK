@@ -36,6 +36,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
@@ -146,12 +147,14 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         fun very_pass (pass: String) {
 
+            fun rege () {
+                pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
+                pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(pass.toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
+            }
                 try {
                     if (MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(pass.toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))), Base64.getDecoder().decode(pref.getString("hash", ""))) ) {
                         if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
-
-                            BiometricPrompt(this, ContextCompat.getMainExecutor(this),
-                                object : BiometricPrompt.AuthenticationCallback() {
+                            BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
                                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                         super.onAuthenticationSucceeded(result)
                                         add_register(applicationContext, "Successful login", "#40aa47")
@@ -164,10 +167,10 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                                         super.onAuthenticationError(errorCode, errString)
                                         input_pass.setText("")
-                                        recreate()
                                     }
                                 }).authenticate(promt("Who are you?"))
                         }
+                        rege()
                     } else {
                         add_register(this, "Login failed", "#aa4040")
                         input_pass.setText("")
@@ -181,14 +184,14 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                             opor.text = " *".repeat(pref.getInt("opor", 0))
                         }
                     }
-                    pref.edit().putString("salt_very", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16))).commit()
-                    pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(pass.toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
                 } catch (e: Exception) {
                     Log.e("Error", e.toString())
                     pref.edit().putString("key_u", "").commit()
                     Toast.makeText(this, "An error arose", Toast.LENGTH_SHORT).show()
                     input_pass.setText("")
                     recreate()
+                } finally {
+                    progress.setIndicatorColor("#1b1b1d".toColorInt())
                 }
         }
 

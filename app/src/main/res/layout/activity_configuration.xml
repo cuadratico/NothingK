@@ -591,13 +591,12 @@
 
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/login_b_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/very"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="20dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/corner_25"
                 android:backgroundTint="@color/b_black"
@@ -622,6 +621,59 @@
                     />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <TextView
+                android:id="@+id/time_out"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/matrix"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/login_b_back"
+                android:layout_marginTop="30dp"
+                android:textSize="19dp"
+                android:gravity="center"
+                android:text="Do you want to change your time out?"
+                />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/time_out_back"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                app:layout_constraintTop_toBottomOf="@id/time_out"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/corner_25"
+                android:backgroundTint="@color/b_black"
+                >
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/time_selec"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:src="@drawable/time"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/info_time_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/time_out"
+                app:layout_constraintBottom_toBottomOf="@id/time_out"
+                app:layout_constraintStart_toEndOf="@id/time_out"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/info"
+                />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

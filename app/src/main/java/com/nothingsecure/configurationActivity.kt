@@ -1,6 +1,7 @@
 package com.nothingsecure
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
@@ -136,6 +137,10 @@ class configurationActivity : AppCompatActivity() {
         // Login button
         val log_button = findViewById<MaterialSwitch>(R.id.veryfication)
 
+        // time out
+        val info_time_out = findViewById<ShapeableImageView>(R.id.info_time_out)
+        val time_out = findViewById<ConstraintLayout>(R.id.time_out_back)
+
 
         version_info.text = version_name
         fun spec_all () {
@@ -171,7 +176,13 @@ class configurationActivity : AppCompatActivity() {
             })
         }
 
-
+        fun info_dialog(title: String, message: String) {
+            MaterialAlertDialogBuilder(this).apply {
+                setTitle(title)
+                setMessage(message)
+                setPositiveButton("Ok") {_, _ ->}
+            }.show()
+        }
 
         // edit icon part code
 
@@ -248,12 +259,8 @@ class configurationActivity : AppCompatActivity() {
         modi_type_ui()
 
         info_type.setOnClickListener {
-            val dialog_info_type = MaterialAlertDialogBuilder(this)
-                .setTitle("Where is my key stored?")
-                .setMessage("Currently, your key is an ${if (pref.getBoolean("deri", false)) { "Derived Key" } else { "Android KeyStore" } }.\n" +
-                        "When I talk about Android KeyStore, I'm referring to Android's cryptographic key storage. Your cryptographic key is stored there and protected by your password. When I talk about derived keys, I'm referring to the use of the PBKDF2 algorithm. This algorithm derives the key from your password. Basically, the cryptographic key is created from your password, which means it's never stored.")
-                .setPositiveButton("Ok") {_, _ ->}
-            dialog_info_type.show()
+            info_dialog("Where is my key stored?", "Currently, your key is an ${if (pref.getBoolean("deri", false)) { "Derived Key" } else { "Android KeyStore" }}.\n" +
+                    "When I talk about Android KeyStore, I'm referring to Android's cryptographic key storage. Your cryptographic key is stored there and protected by your password. When I talk about derived keys, I'm referring to the use of the PBKDF2 algorithm. This algorithm derives the key from your password. Basically, the cryptographic key is created from your password, which means it's never stored.")
         }
         fun pass_modi() {
             pref.edit().putBoolean("deri", !pref.getBoolean("deri", false)).commit()
@@ -343,12 +350,8 @@ class configurationActivity : AppCompatActivity() {
         acele_switch.isChecked = pref.getBoolean("ace_force", true)
 
         info_acele.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("What is the accelerometer used for in Nothing K?")
-                .setMessage("The accelerometer is used to detect forceful acts. Basically, when a sudden movement is detected, the app closes and the movement is recorded.\n" +
-                        "This way, thefts involving forceful acts can be prevented.")
-                .setPositiveButton("Ok") {_, _ ->}
-                .show()
+            info_dialog("What is the accelerometer used for in Nothing K?", "The accelerometer is used to detect forceful acts. Basically, when a sudden movement is detected, the app closes and the movement is recorded.\n" +
+                    "This way, thefts involving forceful acts can be prevented.")
         }
 
         acele_switch.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
@@ -388,11 +391,7 @@ class configurationActivity : AppCompatActivity() {
         // Edit the backup time code part
 
         info_backup_mode.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("What are backup moments?")
-                .setMessage("These are scheduled times when a backup of your entire database will be made. It will be encrypted with your default password and the file will be named NothingK-backup.nk (you can change all of this with the \"Settings\" button in the backup menu).")
-                .setPositiveButton("Ok"){_, _ ->}
-                .show()
+            info_dialog("What are backup moments?", "These are scheduled times when a backup of your entire database will be made. It will be encrypted with your default password and the file will be named NothingK-backup.nk (you can change all of this with the \"Settings\" button in the backup menu)")
         }
 
         back_up_spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, backup_list)
@@ -486,6 +485,38 @@ class configurationActivity : AppCompatActivity() {
             }
 
         })
+
+        // time out
+
+        info_time_out.setOnClickListener {
+            info_dialog("Do you want to change your time out?", "The timeout is the amount of time it takes for NothingK to close after your last interaction; this time is a selection of 5, 10, 20, 30 and 60 seconds.")
+        }
+
+        time_out.setOnClickListener {
+
+            BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    val time_list = listOf("5 secons", "10 secons", "20 secons", "30 secons", "60 secons")
+
+                    MaterialAlertDialogBuilder(this@configurationActivity)
+                        .setTitle("Your current timeout is ${pref.getInt("time_out", 30).toString()} seconds")
+                        .setAdapter(ArrayAdapter(this@configurationActivity, android.R.layout.simple_list_item_1, time_list), object: DialogInterface.OnClickListener {
+                            override fun onClick(dialog: DialogInterface?, which: Int) {
+                                pref.edit().putInt("time_out", time_list[which].split(" ")[0].toInt()).commit()
+                            }
+
+                        }).show()
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    Toast.makeText(this@configurationActivity, "Error", Toast.LENGTH_SHORT).show()
+                }
+            }).authenticate(promt())
+
+
+        }
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE

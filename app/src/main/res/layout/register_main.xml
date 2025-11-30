@@ -9,58 +9,73 @@
     android:background="@color/black"
     >
 
-    <TextView
-        android:id="@+id/information_register"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create your password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/opor"
-        android:layout_marginBottom="20dp"
-        android:textSize="20dp"
-        android:fontFamily="@font/matrix"
-        android:textAllCaps="false"
-        />
+
 
     <TextView
         android:id="@+id/info_close"
-        android:layout_width="200dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:text="Make sure no one is looking at the screen"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/back_pass"
-        android:layout_marginBottom="20dp"
-        android:textSize="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="100dp"
+        android:textSize="25dp"
         android:fontFamily="@font/matrix"
         android:textAllCaps="false"
-        app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
         app:layout_constraintBaseline_toTopOf="parent"
         />
 
-    <TextView
-        android:id="@+id/opor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/matrix"
-        android:text="* * * * * * * * * *"
-        app:layout_constraintEnd_toEndOf="@id/back_pass"
-        app:layout_constraintStart_toStartOf="@id/back_pass"
-        app:layout_constraintBottom_toTopOf="@id/back_pass"
-        android:layout_marginBottom="10dp"
-        android:textSize="20dp"
-        />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/back_pass"
+        android:id="@+id/back_global"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:fitsSystemWindows="true"
+        android:background="@color/black"
+        >
+
+        <TextView
+            android:id="@+id/information_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create your password"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/opor"
+            android:layout_marginBottom="20dp"
+            android:textSize="20dp"
+            android:fontFamily="@font/matrix"
+            android:textAllCaps="false"
+            />
+
+        <TextView
+            android:id="@+id/opor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/matrix"
+            android:text="* * * * * * * * * *"
+            app:layout_constraintEnd_toEndOf="@id/back_pass"
+            app:layout_constraintStart_toStartOf="@id/back_pass"
+            app:layout_constraintBottom_toTopOf="@id/back_pass"
+            android:layout_marginBottom="10dp"
+            android:textSize="20dp"
+            android:textColor="@color/n_red"
+            />
+
+     <androidx.constraintlayout.widget.ConstraintLayout
+         android:id="@+id/back_pass"
         android:layout_width="280dp"
         android:layout_height="100dp"
         android:background="@drawable/corner_25"
         android:backgroundTint="@color/b_black"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         >
@@ -122,10 +137,9 @@
             android:layout_marginTop="5dp"
             />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-    <com.google.android.material.imageview.ShapeableImageView
+        <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/create_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -135,29 +149,30 @@
         app:layout_constraintTop_toBottomOf="@id/back_pass"
         android:layout_marginTop="20dp"
         />
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/derived_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate derived key"
+            android:fontFamily="monospace"
+            app:layout_constraintTop_toBottomOf="@id/create_password"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp"
+            />
 
-    <androidx.appcompat.widget.AppCompatCheckBox
-        android:id="@+id/derived_check"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Generate derived key"
-        android:fontFamily="monospace"
-        app:layout_constraintTop_toBottomOf="@id/create_password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="20dp"
-        />
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/info_derived"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/info"
+            app:layout_constraintTop_toTopOf="@id/derived_check"
+            app:layout_constraintBottom_toBottomOf="@id/derived_check"
+            app:layout_constraintStart_toEndOf="@id/derived_check"
+            android:layout_marginStart="15dp"
+            />
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/info_derived"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/info"
-        app:layout_constraintTop_toTopOf="@id/derived_check"
-        app:layout_constraintBottom_toBottomOf="@id/derived_check"
-        app:layout_constraintStart_toEndOf="@id/derived_check"
-        android:layout_marginStart="15dp"
-        />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:layout_width="wrap_content"

@@ -77,7 +77,7 @@ fun entropy(pass: String, porgress: LinearProgressIndicator){
     val final =  pass.length * log2((simbolos + mayusculas + minusculas + numeros).toDouble())
 
     porgress.progress = final.toInt()
-    if (final in 0.0..40.0) {
+    if (final in 1.0..40.0) {
         porgress.setIndicatorColor("#aa4040".toColorInt())
     }else if (final in 40.0..60.0) {
         porgress.setIndicatorColor("#c9a23e".toColorInt())
