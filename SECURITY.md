@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-|  0.3.19-Stardew_Valley.1 | :white_check_mark: |
+|  0.3.19-Stardew_Valley.2 | :white_check_mark: |
+|  0.3.19-Stardew_Valley.1 | :x: |
 |  0.3.19-Stardew_Valley | :x: |
 |  0.3.18-Animal_Crossing.1 | :x: |
 |  0.3.18-Animal_Crossing | :x: |
