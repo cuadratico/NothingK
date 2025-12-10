@@ -94,6 +94,9 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         pref.edit().putString("key_u", "").commit()
         input_pass.isLongClickable = false
+
+        val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
+
         fun block_mode() {
             val dialog = Dialog(this)
             val view = LayoutInflater.from(this).inflate(R.layout.block, null)
@@ -153,15 +156,37 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
             }
                 try {
                     if (MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(pass.toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))), Base64.getDecoder().decode(pref.getString("hash", ""))) ) {
+                        fun fin () {
+                            add_register(applicationContext, "Successful login", "#40aa47")
+
+                            pref.edit().putString("key_u", input_pass.text.toString()).commit()
+                            startActivity(Intent(applicationContext, MainActivity::class.java))
+                            finish()
+                        }
+                        animation.setAnimationListener(object: Animation.AnimationListener {
+                            override fun onAnimationEnd(animation: Animation?) {
+                                create.visibility = View.INVISIBLE
+                                fin()
+                            }
+
+                            override fun onAnimationRepeat(animation: Animation?) {}
+
+                            override fun onAnimationStart(animation: Animation?) {
+                                create.isEnabled = false
+                                input_pass.isEnabled = false
+                            }
+
+                        })
                         if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
+
                             BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
                                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                         super.onAuthenticationSucceeded(result)
-                                        add_register(applicationContext, "Successful login", "#40aa47")
-
-                                        pref.edit().putString("key_u", input_pass.text.toString()).commit()
-                                        startActivity(Intent(applicationContext, MainActivity::class.java))
-                                        finish()
+                                        if (pref.getBoolean("log_very", false)) {
+                                            create.startAnimation(animation)
+                                        } else {
+                                            fin()
+                                        }
                                     }
 
                                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -206,7 +231,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         create.setOnClickListener {
             if (input_pass.text!!.isNotEmpty()) {
-                val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
                 if (pref.getBoolean("log_very", false)) {
                     very_pass(input_pass.text.toString())
                 } else {
@@ -263,6 +287,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
 
                             })
+                            create.startAnimation(animation)
 
                         } catch (e: Exception) {
                             Log.e("Error in key generation", e.toString())
@@ -282,7 +307,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                         Toast.makeText(this, "8 or more characters, please", Toast.LENGTH_SHORT).show()
                     }
                 }
-                create.startAnimation(animation)
             }else {
                 Toast.makeText(this, "There is no password to check", Toast.LENGTH_SHORT).show()
             }

@@ -7,6 +7,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.CompoundButton
@@ -32,7 +33,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-fun pass_generator_dialog (context: Context, info_image: ShapeableImageView) {
+fun pass_generator_dialog (context: Context, info_image: ShapeableImageView? = null, pass_input: EditText? = null) {
     val total = mutableListOf(minusculas_l)
 
     val gene_dilaog = BottomSheetDialog(context)
@@ -48,8 +49,12 @@ fun pass_generator_dialog (context: Context, info_image: ShapeableImageView) {
     val capital_l = gen_view.findViewById<MaterialSwitch>(R.id.capital_l)
     val number = gen_view.findViewById<MaterialSwitch>(R.id.numbers)
     val simbol = gen_view.findViewById<MaterialSwitch>(R.id.simbol)
-    val copy = gen_view.findViewById<ShapeableImageView>(R.id.copy)
+    val copy = gen_view.findViewById<ShapeableImageView>(R.id.modi_image)
     val mail_gen = gen_view.findViewById<ConstraintLayout>(R.id.gen_emails_intent)
+
+    if (pass_input != null) {
+        copy.setImageResource(R.drawable.generator_red)
+    }
 
     mail_gen.setOnClickListener {
         val mk = MasterKey.Builder(context)
@@ -61,8 +66,11 @@ fun pass_generator_dialog (context: Context, info_image: ShapeableImageView) {
         pref.edit().putBoolean("gene", false).commit()
 
         gene_dilaog.dismiss()
-        info_image.setImageResource(R.drawable.mail_generator)
-        email_generator(context, info_image)
+        info_image!!.setImageResource(R.drawable.mail_generator)
+        email_generator(context, info_image!!)
+    }
+    if (info_image == null) {
+        mail_gen.visibility = View.INVISIBLE
     }
     fun gen (bar: SeekBar) {
         result_pass.text = pass_generator(bar.progress, total)
@@ -137,9 +145,14 @@ fun pass_generator_dialog (context: Context, info_image: ShapeableImageView) {
     }
 
     copy.setOnClickListener {
-        val manage = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("pass", result_pass.text.toString())
-        manage.setPrimaryClip(clip)
+        if (pass_input == null) {
+            val manage = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("pass", result_pass.text.toString())
+            manage.setPrimaryClip(clip)
+        } else {
+            pass_input.setText(result_pass.text.toString())
+            gene_dilaog.dismiss()
+        }
     }
 
 

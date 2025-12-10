@@ -171,6 +171,29 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/pass_generator"
+        android:layout_width="50dp"
+        android:layout_height="45dp"
+        android:background="@drawable/corner_25"
+        android:backgroundTint="@color/b_black"
+        app:layout_constraintTop_toTopOf="@id/multi_bottom"
+        app:layout_constraintBottom_toBottomOf="@id/multi_bottom"
+        app:layout_constraintEnd_toStartOf="@id/multi_bottom"
+        android:layout_marginEnd="20dp"
+        >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/generator"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/multi_bottom"
         android:layout_width="wrap_content"

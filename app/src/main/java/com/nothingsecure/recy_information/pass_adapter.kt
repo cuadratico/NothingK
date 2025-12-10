@@ -21,7 +21,11 @@ class pass_adapter(var list: List<pass>): RecyclerView.Adapter<pass_holder>() {
         return list.size
     }
 
-    fun update (newList: List<pass>) {
+    fun update_one (posi: Int) {
+        notifyItemChanged(posi)
+    }
+
+    fun update_all (newList: List<pass>) {
         this.list = newList
         notifyDataSetChanged()
     }

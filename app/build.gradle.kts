@@ -11,8 +11,8 @@ android {
         applicationId = "com.nothingsecure"
         minSdk = 26
         targetSdk = 36
-        versionCode = 29
-        versionName = "0.3.19-Stardew_Valley.2"
+        versionCode = 30
+        versionName = "0.3.20-Diablo-III"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

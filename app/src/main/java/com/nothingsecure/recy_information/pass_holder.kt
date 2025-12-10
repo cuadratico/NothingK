@@ -34,6 +34,7 @@ import com.nothingsecure.db.Companion.pass_list
 import com.nothingsecure.deri_expressed
 import com.nothingsecure.entropy
 import com.nothingsecure.pass
+import com.nothingsecure.pass_generator_dialog
 import com.nothingsecure.pass_update
 import com.nothingsecure.visibility
 import java.security.KeyStore
@@ -75,6 +76,8 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view){
             val pass_visibility = edit_view.findViewById<ConstraintLayout>(R.id.secure_visibility)
             val icon_visi = edit_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
             val bottom = edit_view.findViewById<AppCompatButton>(R.id.multi_bottom)
+            val pass_generator = edit_view.findViewById<ConstraintLayout>(R.id.pass_generator)
+
             information_extra.text = "Edit your password"
             edit_information.setText(passData.information)
             edit_pass.setText(passData.pass)
@@ -120,6 +123,9 @@ class pass_holder(view: View): RecyclerView.ViewHolder(view){
                 }
             }
 
+            pass_generator.setOnClickListener {
+                pass_generator_dialog(context, null, edit_pass)
+            }
 
             edit_dialog.setContentView(edit_view)
             edit_dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))

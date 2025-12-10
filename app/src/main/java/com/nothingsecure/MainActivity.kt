@@ -101,7 +101,7 @@ import kotlin.system.exitProcess
 
 var logs_update = false
 var pass_update = false
-const val version_name = "0.3.19-Stardew_Valley.2"
+const val version_name = "0.3.20-Diablo-III"
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var logs_adapter: logs_adapter
@@ -173,9 +173,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             MaterialAlertDialogBuilder(this).apply {
                 setTitle("The new features of version $version_name")
                 setMessage(
-                    "- The interface has been adapted to the EditText fields. \n" +
-                    "- A security issue has been fixed regarding password verification on the registration and login screen. \n" +
-                    "- A setting has been added to modify your time out and an indicator to show how much time you have left.\n" +
+                    "- A button has been added to generate passwords directly from the add and edit passwords dialog. \n" +
+                    "- The animation of the login and session creation buttons has been improved. \n" +
+                    "- By the way, NothingK is celebrating 1,000 downloads on AndroidFreeWare. \n" +
+                            "\n" +
+                            "From cuadratico (creator of NothingK): Thank you for trusting NothingK, your safety is our top priority ❤\uFE0F. \n" +
+                            "\n" +
                             "Enjoy \uD83D\uDE42"
                 )
                 setPositiveButton("Thank you") {_, _ ->}
@@ -224,7 +227,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     if (pass_update) {
                         pass_update = false
                         withContext(Dispatchers.Main) {
-                            pass_adapter.update(pass_list)
+                            pass_adapter.update_one(pass_list.size - 1)
                             if (pass_list.isEmpty()) {
                                 info_exist.visibility = View.VISIBLE
                                 search_pass.visibility = View.INVISIBLE
@@ -328,7 +331,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     desencrypt_passwords.setImageResource(R.drawable.padlock_lock)
                     recy.visibility = View.VISIBLE
                     add.visibility = View.VISIBLE
-                    pass_adapter.update(pass_list)
+                    pass_adapter.update_all(pass_list)
                     init_acti()
                     load_dialog.dismiss()
                 }
@@ -340,9 +343,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             override fun onQueryTextChange(query: String): Boolean {
                 if (query.isNotEmpty()) {
                     val newList = pass_list.filter { dato -> dato.information.contains(Regex(".*$query.*")) }
-                    pass_adapter.update(newList)
+                    pass_adapter.update_all(newList)
                 }else {
-                    pass_adapter.update(pass_list)
+                    pass_adapter.update_all(pass_list)
                 }
                 return true
             }
@@ -495,7 +498,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 create_new_a.setOnClickListener {
                     back_b.visibility = View.VISIBLE
                     pass_list.clear()
-                    pass_adapter.update(pass_list)
+                    pass_adapter.update_all(pass_list)
                     info_exist.visibility = View.VISIBLE
                     search_pass.visibility = View.INVISIBLE
                     if (!a_new) {
@@ -619,6 +622,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val pass_visibility = add_view.findViewById<ConstraintLayout>(R.id.secure_visibility)
             val visi_icon = add_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
             val multi = add_view.findViewById<AppCompatButton>(R.id.multi_bottom)
+            val pass_generator = add_view.findViewById<ConstraintLayout>(R.id.pass_generator)
 
             input_pass.addTextChangedListener {dato ->
                     entropy(input_pass.text.toString(), progress)
@@ -628,6 +632,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             pass_visibility.setOnClickListener {
                 pref.edit().putBoolean("prims", !pref.getBoolean("prims", false)).commit()
                 visibility(pref, visi_icon, input_pass)
+            }
+
+            pass_generator.setOnClickListener {
+                pass_generator_dialog(this, null, input_pass)
             }
 
             multi.setOnClickListener {
@@ -648,7 +656,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                         start_global()
                         init_acti()
-                        pass_adapter.update(pass_list)
+                        pass_adapter.update_one(pass_list.size - 1)
                     } catch (e: Exception) {
                         Log.e("Addition error", e.toString())
                         Toast.makeText(this, "Error adding a password", Toast.LENGTH_SHORT).show()
@@ -965,7 +973,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                         import(applicationContext, json_f, import_input_pass.text.toString(), iter)
                                         withContext(Dispatchers.Main) {
                                             load_dialog.dismiss()
-                                            pass_adapter.update(pass_list)
+                                            pass_adapter.update_all(pass_list)
                                             back_b.visibility = View.VISIBLE
                                             recy.visibility = View.VISIBLE
                                             desencrypt_passwords.visibility = View.INVISIBLE
