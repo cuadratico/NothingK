@@ -16,11 +16,11 @@ So far, NothingK is only available in this repo, Izzysoft, androidfreeware and O
 Other platforms not mentioned that contain NothingK may not be secure.
 Be careful.
 
-[![Static Badge](https://img.shields.io/badge/izzyOnDroid-0.3.20-Diablo-III-179DE6)](https://apt.izzysoft.de/fdroid/index/apk/com.nothingsecure) 
+[![Static Badge](https://img.shields.io/badge/izzyOnDroid-0.3.20_Diablo_III-179DE6)](https://apt.izzysoft.de/fdroid/index/apk/com.nothingsecure) 
 
-[![Static Badge](https://img.shields.io/badge/AndroidFreeWare-0.3.20-Diablo-III-BD7923)](https://www.androidfreeware.net/es/download-nothing-k-apk.html)
+[![Static Badge](https://img.shields.io/badge/AndroidFreeWare-0.3.20_Diablo_III-BD7923)](https://www.androidfreeware.net/es/download-nothing-k-apk.html)
 
-[![Static Badge](https://img.shields.io/badge/OpenAPK-0.3.20-Diablo-III-3F36AA)](https://www.openapk.net/es/nothing-k/com.nothingsecure/)
+[![Static Badge](https://img.shields.io/badge/OpenAPK-0.3.20_Diablo_III-3F36AA)](https://www.openapk.net/es/nothing-k/com.nothingsecure/)
 
 
 
