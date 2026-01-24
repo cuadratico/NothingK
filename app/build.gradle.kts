@@ -11,8 +11,8 @@ android {
         applicationId = "com.nothingsecure"
         minSdk = 26
         targetSdk = 36
-        versionCode = 30
-        versionName = "0.3.20-Diablo-III"
+        versionCode = 31
+        versionName = "0.3.21-Pokemon_X"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

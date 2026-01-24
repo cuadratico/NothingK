@@ -3,6 +3,9 @@ package com.nothingsecure
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -22,6 +25,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
@@ -42,6 +46,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -63,10 +68,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.security.Key
 import java.security.KeyStore
+import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
+import javax.crypto.spec.GCMParameterSpec
+import kotlin.text.toByteArray
 
 class configurationActivity : AppCompatActivity() {
     companion object {
@@ -74,6 +82,16 @@ class configurationActivity : AppCompatActivity() {
         val backup_list = listOf("Never", "When adding a password", "When editing a password", "When deleting a password", "When putting the app in the background", "When modifying the key handling", "When exporting", "When importing in any mode", "When importing in 'Add' mode", "When importing in 'Preview' mode", "When importing in 'Replace' mode")
     }
 
+
+    private enum class states () {
+        secure_question_create,
+        secure_question,
+        very_pass,
+        new_pass
+    }
+
+    private var id_plus: Int = 0
+    private var states_change = states.secure_question
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,12 +111,17 @@ class configurationActivity : AppCompatActivity() {
         val donate = findViewById<ShapeableImageView>(R.id.dona)
         val version_info = findViewById<TextView>(R.id.version_info)
 
+        // edit pass part
+        val all_pass_change = findViewById<ConstraintLayout>(R.id.all_pass_change)
+
         // edit icon part
         val see_pass = findViewById<AppCompatButton>(R.id.see_pass)
+        val log_out_pass = findViewById<ShapeableImageView>(R.id.log_out_pass)
         val pass_all = findViewById<TextInputLayout>(R.id.pass_all)
         val icons_all = findViewById<ConstraintLayout>(R.id.icons_all)
         val edit_icon = findViewById<ShapeableImageView>(R.id.edit_icon)
         pass_all.visibility = View.INVISIBLE
+        log_out_pass.visibility = View.INVISIBLE
 
         val edit_button = findViewById<ShapeableImageView>(R.id.edit_icons_button)
         val fun_spinner = findViewById<AppCompatSpinner>(R.id.fun_spinner)
@@ -110,6 +133,7 @@ class configurationActivity : AppCompatActivity() {
         val input_pass = findViewById<EditText>(R.id.input_pass)
         val progress_pass = findViewById<LinearProgressIndicator>(R.id.progress)
         val pass_info = findViewById<TextView>(R.id.key_type)
+        progress_pass.visibility = View.INVISIBLE
 
         // edit color part
         val edit_color_button = findViewById<ShapeableImageView>(R.id.edit_color)
@@ -117,7 +141,8 @@ class configurationActivity : AppCompatActivity() {
         val color_code = findViewById<TextView>(R.id.color_code)
 
         // edit pass part
-        val pass_type = findViewById<AppCompatButton>(R.id.pass_type_modify)
+        val pass_type = findViewById<ShapeableImageView>(R.id.pass_type_modify)
+        val mody_expre = findViewById<TextView>(R.id.mody_expre)
         val info_type = findViewById<ShapeableImageView>(R.id.info_key_type)
 
 
@@ -128,8 +153,9 @@ class configurationActivity : AppCompatActivity() {
 
         // Edit the backup time
         val info_backup_mode = findViewById<ShapeableImageView>(R.id.info_backup_modes)
-        val back_up_spinner = findViewById<AppCompatSpinner>(R.id.backup_spinner)
-        val back_up_settings = findViewById<AppCompatButton>(R.id.backup_settings)
+        val back_up_show = findViewById<TextView>(R.id.backup_spinner)
+        val back_up_settings = findViewById<ShapeableImageView>(R.id.backup_settings)
+        val edit_back_up = findViewById<ShapeableImageView>(R.id.edit_back_up)
 
         // Vibration
         val vibra = findViewById<MaterialSwitch>(R.id.vibration)
@@ -161,7 +187,19 @@ class configurationActivity : AppCompatActivity() {
 
             val recy = dialog_view.findViewById<RecyclerView>(R.id.multi_recy)
 
-            recy.adapter = conf_adapter(if (type == 0) { mods_recy } else { colors_list }, view, type)
+            recy.adapter = conf_adapter(if (type == 0) { mods_recy } else { colors_list }, view, type,  {
+                if (type == 0) {
+                    pref.edit().putString("multi_but_icon", it).commit()
+                }else {
+                    pref.edit().putString("color_back", it).commit()
+                }
+                dialog_conf.dismiss()
+            }, {
+                if (type != 0) {
+                    val manager = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    manager.setPrimaryClip(ClipData.newPlainText("color", it.toString()))
+                }
+            })
             recy.layoutManager = LinearLayoutManager(this)
 
             dialog_conf.setContentView(dialog_view)
@@ -182,6 +220,321 @@ class configurationActivity : AppCompatActivity() {
                 setMessage(message)
                 setPositiveButton("Ok") {_, _ ->}
             }.show()
+        }
+
+        // edit pass part
+
+        fun migration (key: Key, id_final: Int) {
+            val db = db(this)
+            for (position in 0..pass_list.size - 1) {
+                val (id, pass, information, iv) = pass_list[position]
+                val c = Cipher.getInstance("AES/GCM/NoPadding")
+                c.init(Cipher.ENCRYPT_MODE, key)
+                db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(pass_list[position].pass.toByteArray())), information, Base64.getEncoder().withoutPadding().encodeToString(c.iv))
+                id_plus ++
+            }
+            db.delete_speci(pass_list[0].id, id_final)
+            id_plus = 0
+        }
+
+        val security_questions = listOf(
+            "What was the name of your first pet?",
+            "In what city were you born?",
+            "What is the name of the first school you attended?",
+            "What was the model of your first mobile phone?",
+            "What is the name of the street where you grew up?",
+            "What was the name of your childhood best friend?",
+            "What is your favorite book or movie?",
+            "What was your first job?",
+            "What is the name of the place where you had your first vacation?",
+            "What city and place do you most associate with a memorable childhood experience?"
+        )
+
+
+        fun dialog_material (title: String, message: String): MaterialAlertDialogBuilder {
+
+            return MaterialAlertDialogBuilder(this).apply {
+                setTitle(title)
+                setMessage(message)
+            }
+
+        }
+
+        fun recalculate_secure_info (input: String, alias_salt: String, alias_hash: String) {
+            pref.edit().putString(alias_salt, Base64.getEncoder().withoutPadding().encodeToString(
+                SecureRandom().generateSeed(16))).commit()
+
+            pref.edit().putString(alias_hash, Base64.getEncoder().withoutPadding().encodeToString(
+                MessageDigest.getInstance("SHA256").digest(
+                    input.toByteArray() + Base64.getDecoder().decode(pref.getString(alias_salt, "")))
+            )).commit()
+        }
+
+        all_pass_change.setOnClickListener {
+
+            val dialog_change = Dialog(this)
+            val view_change = LayoutInflater.from(this).inflate(R.layout.secure_question, null)
+
+
+            val question_all = view_change.findViewById<ConstraintLayout>(R.id.question_all)
+            val question = view_change.findViewById<TextView>(R.id.question)
+            val edit_q = view_change.findViewById<ShapeableImageView>(R.id.edit_q)
+            val info_states = view_change.findViewById<TextView>(R.id.info_pass_states)
+
+            val input_secure_info = view_change.findViewById<EditText>(R.id.input_secure_info)
+            val secure_progress = view_change.findViewById<LinearProgressIndicator>(R.id.progress)
+
+            val auth = view_change.findViewById<ShapeableImageView>(R.id.auth)
+            val close = view_change.findViewById<ShapeableImageView>(R.id.close)
+
+            dialog_change.setContentView(view_change)
+            dialog_change.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            dialog_change.setCancelable(false)
+
+
+            if (pass_list.isNotEmpty() && pref.getBoolean("desen_pass", false)) {
+                if (pref.getString("secure_a", "")!!.isEmpty()) {
+                    dialog_material("Do you want to create a security question?", "By creating a security question, you can authenticate yourself to modify your MasterKey whenever you want.").apply {
+                        setPositiveButton("Create security question") { _, _ ->
+                            states_change = states.secure_question_create
+                            dialog_change.show()
+                            question.text = security_questions.random()
+                        }
+                        setNegativeButton("Maybe later") { _, _ -> }
+                    }.show()
+                } else {
+                    dialog_material("Do you want to change your MasterKey?", "To change your MasterKey, you'll need to specify your security question and your MasterKey (your login password). Specifically, changing your MasterKey changes your login password and therefore the cryptographic key used to encrypt your passwords (regardless of the operating mode you're using). Make sure you keep all your information safe.").apply {
+                        setPositiveButton("Change my MasterKey") { _, _ ->
+                            dialog_change.show()
+                            edit_q.visibility = View.INVISIBLE
+                            question.text = pref.getString("secure_q", "")
+                        }
+                        setNegativeButton("Maybe later") { _, _ -> }
+                    }.show()
+                }
+            } else {
+                Toast.makeText(this@configurationActivity, "The passwords are not decrypted", Toast.LENGTH_SHORT).show()
+            }
+
+
+            input_secure_info.addTextChangedListener {
+                entropy(it.toString(), secure_progress)
+            }
+
+            edit_q.setOnClickListener {
+                MaterialAlertDialogBuilder(this).apply {
+                    setTitle("Choose your security question")
+                    setAdapter(ArrayAdapter(this@configurationActivity, android.R.layout.simple_list_item_1, security_questions), object: DialogInterface.OnClickListener {
+                        override fun onClick(dialog: DialogInterface?, which: Int) {
+                            question.text = security_questions[which]
+                        }
+                    })
+                }.show()
+            }
+
+            fun exit () {
+                Toast.makeText(this@configurationActivity, "NothingK is going to restart", Toast.LENGTH_SHORT).show()
+                finishAffinity()
+            }
+
+            close.setOnClickListener {
+
+                dialog_material("Do you want to stop the process?", "If you stop the process, the app will have to close because your credentials have been compromised.").apply {
+                    setPositiveButton("Restart to restore normal") {_, _ ->
+                        BiometricPrompt(this@configurationActivity, ContextCompat.getMainExecutor(this@configurationActivity), object: BiometricPrompt.AuthenticationCallback() {
+
+                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                super.onAuthenticationSucceeded(result)
+                                dialog_change.dismiss()
+                                exit()
+                            }
+
+                            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                super.onAuthenticationError(errorCode, errString)
+                                Toast.makeText(this@configurationActivity, "Authentication failure", Toast.LENGTH_SHORT).show()
+                            }
+                        }).authenticate(promt())
+                    }
+                    setNegativeButton("Maybe later") {_, _ ->}
+                }.show()
+
+            }
+
+            fun input_states (text: String) {
+                input_secure_info.setText("")
+                input_secure_info.setHint(text)
+
+                val service_method = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                service_method.hideSoftInputFromInputMethod(input_secure_info.windowToken, 0)
+            }
+
+            auth.setOnClickListener {
+                BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        val db = db(this@configurationActivity)
+
+                        when (states_change) {
+
+                            states.secure_question_create ->
+                                dialog_material("Do you want to create your 2FA?", "Once created, you won't be able to modify it, nor will you be able to safely retrieve it if you forget. So write it down in a safe place.").apply {
+
+                                    setPositiveButton("Create 2FA") {_, _ ->
+                                        recalculate_secure_info(input_secure_info.text.toString(), "a_salt", "secure_a")
+                                        pref.edit().putString("secure_q", question.text.toString()).commit()
+                                        states_change = states.secure_question
+                                        dialog_change.dismiss()
+                                    }
+                                    setNegativeButton("Better not") {_, _ -> dialog_change.dismiss()}
+
+                                    setCancelable(false)
+                                }.show()
+
+                            states.secure_question ->
+                                    if (very_hash(input_secure_info.text.toString(), Base64.getDecoder().decode(pref.getString("a_salt", "")), Base64.getDecoder().decode(pref.getString("secure_a", "")))) {
+                                        recalculate_secure_info(input_secure_info.text.toString(), "a_salt", "secure_a")
+
+                                        dialog_material("What's the next step?", "In the next step you will be asked for the password in order to decrypt the passwords.").apply {
+
+                                            setPositiveButton("Continue with the process") {_, _ ->
+                                                pref.edit().putString("key_u", "").commit()
+                                                pass_list = listOf()
+                                                states_change = states.very_pass
+                                                question_all.visibility = View.INVISIBLE
+                                                input_states("Password")
+                                            }
+                                            setNegativeButton("Not now") {_, _ -> exit()}
+                                            setCancelable(false)
+
+                                        }.show()
+
+                                    } else {
+                                        input_secure_info.setText("")
+                                        Toast.makeText(this@configurationActivity, "The security response is invalid", Toast.LENGTH_SHORT).show()
+                                    }
+
+                            states.very_pass ->
+                                if (very_hash(input_secure_info.text.toString(), Base64.getDecoder().decode(pref.getString("salt_very", "")), Base64.getDecoder().decode(pref.getString("hash", "")))) {
+                                    pref.edit().putString("key_u", input_secure_info.text.toString()).commit()
+                                    recalculate_secure_info(input_secure_info.text.toString(), "salt_very", "hash")
+
+                                    val dialog_load_pass = load("Decrypting the passwords", this@configurationActivity)
+
+                                    lifecycleScope.launch (Dispatchers.IO){
+                                        val key = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!, pref.getInt("it_def", 60000))
+                                        try {
+                                            db.select_pass()
+                                            for (position in 0..pass_list.size - 1) {
+                                                val (id, pass, information, iv) = pass_list[position]
+                                                val c = Cipher.getInstance("AES/GCM/NoPadding")
+                                                c.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, Base64.getDecoder().decode(iv)))
+
+                                                pass_list[position].pass = String(c.doFinal(Base64.getDecoder().decode(pass)))
+                                            }
+                                            withContext(Dispatchers.Main) {
+                                                dialog_load_pass.dismiss()
+                                                Toast.makeText(this@configurationActivity, "Passwords decrypted", Toast.LENGTH_SHORT).show()
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.e("error", e.toString())
+                                            withContext(Dispatchers.Main) {
+                                                Toast.makeText(applicationContext, "The passwords could not be decrypted", Toast.LENGTH_SHORT).show()
+                                                finishAffinity()
+                                            }
+
+                                        } finally {
+                                            if (key.encoded != null) {
+                                                key.encoded.fill(0)
+                                            }
+                                        }
+
+                                        withContext(Dispatchers.Main) {
+                                            dialog_material("It's time to create your new password", "After creating your new MasterKey, your passwords will be re-encrypted, NothingK will close, and your initial MasterKey will change (remember this, it's very important).").apply {
+
+                                                setPositiveButton("Continue with the process") {_, _ ->
+                                                    input_states("New password")
+                                                    states_change = states.new_pass
+                                                    info_states.text = "Create your new MasterKey"
+                                                }
+                                                setNegativeButton("Cancel the process") {_, _ -> exit()}
+
+                                                setCancelable(false)
+                                            }.show()
+                                        }
+                                    }
+
+                                } else {
+                                    Toast.makeText(this@configurationActivity, "The password is incorrect", Toast.LENGTH_SHORT).show()
+                                    input_secure_info.setText("")
+                                }
+
+                            states.new_pass ->
+                                if (input_secure_info.text.isNotEmpty() && input_secure_info.text.length >= 8) {
+
+                                    val dialog_load_migration = load("Running the migration", this@configurationActivity)
+
+                                    lifecycleScope.launch {
+                                        if (pref.getBoolean("deri", false)) {
+                                            pref.edit().putString("salt", Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)))
+                                        } else {
+
+                                            val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+                                            ks.deleteEntry(pref.getString("key_u", ""))
+                                            pref.edit().putString("key_u", "").commit()
+
+                                            val kg = KeyGenParameterSpec.Builder(input_secure_info.text.toString(), KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT).apply {
+                                                setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                                                setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                                            }.build()
+                                            val k_gen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+                                            k_gen.init(kg)
+                                            k_gen.generateKey()
+                                        }
+                                        pref.edit().putString("key_u", input_secure_info.text.toString()).commit()
+
+                                        recalculate_secure_info(input_secure_info.text.toString(), "salt_very", "hash")
+
+                                        val key = deri_expressed(applicationContext, pref.getString("key_u", "")!!, pref.getString("salt", "")!!, pref.getInt("it_def", 60000))
+                                        val id_final = pass_list[pass_list.size - 1].id
+                                        try {
+                                            migration(key, id_final)
+                                            withContext(Dispatchers.Main) {
+                                                dialog_load_migration.dismiss()
+                                                dialog_change.dismiss()
+                                                Toast.makeText(this@configurationActivity, "Operation completed", Toast.LENGTH_SHORT).show()
+                                                exit()
+                                            }
+                                            add_register(this@configurationActivity, "Your MasterKey has been changed")
+                                        } catch (e: Exception) {
+                                            Log.e("Mode modification error", e.toString())
+                                            db.delete_speci(id_final + 1, pass_list[pass_list.size - 1].id + (pass_list.size - 1))
+                                            withContext(Dispatchers.Main) {
+                                                exit()
+                                            }
+                                        } finally {
+                                            if (key.encoded != null) {
+                                                key.encoded.fill(0)
+                                            }
+                                        }
+                                    }
+
+                                } else {
+                                    Toast.makeText(this@configurationActivity, "Incorrect length or missing data", Toast.LENGTH_SHORT).show()
+                                }
+
+                            else -> exit()
+                        }
+                    }
+
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        super.onAuthenticationError(errorCode, errString)
+                        Toast.makeText(this@configurationActivity, "Authentication error", Toast.LENGTH_SHORT).show()
+                    }
+                }).authenticate(promt())
+
+            }
+
+
         }
 
         // edit icon part code
@@ -207,13 +560,15 @@ class configurationActivity : AppCompatActivity() {
         }
 
         // edit pass part code
-        input_pass.setText(pref.getString("key_def", pref.getString("key_u", "")))
-
         input_pass.addTextChangedListener {
             entropy(it.toString(), progress_pass)
-            if (it!!.isNotEmpty()) {
-                pref.edit().putString("key_def", it.toString()).commit()
-            }
+        }
+
+        fun see (pass_very: String, see: Int) {
+            log_out_pass.visibility = see
+            progress_pass.visibility = see
+            pass_all.visibility = see
+            input_pass.setText(pass_very)
         }
 
         see_pass.setOnClickListener {
@@ -221,10 +576,36 @@ class configurationActivity : AppCompatActivity() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
                     see_pass.visibility = View.INVISIBLE
-                    pass_all.visibility = View.VISIBLE
+                    see(pref.getString("key_def", pref.getString("key_u", "")).toString(), View.VISIBLE)
                     entropy(input_pass.text.toString(), progress_pass)
                 }
             }).authenticate(promt())
+        }
+
+        log_out_pass.setOnClickListener {
+
+            MaterialAlertDialogBuilder(this@configurationActivity).apply {
+                setTitle("Do you want to rewrite your default password?")
+                setMessage("If you re-enter your default password, it will replace the password you use to autofill the allowed fields.")
+                setPositiveButton("Yes, I want to replace it.") {_, _ ->
+                    BiometricPrompt(this@configurationActivity, ContextCompat.getMainExecutor(this@configurationActivity), object: BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                            super.onAuthenticationSucceeded(result)
+                                    if (input_pass.text.isNotEmpty()) {
+                                        pref.edit().putString("key_def", input_pass.text.toString()).commit()
+                                        see_pass.visibility = View.VISIBLE
+                                        see("", View.INVISIBLE)
+                                    } else {
+                                        Toast.makeText(this@configurationActivity, "The field is empty", Toast.LENGTH_SHORT).show()
+                                    }
+                        }
+                    }).authenticate(promt())
+                }
+                setNegativeButton("No, maybe later"){_, _ ->
+                    see_pass.visibility = View.VISIBLE
+                    see("", View.INVISIBLE)
+                }
+            }.show()
         }
 
         // edit color part code
@@ -253,7 +634,7 @@ class configurationActivity : AppCompatActivity() {
         pass_info.text = "Modify the treatment of your encryption key\n\n You are currently in \"${ if (pref.getBoolean("deri", false)) { "Derived Key" } else { "Android KeyStore" } }\" mode"
         fun modi_type_ui () {
             if (pref.getBoolean("deri", false)) {
-                pass_type.text = "Android KeyStore"
+                mody_expre.text = "Derived Key"
             }
         }
         modi_type_ui()
@@ -299,20 +680,12 @@ class configurationActivity : AppCompatActivity() {
                             if (pass_list.isNotEmpty()) {
                                 val key = deri_expressed(applicationContext, pref.getString("key_u", pref.getString("key_u_r", "")).toString(), pref.getString("salt", "").toString(), pref.getInt("it_def", 60000))
                                 val id_final = pass_list[pass_list.size - 1].id
-                                var id_plus = 0
                                 try {
-                                    for (position in 0..pass_list.size - 1) {
-                                        val (id, pass, information, iv) = pass_list[position]
-                                        val c = Cipher.getInstance("AES/GCM/NoPadding")
-                                        c.init(Cipher.ENCRYPT_MODE, key)
-                                        db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c.doFinal(pass_list[position].pass.toByteArray())), information, Base64.getEncoder().withoutPadding().encodeToString(c.iv))
-                                        id_plus ++
-                                    }
-                                    db.delete_speci(pass_list[0].id, id_final)
+                                    migration(key, id_final)
                                 } catch (e: Exception) {
                                     Log.e("Mode modification error", e.toString())
                                     pass_modi()
-                                    db.delete_speci(id_final + 1, pass_list[pass_list.size - 1].id + id_plus)
+                                    db.delete_speci(id_final + 1, pass_list[pass_list.size - 1].id + (pass_list.size - 1))
                                     withContext(Dispatchers.Main) {
                                         Toast.makeText(applicationContext, "Mode modification error", Toast.LENGTH_SHORT).show()
                                     }
@@ -327,10 +700,10 @@ class configurationActivity : AppCompatActivity() {
                                 backup(this@configurationActivity, 5, this@configurationActivity)
                                 Toast.makeText(applicationContext, "The app needs to be restarted", Toast.LENGTH_SHORT).show()
                             }
-                            add_register(applicationContext, "Your password's operating mode has been changed to: ${pass_type.text}")
                             withContext(Dispatchers.Main) {
                                 modi_type_ui()
                             }
+                            add_register(applicationContext, "Your password's operating mode has been changed to: ${mody_expre.text}")
                         }
                     }
 
@@ -393,18 +766,28 @@ class configurationActivity : AppCompatActivity() {
         info_backup_mode.setOnClickListener {
             info_dialog("What are backup moments?", "These are scheduled times when a backup of your entire database will be made. It will be encrypted with your default password and the file will be named NothingK-backup.nk (you can change all of this with the \"Settings\" button in the backup menu)")
         }
+        back_up_show.text = backup_list[pref.getInt("backup_ins", 0)]
 
-        back_up_spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, backup_list)
-        back_up_spinner.setSelection(pref.getInt("backup_ins", 0))
-        back_up_spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, item: Int, p3: Long) {
-                pref.edit().putInt("backup_ins", item).commit()
-                add_register(applicationContext, "Now a backup will be made ${backup_list[item]}")
-            }
+        edit_back_up.setOnClickListener {
+            BiometricPrompt(this, ContextCompat.getMainExecutor(this), object: BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    MaterialAlertDialogBuilder(this@configurationActivity)
+                        .setTitle("Select a Back-up instance")
+                        .setAdapter(ArrayAdapter(this@configurationActivity, android.R.layout.simple_spinner_item, backup_list), object: DialogInterface.OnClickListener {
+                            override fun onClick(dialog: DialogInterface?, which: Int) {
+                                        pref.edit().putInt("backup_ins", which).commit()
+                                        back_up_show.text = backup_list[pref.getInt("backup_ins", 0)]
+                            }
+                        })
+                        .show()
+                }
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-
-            }
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    Toast.makeText(this@configurationActivity, "Authentication error", Toast.LENGTH_SHORT).show()
+                }
+            }).authenticate(promt())
 
         }
 

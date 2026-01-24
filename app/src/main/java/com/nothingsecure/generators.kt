@@ -151,6 +151,7 @@ fun pass_generator_dialog (context: Context, info_image: ShapeableImageView? = n
             manage.setPrimaryClip(clip)
         } else {
             pass_input.setText(result_pass.text.toString())
+            pass_input.setSelection(pass_input.text.length)
             gene_dilaog.dismiss()
         }
     }

@@ -3,6 +3,7 @@ package com.nothingsecure
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 data class register (val id: Int, var time: String, val information: String, val color: String, val iv: String)
 data class pass (val id: Int, var pass: String, var information: String, var iv: String)
@@ -26,12 +27,12 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
 
     }
 
-    fun delete_register (all: Boolean, time: String = ""): Boolean {
+    fun delete_register (all: Boolean, id: Int = 0): Boolean {
 
         if (all) {
             db.execSQL("DELETE FROM time_register")
         }else {
-            db.execSQL("DELETE FROM time_register WHERE time = ?", arrayOf(time))
+            db.execSQL("DELETE FROM time_register WHERE id = ?", arrayOf(id))
         }
 
         return true
@@ -42,7 +43,7 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
         val query = db_read.rawQuery("SELECT * FROM time_register", null, null)
 
         fun add () {
-            register_list.add(register(query.getInt(0), query.getString(1), query.getString(2), query.getString(3), query.getString(4)))
+            register_list = register_list.plus(register(query.getInt(0), query.getString(1), query.getString(2), query.getString(3), query.getString(4)))
         }
 
         if (query.moveToFirst()) {
@@ -51,6 +52,7 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
             while (query.moveToNext()) {
                 add()
             }
+            register_list = register_list.reversed()
             return true
         }else {
             return false
@@ -90,7 +92,7 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
         val query = db_read.rawQuery("SELECT * FROM pass", null, null)
 
         fun add () {
-            pass_list.add(pass(query.getInt(0), query.getString(1), query.getString(2), query.getString(3)))
+            pass_list = pass_list.plus(pass(query.getInt(0), query.getString(1), query.getString(2), query.getString(3)))
         }
 
         if (query.moveToFirst()) {
@@ -119,8 +121,8 @@ class db (context: Context): SQLiteOpenHelper(context, "information.db", null, 1
     }
 
     companion object {
-        val register_list = mutableListOf<register>()
-        val pass_list = mutableListOf<pass>()
+        var register_list = listOf<register>()
+        var pass_list = listOf<pass>()
     }
 
 }

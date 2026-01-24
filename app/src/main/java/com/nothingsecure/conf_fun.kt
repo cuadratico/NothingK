@@ -25,7 +25,7 @@ fun delete_all_fun (contex: Context, pref: SharedPreferences) {
     val db = db(contex)
     pref.edit().clear().commit()
     db.delete_all()
-    pass_list.clear()
+    pass_list = listOf()
     contex.cacheDir.deleteRecursively()
     contex.externalCacheDir?.deleteRecursively()
 

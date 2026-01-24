@@ -87,10 +87,10 @@ fun export (context: Context, password: String, salt: String, arch_name: String,
 
 fun import (context: Context, json: JSONObject, pass: String, iter: Int, rep: Boolean = true) {
 
-    val key= derived_Key(pass, json.getString("salt"), iter)
+    val key = derived_Key(pass, json.getString("salt"), iter)
 
     try {
-        pass_list.clear()
+        pass_list = listOf()
         val mk = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
@@ -122,7 +122,7 @@ fun import (context: Context, json: JSONObject, pass: String, iter: Int, rep: Bo
                 c_db.init(Cipher.ENCRYPT_MODE, deri_expressed(context, pref.getString("key_u", "")!!, pref.getString("salt", "").toString(), pref.getInt("key_def", 60000)))
                 db.add_pass(Base64.getEncoder().withoutPadding().encodeToString(c_db.doFinal(desen_pass)), posi.getString("info"), Base64.getEncoder().withoutPadding().encodeToString(c_db.iv))
             } else {
-                pass_list.add(pass(pass, String(desen_pass), posi.getString("info"), posi.getString("iv")))
+                pass_list = pass_list.plus(pass(pass, String(desen_pass), posi.getString("info"), posi.getString("iv")))
             }
         }
 

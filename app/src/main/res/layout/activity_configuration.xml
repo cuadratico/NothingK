@@ -36,6 +36,59 @@
             android:layout_marginEnd="20dp"
             >
 
+            <TextView
+                android:id="@+id/info_pass_change"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/matrix"
+                app:layout_constraintEnd_toEndOf="@id/all_pass_change"
+                app:layout_constraintStart_toStartOf="@id/all_pass_change"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="50dp"
+                android:textSize="19dp"
+                android:gravity="center"
+                android:text="Edit your MasterKey securely"
+            />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/all_pass_change"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:backgroundTint="@color/b_black"
+                android:background="@drawable/corner_25"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/info_pass_change"
+                android:layout_marginTop="20dp"
+                >
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/change_pass"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/info_icon"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/matrix"
+                app:layout_constraintEnd_toEndOf="@id/all_pass_change"
+                app:layout_constraintStart_toStartOf="@id/all_pass_change"
+                app:layout_constraintTop_toBottomOf="@id/all_pass_change"
+                android:layout_marginTop="20dp"
+                android:textSize="19dp"
+                android:gravity="center"
+                android:text="Edit the icon and its functionalities"
+                />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/all_icon_conf"
                 android:layout_width="350dp"
@@ -44,8 +97,8 @@
                 android:background="@drawable/corner_25"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="70dp"
+                app:layout_constraintTop_toBottomOf="@id/info_icon"
+                android:layout_marginTop="20dp"
                 >
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -173,18 +226,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:layout_width="220dp"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/matrix"
-                app:layout_constraintEnd_toEndOf="@id/all_icon_conf"
-                app:layout_constraintStart_toStartOf="@id/all_icon_conf"
-                app:layout_constraintBottom_toTopOf="@id/all_icon_conf"
-                android:layout_marginBottom="20dp"
-                android:textSize="19dp"
-                android:gravity="center"
-                android:text="Edit the icon and its functionalities"
-                />
+
 
             <TextView
                 android:id="@+id/pass_info"
@@ -198,6 +240,17 @@
                 android:textSize="19dp"
                 android:gravity="center"
                 android:text="Edit your export default password"
+                />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/log_out_pass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/pass_info"
+                app:layout_constraintBottom_toBottomOf="@id/pass_info"
+                app:layout_constraintStart_toEndOf="@id/pass_info"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/log_out"
                 />
 
 
@@ -259,8 +312,7 @@
                     android:id="@+id/see_pass"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/corner_25"
-                    android:backgroundTint="@color/n_red"
+                    android:background="@drawable/stroke_red"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -369,7 +421,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/key_back_all"
                 android:layout_width="wrap_content"
-                android:layout_height="100dp"
+                android:layout_height="70dp"
                 app:layout_constraintTop_toBottomOf="@id/key_type"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -379,23 +431,31 @@
                 android:backgroundTint="@color/b_black"
                 >
 
-                <androidx.appcompat.widget.AppCompatButton
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/pass_type_modify"
-                    android:layout_width="200dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/corner_25"
-                    android:backgroundTint="@color/n_red"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginEnd="20dp"
+                    android:src="@drawable/change"
+                    />
+
+                <TextView
+                    android:id="@+id/mody_expre"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/pass_type_modify"
+                    android:text="Android KeyStore"
+                    android:textSize="19dp"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/white"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"
-                    android:textSize="18dp"
-                    android:textColor="@color/n_white"
-                    android:fontFamily="monospace"
-                    android:text="Derived Key"
-                    android:textAllCaps="false"
                     />
 
 
@@ -494,22 +554,34 @@
                 android:backgroundTint="@color/b_black"
                 >
 
-                <androidx.appcompat.widget.AppCompatSpinner
+                <TextView
                     android:id="@+id/backup_spinner"
-                    android:layout_width="wrap_content"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginStart="10dp"
                     android:layout_marginTop="20dp"
+                    android:maxWidth="1500dp"
+                    android:gravity="center"
+                    android:text="Never"
                     />
 
-                <androidx.appcompat.widget.AppCompatButton
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/edit_back_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/edit"
+                    app:layout_constraintTop_toTopOf="@id/backup_spinner"
+                    app:layout_constraintBottom_toBottomOf="@id/backup_spinner"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/backup_spinner"
+                    />
+
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/backup_settings"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/corner_25"
-                    android:backgroundTint="@color/n_red"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/backup_spinner"
@@ -518,11 +590,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="20dp"
-                    android:textSize="18dp"
-                    android:textColor="@color/n_white"
-                    android:fontFamily="monospace"
-                    android:text="Settings"
-                    android:textAllCaps="false"
+                    android:src="@drawable/backup_settings"
                     />
 
 
@@ -639,8 +707,8 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/time_out_back"
-                android:layout_width="100dp"
-                android:layout_height="50dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 app:layout_constraintTop_toBottomOf="@id/time_out"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

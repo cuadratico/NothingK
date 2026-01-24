@@ -25,6 +25,7 @@ import androidx.security.crypto.MasterKey
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.nothingsecure.configurationActivity.Companion.backup_list
+import com.nothingsecure.db.Companion.pass_list
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.security.Key
 import java.security.KeyStore
+import java.security.MessageDigest
 import java.security.SecureRandom
 import java.time.InstantSource.system
 import java.time.LocalDateTime
@@ -118,7 +120,6 @@ fun pass_generator (size: Int, ini_list: List<List<Char>> = listOf(mayusculas_l,
                 }
                 final = final and bool_list[position]
             }
-            Log.e("bool_list", bool_list.toString())
             if (final) {
                 return pass
             }
@@ -162,7 +163,6 @@ fun deri_expressed (context: Context, password: String, salt: String, iter: Int)
         .build()
     val pref = EncryptedSharedPreferences.create (context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
-
 
     if (pref.getBoolean("deri", false)) {
         return derived_Key(password, salt, iter)
@@ -232,33 +232,44 @@ fun load (info: String, context: Context): Dialog {
 }
 
 fun backup (context: Context, ins: Int, acti: Activity? = null) {
-    val mk = MasterKey.Builder(context)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
-    val pref = EncryptedSharedPreferences.create(context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+    if (pass_list.isNotEmpty()) {
+        val mk = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        val pref = EncryptedSharedPreferences.create(context, "ap", mk, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
 
-    if (ins == pref.getInt("backup_ins", 0) && pref.getBoolean("desen_pass", false)) {
-        val load_dilaog = load("Making the backup", context)
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                export(context, pref.getString("backup_pass", pref.getString("key_def", pref.getString("key_u", ""))).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), pref.getString("backup_file", "NothingK-backup").toString(), Environment.DIRECTORY_DOWNLOADS, pref.getInt("it_up", 600000))
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "The backup could not be performed", Toast.LENGTH_SHORT).show()
-                }
-            } finally {
-                withContext(Dispatchers.Main) {
-                    load_dilaog.dismiss()
-                    if (acti != null) {
-                        acti.finishAffinity()
+        if (ins == pref.getInt("backup_ins", 0) && pref.getBoolean("desen_pass", false)) {
+            val load_dilaog = load("Making the backup", context)
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    export(context, pref.getString("backup_pass", pref.getString("key_def", pref.getString("key_u", ""))).toString(), Base64.getEncoder().withoutPadding().encodeToString(SecureRandom().generateSeed(16)), pref.getString("backup_file", "NothingK-backup").toString(), Environment.DIRECTORY_DOWNLOADS, pref.getInt("it_up", 600000))
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "The backup could not be performed", Toast.LENGTH_SHORT).show()
+                    }
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        load_dilaog.dismiss()
+                        if (acti != null) {
+                            acti.finishAffinity()
+                        }
                     }
                 }
             }
-        }
-    }else {
-        if (acti != null) {
-            acti.finishAffinity()
+        } else {
+            if (acti != null) {
+                acti.finishAffinity()
+            }
         }
     }
+}
+
+fun very_hash (value: String, salt: ByteArray, hash: ByteArray): Boolean {
+
+    if (MessageDigest.isEqual(hash, MessageDigest.getInstance("SHA256").digest(value.toByteArray() + salt))) {
+        return true
+    } else {
+        return false
+    }
+
 }

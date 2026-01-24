@@ -13,8 +13,10 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.inputmethodservice.ExtractEditText
+import android.media.audiofx.Virtualizer
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.text.InputType
@@ -75,6 +77,9 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
 
+        val bio_global = findViewById<ConstraintLayout>(R.id.bio_global)
+        val info_bio = findViewById<ShapeableImageView>(R.id.info_bio)
+        val back_global = findViewById<ConstraintLayout>(R.id.back_global)
         val info_close = findViewById<TextView>(R.id.info_close)
         val information = findViewById<TextView>(R.id.information_register)
         val input_pass = findViewById<EditText>(R.id.input_password)
@@ -85,6 +90,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         val info_derived = findViewById<ShapeableImageView>(R.id.info_derived)
         derived_check.visibility = View.INVISIBLE
         info_derived.visibility = View.INVISIBLE
+        bio_global.visibility = View.INVISIBLE
 
         val mk = MasterKey.Builder(this)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -94,6 +100,24 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
         pref.edit().putString("key_u", "").commit()
         input_pass.isLongClickable = false
+
+
+        if (BiometricManager.from(this).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) != BiometricManager.BIOMETRIC_SUCCESS) {
+            back_global.visibility = View.INVISIBLE
+            bio_global.visibility = View.VISIBLE
+            info_close.text = "You do not meet NothingK security requirements"
+        }
+
+        info_bio.setOnClickListener {
+            MaterialAlertDialogBuilder(this).apply {
+                setTitle("Why can't I log in?")
+                setMessage("To meet the minimum usage requirements for NothingK, you must have a PIN or biometric data configured on your device. Therefore, the reason you cannot access NothingK is because you do not have a PIN configured on your device.\n" +
+                        "\n" +
+                        "Thank you for your understanding, and please remember that this is for your security.")
+                setPositiveButton("Go to settings") {_, _ -> startActivity(Intent(Settings.ACTION_SETTINGS))}
+                setNegativeButton("Ok"){_, _ ->}
+            }.show()
+        }
 
         val animation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.trasnlate)
 
@@ -155,7 +179,7 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                 pref.edit().putString("hash", Base64.getEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(pass.toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))))).commit()
             }
                 try {
-                    if (MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(pass.toByteArray() + Base64.getDecoder().decode(pref.getString("salt_very", ""))), Base64.getDecoder().decode(pref.getString("hash", ""))) ) {
+                    if (very_hash(pass, Base64.getDecoder().decode(pref.getString("salt_very", "")), Base64.getDecoder().decode(pref.getString("hash", "")))) {
                         fun fin () {
                             add_register(applicationContext, "Successful login", "#40aa47")
 
@@ -177,8 +201,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                             }
 
                         })
-                        if (BiometricManager.from(applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
-
                             BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
                                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                                         super.onAuthenticationSucceeded(result)
@@ -194,7 +216,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                                         input_pass.setText("")
                                     }
                                 }).authenticate(promt("Who are you?"))
-                        }
                         rege()
                     } else {
                         add_register(this, "Login failed", "#aa4040")
@@ -342,6 +363,11 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
     override fun onDestroy() {
         super.onDestroy()
         sensor_manager?.unregisterListener(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        finish()
     }
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
 
