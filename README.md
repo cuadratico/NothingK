@@ -24,8 +24,8 @@ Be careful.
 
 
 
-# APK Security V0.3.20-Diablo-III
-https://www.virustotal.com/gui/file/9eb5a9215f507086ab0092eae2663d10ec6706916c9173b340d456cb6b8ed77b?nocache=1
+# APK Security V0.3.21-Pokemon_X
+https://www.virustotal.com/gui/file/ab8650d199fbbe6de5e4b63e3214c4eac8e92c38b6b4fd4a4a883b8d1f3fbf8b?nocache=1
 
 # APK Scan V0.3.19-Stardew_Valley.1
 An analysis with MOBFS has also been performed.
