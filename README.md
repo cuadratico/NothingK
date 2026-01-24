@@ -16,16 +16,16 @@ So far, NothingK is only available in this repo, Izzysoft, androidfreeware and O
 Other platforms not mentioned that contain NothingK may not be secure.
 Be careful.
 
-[![Static Badge](https://img.shields.io/badge/izzyOnDroid-0.3.19.Stardew.Valley.2-179DE6)](https://apt.izzysoft.de/fdroid/index/apk/com.nothingsecure) 
+[![Static Badge](https://img.shields.io/badge/izzyOnDroid-0.3.20_Diablo_III-179DE6)](https://apt.izzysoft.de/fdroid/index/apk/com.nothingsecure) 
 
-[![Static Badge](https://img.shields.io/badge/AndroidFreeWare-0.3.19.Stardew.Valley.2-BD7923)](https://www.androidfreeware.net/es/download-nothing-k-apk.html)
+[![Static Badge](https://img.shields.io/badge/AndroidFreeWare-0.3.20_Diablo_III-BD7923)](https://www.androidfreeware.net/es/download-nothing-k-apk.html)
 
-[![Static Badge](https://img.shields.io/badge/OpenAPK-0.3.19.Stardew.Valley.2-3F36AA)](https://www.openapk.net/es/nothing-k/com.nothingsecure/)
+[![Static Badge](https://img.shields.io/badge/OpenAPK-0.3.20_Diablo_III-3F36AA)](https://www.openapk.net/es/nothing-k/com.nothingsecure/)
 
 
 
-# APK Security V0.3.19-Stardew_Valley.2
-https://www.virustotal.com/gui/file/d339d5209ffb01afb9dcc7a882c19255388cd9b53884ac11124d93889154e164?nocache=1
+# APK Security V0.3.20-Diablo-III
+https://www.virustotal.com/gui/file/9eb5a9215f507086ab0092eae2663d10ec6706916c9173b340d456cb6b8ed77b?nocache=1
 
 # APK Scan V0.3.19-Stardew_Valley.1
 An analysis with MOBFS has also been performed.
