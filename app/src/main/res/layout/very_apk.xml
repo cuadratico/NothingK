@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Verifies the hash of an APK"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/back_global"
+        android:layout_marginBottom="20dp"
+        android:textSize="20dp"
+        android:fontFamily="@font/pixel"
+        android:textAllCaps="false"
+        />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/back_global"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:backgroundTint="@color/b_black"
+        android:background="@drawable/corner_25"
+        >
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/hahs_back"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            app:boxStrokeColor="@color/style_edit_text"
+            android:textColorHint="@color/n_white"
+            app:hintTextColor="@color/n_white"
+            app:cursorColor="@color/n_white"
+            >
+
+            <EditText
+                android:id="@+id/input_hash"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:hint="Hash"
+                android:textColorHint="@color/n_white"
+                android:textColor="@color/n_white"
+                android:fontFamily="monospace"
+                android:maxWidth="200dp"
+                android:maxLines="2"
+                android:layout_marginEnd="20dp"
+                android:gravity="center"
+                android:maxLength="64"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/file_hash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/upload_apk"
+            app:layout_constraintTop_toBottomOf="@id/hahs_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

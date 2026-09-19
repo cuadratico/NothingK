@@ -9,6 +9,16 @@ Nowi has made a form available for submitting formal proposals for the new updat
 # For Nowi, kittens are an essential part of life, so why not help them? 😺
 [![Static Badge](https://img.shields.io/badge/CatDonations-179DE6)](https://docs.google.com/forms/d/e/1FAIpQLSfyW_uUiiXtZy6lkawKgNxcVQ17CC27cNS2-J1uDVjgn8LHLw/viewform?usp=dialog) 
 
+# README with technical explanations in development...
+
+# How can I report a bug in NowiVault?
+Nowi has made a form available for submitting formal proposals for the new update (NowiVault)
+
+[![Static Badge](https://img.shields.io/badge/--NowiVault--Proposal-179DE6)](https://docs.google.com/forms/d/e/1FAIpQLSfyW_uUiiXtZy6lkawKgNxcVQ17CC27cNS2-J1uDVjgn8LHLw/viewform?usp=dialog)
+
+# For Nowi, kittens are an essential part of life, so why not help them? 😺
+[![Static Badge](https://img.shields.io/badge/CatDonations-179DE6)](https://docs.google.com/forms/d/e/1FAIpQLSfyW_uUiiXtZy6lkawKgNxcVQ17CC27cNS2-J1uDVjgn8LHLw/viewform?usp=dialog)
+
 
 
 # NowiVault
@@ -18,7 +28,11 @@ A vault to securely manage your information, with zero intruders, entirely local
 # Where to download NowiVault
 NowiVault is not yet available in any store as it is currently being uploaded, but you can safely download the latest versions of NothingK from these stores.
 
+<<<<<<< Updated upstream
 [![Static Badge](https://img.shields.io/badge/izzyOnDroid-0.3.21--Pokemon_X-179DE6)](https://apt.izzysoft.de/fdroid/index/apk/com.nothingsecure) 
+=======
+[![Static Badge](https://img.shields.io/badge/izzyOnDroid-1.3.23-Nikola_Tesla_C-179DE6)](https://apt.izzysoft.de/fdroid/index/apk/com.nothingsecure)
+>>>>>>> Stashed changes
 
 [![Static Badge](https://img.shields.io/badge/AndroidFreeWare-0.3.21--Pokemon_X-BD7923)](https://www.androidfreeware.net/es/download-nothing-k-apk.html)
 
@@ -26,8 +40,13 @@ NowiVault is not yet available in any store as it is currently being uploaded, b
 
 
 
+<<<<<<< Updated upstream
 # APK Security V1.3.21-Nikola_Tesla
 https://www.virustotal.com/gui/file/82c9270788f97b512390e87031b069b2df2f655317a66d8e370cee586f6bc722?nocache=1
+=======
+# APK Security V1.3.23-Nikola_Tesla_C
+https://www.virustotal.com/gui/file/d83aaf7c76ae6b259647a989c9c10dda6a71b269f49856c90ea99413612065b0?nocache=1
+>>>>>>> Stashed changes
 
 # APK Scan V1.3.21-Nikola_Tesla
 An analysis with MOBFS has also been performed.
@@ -36,10 +55,17 @@ An analysis with MOBFS has also been performed.
 
 
 # Technologies used
+<<<<<<< Updated upstream
  - Languages: Kotlin and SQL
  - Tools: AES256/GCM, ChaCha20-Poly1305, AndroidKeyStore, security and Biometric Library (Android), PBKDF2 (Key derivation algorithm) and Json
 
  ## Screenshots
+=======
+- Languages: Kotlin and SQL
+- Tools: AES256/GCM, ChaCha20-Poly1305, AndroidKeyStore, security and Biometric Library (Android), PBKDF2 (Key derivation algorithm) and Json
+
+## Screenshots
+>>>>>>> Stashed changes
 ||||
 | :---: | :---: | :---: |
 | ![Descripción 1](https://github.com/cuadratico/NothingK/blob/master/fastlane/metadata/android/en-US/images/phoneScreenshots/image_1.png) | ![Descripción 2](https://github.com/cuadratico/NothingK/blob/master/fastlane/metadata/android/en-US/images/phoneScreenshots/image_2.png) | ![Descripción 3](https://github.com/cuadratico/NothingK/blob/master/fastlane/metadata/android/en-US/images/phoneScreenshots/image_3.png) |

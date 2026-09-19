@@ -1,1 +1,1 @@
-Хранилище для надежного локального хранения вашей информации. Полная защита от вторжений.
+Storage for secure local data storage. Complete protection against intrusions.

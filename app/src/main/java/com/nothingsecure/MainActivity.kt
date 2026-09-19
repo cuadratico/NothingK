@@ -1,5 +1,6 @@
 package com.nothingsecure
 
+import android.app.Activity
 import android.app.ComponentCaller
 import android.app.Dialog
 import android.content.DialogInterface
@@ -26,6 +27,9 @@ import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.component1
+import androidx.activity.result.component2
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.toColorInt
@@ -87,7 +91,7 @@ import kotlin.to
 import kotlin.toString
 
 
-const val version_name = "1.3.21-Nikola_Tesla"
+const val version_name = "1.3.23-Nikola_Tesla_C"
 
 
 enum class time_out_state { ready, stop }
@@ -233,33 +237,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         if (pref.getString("init_info", "0.3.18-Animal_Crossing.1") != version_name) {
             create_material_dialog(this,
                 "The \"$version_name\" version includes",
-                "NowiVault is now stable!\n" +
+                "- Implementation of \"MiniFy\" to obfuscate the code.\n" +
                         "\n" +
-                        "This version includes:\n" +
+                        "- Implementation of non-deprecated functions.\n" +
                         "\n" +
-                        "- Integration of ChaCha20\n" +
+                        "- Bug fixes.\n" +
                         "\n" +
-                        "- A new cryptographic key management system. You can store the key in AndroidKeyStore, derive it, or derive it using a zero-knowledge architecture.\n" +
-                        "\n" +
-                        "- A completely revamped interface\n" +
-                        "\n" +
-                        "- Optimization of functions, key management, and data processing\n" +
-                        "\n" +
-                        "- A new progressive encryption system, where the password is encrypted separately from the metadata, preventing memory dump attacks\n" +
-                        "\n" +
-                        "- Added import and export system\n" +
-                        "\n" +
-                        "- Added support for \"NothingK\" (.nk) files\n" +
-                        "\n" +
-                        "- Function fixes and code restructuring to improve readability\n" +
-                        "\n" +
-                        "- Implementation of a settings menu for various configurations\n" +
-                        "\n" +
-                        "- Code fixes, bug resolutions, and improved code readability\n" +
-                        "\n" +
-                        "You can share your feedback directly from NowiVault by tapping the settings button -> the bug icon button \uD83D\uDE01\n" +
-                        "\n" +
-                        "Thank you for your support, and welcome to NowiVault ❤\uFE0F",
+                        "Thank you for using NowiVault ❤\uFE0F",
                 "Thank you",
                 "",
                 {
@@ -751,13 +735,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             import_button.setOnClickListener{
                 t_state = time_out_state.stop
                 pause = true
-
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "*/*"
-                }
-                startActivityForResult(intent, 1001)
                 options_dialog.dismiss()
+
+                import_result.launch(
+                    Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "*/*"
+                    }
+                )
+
             }
 
         }
@@ -1011,95 +997,94 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, caller: ComponentCaller) {
-        super.onActivityResult(requestCode, resultCode, data, caller)
+    private val import_result = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { (code, data) ->
 
-        if (resultCode == -1) {
-            val uri = data!!.data
-            val query = contentResolver.query(uri!!, null, null, null, null, null)
+        if (code == RESULT_CANCELED) {
+            Toast.makeText(this, "No file", Toast.LENGTH_SHORT).show()
+            return@registerForActivityResult
+        }
 
-            if (query!!.moveToFirst()) {
+        val query = contentResolver.query(data?.data!!, null, null, null, null, null)
+        if (query!!.moveToFirst()) {
 
-                val position = query.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                val name = query.getString(position)
+            val position = query.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val name = query.getString(position)
 
-                val nk_very = name.matches(Regex(".*nk.*"))
+            val nk_very = name.matches(Regex(".*nk.*"))
 
-                if (!name.matches(Regex(".*ns.*")) && !nk_very) {
-                    Toast.makeText(this, "The extension is incorrect", Toast.LENGTH_SHORT).show()
-                } else {
+            if (!name.matches(Regex(".*ns.*")) && !nk_very) {
+                Toast.makeText(this, "The extension is incorrect", Toast.LENGTH_SHORT).show()
+            } else {
 
-                    val json_f = JSONObject(
-                        this@MainActivity.contentResolver.openInputStream(uri).use {  arch ->
-                            arch?.bufferedReader()!!.readText()
-                        }
-                    )
+                val json_f = JSONObject(
+                    this.contentResolver.openInputStream(data.data!!).use { arch ->
+                        arch?.bufferedReader()!!.readText()
+                    }
+                )
 
-                    if (json_f.has("salt") && json_f.has("iter") && ((json_f.has("algo") && json_f.has("k_size") && json_f.has("very_key") && json_f.has("data_list")) || (json_f.has("pass_list") && json_f.has("pro")))) {
+                if (json_f.has("salt") && json_f.has("iter") && ((json_f.has("algo") && json_f.has("k_size") && json_f.has("very_key") && json_f.has("data_list")) || (json_f.has("pass_list") && json_f.has("pro")))) {
 
-                        val import_dialog = Dialog(this)
-                        val import_view = create_dialog(this, R.layout.dialog_import, import_dialog)
+                    val import_dialog = Dialog(this)
+                    val import_view = create_dialog(this, R.layout.dialog_import, import_dialog)
 
-                        val import_input_pass = import_view.findViewById<EditText>(R.id.input_pass)
-                        val import_progress = import_view.findViewById<LinearProgressIndicator>(R.id.progress)
+                    val import_input_pass = import_view.findViewById<EditText>(R.id.input_pass)
+                    val import_progress = import_view.findViewById<LinearProgressIndicator>(R.id.progress)
 
-                        val import_visible_button = import_view.findViewById<ConstraintLayout>(R.id.password_visibility)
-                        val import_icon_visible = import_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
+                    val import_visible_button = import_view.findViewById<ConstraintLayout>(R.id.password_visibility)
+                    val import_icon_visible = import_view.findViewById<ShapeableImageView>(R.id.visibility_icon)
 
-                        val import_button = import_view.findViewById<ConstraintLayout>(R.id.unlock_buttom)
+                    val import_button = import_view.findViewById<ConstraintLayout>(R.id.unlock_buttom)
 
-                        import_input_pass.addTextChangedListener { dato ->
-                            entropy(dato.toString(), import_progress)
-                        }
+                    import_input_pass.addTextChangedListener { dato ->
+                        entropy(dato.toString(), import_progress)
+                    }
 
+                    visibility(pref, import_icon_visible, import_input_pass)
+                    import_visible_button.setOnClickListener {
+                        pref.edit().putBoolean("prims", !pref.getBoolean("prims", false)).commit()
                         visibility(pref, import_icon_visible, import_input_pass)
-                        import_visible_button.setOnClickListener {
-                            pref.edit().putBoolean("prims", !pref.getBoolean("prims", false)).commit()
-                            visibility(pref, import_icon_visible, import_input_pass)
-                        }
+                    }
 
-                        if (nk_very) {
-                            create_material_dialog(this@MainActivity, "",
-                                "The architecture of \".nk\" files is not optimized for the \"NowiVault\" architecture; \"NowiVault\" is only optimized for the \".ns\" architecture, which is why the app freezes for a few seconds.",
-                                "Ok",
-                                "", {}, {})
-                        }
+                    if (nk_very) {
+                        create_material_dialog(
+                            this@MainActivity, "",
+                            "The architecture of \".nk\" files is not optimized for the \"NowiVault\" architecture; \"NowiVault\" is only optimized for the \".ns\" architecture, which is why the app freezes for a few seconds.",
+                            "Ok",
+                            "", {}, {})
+                    }
 
-                        import_button.setOnClickListener {
+                    import_button.setOnClickListener {
 
-                            if (import_input_pass.text.isNotEmpty()) {
+                        if (import_input_pass.text.isNotEmpty()) {
 
-                                val (load_dialog, info_dialog) = load("Checking the legitimacy of the key", this@MainActivity)
+                            val (load_dialog, info_dialog) = load("Checking the legitimacy of the key", this@MainActivity)
 
-                                if (auth_json(json_f, import_input_pass.text.toString(), nk_very)) {
+                            if (auth_json(json_f, import_input_pass.text.toString(), nk_very)) {
 
-                                    import_dialog.dismiss()
-                                    dialog_pr_add_re(json_f, null, import_input_pass.text.toString(), nk_very)
-
-                                } else {
-                                    import_input_pass.text.clear()
-                                    Toast.makeText(this, "The password is not valid", Toast.LENGTH_SHORT).show()
-                                }
-                                load_dialog.dismiss()
-
+                                import_dialog.dismiss()
+                                dialog_pr_add_re(json_f, null, import_input_pass.text.toString(), nk_very)
 
                             } else {
-                                Toast.makeText(this, "No password has been specified", Toast.LENGTH_SHORT).show()
+                                import_input_pass.text.clear()
+                                Toast.makeText(this, "The password is not valid", Toast.LENGTH_SHORT).show()
                             }
+                            load_dialog.dismiss()
 
+
+                        } else {
+                            Toast.makeText(this, "No password has been specified", Toast.LENGTH_SHORT).show()
                         }
 
-                    } else {
-                        Toast.makeText(this, "The file structure is not correct", Toast.LENGTH_SHORT).show()
                     }
-                }
 
-            } else {
-                Toast.makeText(this, "File is empty", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "The file structure is not correct", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
 
         } else {
-            Toast.makeText(this, "No file", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Empty file", Toast.LENGTH_SHORT).show()
         }
 
     }

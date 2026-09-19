@@ -1,8 +1,10 @@
 package com.nothingsecure
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.ComponentCaller
 import android.app.Dialog
+import android.app.Instrumentation
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
@@ -25,6 +27,11 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.component1
+import androidx.activity.result.component2
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -53,6 +60,7 @@ import com.nothingsecure.funs_extra.visibility
 import com.nothingsecure.funs_extra.x_regi
 import com.nothingsecure.funs_extra.y_regi
 import com.nothingsecure.funs_extra.z_regi
+import com.nothingsecure.recy_information.project_class
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -367,7 +375,8 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                                                         setIsStrongBoxBacked(true)
                                                     }
 
-                                                }.build())
+                                                }.build()
+                                            )
                                         }.generateKey()
 
                                     } else {
@@ -452,15 +461,17 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
             val file_hahs = view_hash.findViewById<ShapeableImageView>(R.id.file_hash)
 
             file_hahs.setOnClickListener {
-                if (input_hash.text.isEmpty() || Regex(".*sha.*").matches(input_hash.text.toString().lowercase())) {
-                    Toast.makeText(this, "The hash you specified is invalid", Toast.LENGTH_SHORT).show()
-                } else {
+                if (input_hash.text.isNotEmpty() && Regex(".*[0-9a-z]{64}.*").matches(input_hash.text.toString())) {
                     pause = true
                     hash_to_calculate = input_hash.text.toString()
-                    startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+
+                    apk_very_file.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                         addCategory(Intent.CATEGORY_OPENABLE)
                         type = "application/vnd.android.package-archive"
-                    }, 1000)
+                    })
+
+                } else {
+                    Toast.makeText(this, "The hash you specified is invalid", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -468,7 +479,6 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
                 override fun onDismiss(p0: DialogInterface?) {
                     hash_to_calculate = null
                 }
-
             })
 
             create_material_dialog(this, "APK Verifier?", "This APK checker lets you know if the hash you specify matches that of the APK you upload directly from NowiVault. The hash must be calculated using the \"SHA256\" algorithm, and only the hexadecimal representation should be provided.", "", "", {}, {})
@@ -556,18 +566,15 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
-    @ExperimentalStdlibApi
-    override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?,
-        caller: ComponentCaller
-    ) {
-        super.onActivityResult(requestCode, resultCode, data, caller)
+    private var apk_very_file = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { (code, data) ->
+
+        if (code == RESULT_CANCELED) {
+            Toast.makeText(this, "No file", Toast.LENGTH_SHORT).show()
+            return@registerForActivityResult
+        }
 
         val query = contentResolver.query(data?.data!!, null, null, null, null)
-
-        if (requestCode == 1000 && query!!.moveToFirst()) {
+        if (query!!.moveToFirst()) {
 
             val body = contentResolver.openInputStream(data.data!!).use { file ->
                 file?.readBytes()
@@ -577,33 +584,37 @@ class RegisterActivity : AppCompatActivity(), SensorEventListener {
 
             val (load_dialog, load_text) = load("Calculating the Hash", this)
 
-            suspend fun last_calculate (info_match: String = "The hashes have matched", icon: Int = R.drawable.match) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                var info_match = "The hashes have matched"
+                var icon_match = R.drawable.match
+
+                if (!MessageDigest.isEqual(
+                        MessageDigest.getInstance("SHA256").digest(body),
+                        hash_to_calculate!!.hexToByteArray()
+                    )
+                ) {
+                    info_match = "The hash did not match"
+                    icon_match = R.drawable.no_match
+                }
+
                 withContext(Dispatchers.Main) {
                     load_dialog.dismiss()
 
                     val info_dialog = Dialog(this@RegisterActivity)
-                    val view_dialog = create_dialog(this@RegisterActivity, R.layout.alert_dialog, info_dialog)
+                    val view_dialog =
+                        create_dialog(this@RegisterActivity, R.layout.alert_dialog, info_dialog)
 
                     val text_info = view_dialog.findViewById<TextView>(R.id.alert_text)
                     val view_info = view_dialog.findViewById<ShapeableImageView>(R.id.alert_view)
 
                     text_info.text = info_match
-                    view_info.setImageResource(icon)
-
-                }
-            }
-
-            lifecycleScope.launch (Dispatchers.IO){
-                if (MessageDigest.isEqual(MessageDigest.getInstance("SHA256").digest(body), hash_to_calculate!!.hexToByteArray())) {
-                    last_calculate()
-                } else {
-                    last_calculate("The hash did not match", R.drawable.no_match)
+                    view_info.setImageResource(icon_match)
                 }
             }
 
         } else {
-            Toast.makeText(this, "No file has been selected", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Empty file", Toast.LENGTH_SHORT).show()
         }
-    }
 
+    }
 }

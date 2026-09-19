@@ -11,20 +11,21 @@ android {
         applicationId = "com.nothingsecure"
         minSdk = 29
         targetSdk = 36
-        versionCode = 35
-        versionName = "1.3.22-Nikola_Tesla_B"
+        versionCode = 36
+        versionName = "1.3.23-Nikola_Tesla_C"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = true
+            isMinifyEnabled = true
 
+            isShrinkResources = true
             optimization {
                 enable = true
             }
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

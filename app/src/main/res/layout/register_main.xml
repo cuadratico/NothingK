@@ -109,13 +109,13 @@
             android:id="@+id/opor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/matrix"
-            android:text="* * * * * * * * * *"
+            android:fontFamily="monospace"
+            android:text="**********"
             app:layout_constraintEnd_toEndOf="@id/back_pass"
             app:layout_constraintStart_toStartOf="@id/back_pass"
             app:layout_constraintBottom_toTopOf="@id/back_pass"
             android:layout_marginBottom="10dp"
-            android:textSize="20dp"
+            android:textSize="17dp"
             android:textColor="@color/n_blue"
             />
 
