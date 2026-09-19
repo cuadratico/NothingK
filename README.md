@@ -15,7 +15,7 @@ Nowi has made a form available for submitting formal proposals for the new updat
 # Where to download NowiVault
 NowiVault is not yet available in any store as it is currently being uploaded, but you can safely download the latest versions of NothingK from these stores.
 
-[![Static Badge](https://img.shields.io/badge/izzyOnDroid-1.3.23-Nikola_Tesla_C-179DE6)](https://apt.izzysoft.de/fdroid/index/apk/com.nothingsecure)
+[![Static Badge](https://img.shields.io/badge/izzyOnDroid-1.3.23--Nikola_Tesla_C-179DE6)](https://apt.izzysoft.de/fdroid/index/apk/com.nothingsecure)
 
 [![Static Badge](https://img.shields.io/badge/AndroidFreeWare-0.3.21--Pokemon_X-BD7923)](https://www.androidfreeware.net/es/download-nothing-k-apk.html)
 
